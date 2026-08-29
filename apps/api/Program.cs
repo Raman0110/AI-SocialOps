@@ -1,6 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using SocialOps.Api.Shared.Persistence;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+
+builder.Services.AddDbContext<SocialOpsDbContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+    options.UseNpgsql(connectionString);
+});
 
 var app = builder.Build();
 

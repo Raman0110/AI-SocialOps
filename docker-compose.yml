@@ -1,0 +1,74 @@
+services:
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: socialops-postgres
+
+    environment:
+      POSTGRES_DB: socialops
+      POSTGRES_USER: socialops
+      POSTGRES_PASSWORD: socialops
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U socialops -d socialops" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./apps/api
+
+    container_name: socialops-api
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+
+      ConnectionStrings__DefaultConnection: >
+        Host=postgres; Port=5432; Database=socialops; Username=socialops; Password=socialops
+
+      Agent__BaseUrl: http://agent:8000
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  agent:
+    build:
+      context: ./apps/agent
+
+    container_name: socialops-agent
+
+    environment:
+      SOCIALOPS_API_URL: http://api:8080
+
+    ports:
+      - "8000:8000"
+
+  web:
+    build:
+      context: ./apps/web
+
+    container_name: socialops-web
+
+    environment:
+      VITE_API_URL: http://localhost:8080
+
+    ports:
+      - "5173:5173"
+
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
