@@ -14,5 +14,47 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "SocialOps.Api.Features.Organizations.Application.Controllers.OrganizationsController",
+    "Method": "Create",
+    "RelativePath": "api/organizations",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "SocialOps.Api.Features.Organizations.Application.CreateOrganization.CreateOrganizationRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "SocialOps.Api.Features.Organizations.Application.CreateOrganization.CreateOrganizationResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "SocialOps.Api.Features.Organizations.Application.Controllers.OrganizationsController",
+    "Method": "GetById",
+    "RelativePath": "api/organizations/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]

@@ -3,20 +3,48 @@
   "WorkspaceRootPath": "D:\\ai-socialops\\apps\\api\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\shared\\persistence\\socialopsdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:shared\\persistence\\socialopsdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\organizations\\application\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\organizations\\application\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\organizations\\application\\createorganization\\createorganizationrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\organizations\\application\\createorganization\\createorganizationrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\organizations\\application\\createorganization\\createorganizationvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\organizations\\application\\createorganization\\createorganizationvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\organizations\\application\\createorganization\\createorganizationresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\organizations\\application\\createorganization\\createorganizationresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\organizations\\application\\createorganization\\createorganizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\organizations\\application\\createorganization\\createorganizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\organizations\\infrastructure\\organizationrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\organizations\\infrastructure\\organizationrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\organizations\\application\\abstractions\\iorganizationrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\organizations\\application\\abstractions\\iorganizationrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\socialaccounts\\domain\\socialaccount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\socialaccounts\\domain\\socialaccount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\shared\\persistence\\socialopsdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:shared\\persistence\\socialopsdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\socialaccounts\\infrastructure\\socialaccountconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -54,7 +82,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -82,26 +110,52 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "D:\\ai-socialops\\apps\\api\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-08-29T04:40:00.205Z",
+              "DocumentIndex": 2,
+              "Title": "CreateOrganizationRequest.cs",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationRequest.cs",
+              "RelativeDocumentMoniker": "Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationRequest.cs",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationRequest.cs",
+              "RelativeToolTip": "Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-29T06:40:54.951Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "OrganizationController.cs",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\Controllers\\OrganizationController.cs",
+              "RelativeDocumentMoniker": "Features\\Organizations\\Application\\Controllers\\OrganizationController.cs",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\Controllers\\OrganizationController.cs",
+              "RelativeToolTip": "Features\\Organizations\\Application\\Controllers\\OrganizationController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-29T06:16:50.643Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "CreateOrganizationService.cs",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationService.cs",
+              "RelativeDocumentMoniker": "Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationService.cs",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationService.cs",
+              "RelativeToolTip": "Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationService.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAxwCkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-29T06:14:36.213Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "D:\\ai-socialops\\apps\\api\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADAAAAAAAAAAAAAAAC8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-08-29T04:39:17.075Z",
               "EditorCaption": ""
@@ -109,19 +163,84 @@
             {
               "$type": "Document",
               "DocumentIndex": 3,
+              "Title": "CreateOrganizationValidator.cs",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationValidator.cs",
+              "RelativeDocumentMoniker": "Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationValidator.cs",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationValidator.cs",
+              "RelativeToolTip": "Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationValidator.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-29T06:41:17.112Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CreateOrganizationResponse.cs",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationResponse.cs",
+              "RelativeDocumentMoniker": "Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationResponse.cs",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationResponse.cs",
+              "RelativeToolTip": "Features\\Organizations\\Application\\CreateOrganization\\CreateOrganizationResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-29T06:41:07.351Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "OrganizationRepository.cs",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Infrastructure\\OrganizationRepository.cs",
+              "RelativeDocumentMoniker": "Features\\Organizations\\Infrastructure\\OrganizationRepository.cs",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Infrastructure\\OrganizationRepository.cs",
+              "RelativeToolTip": "Features\\Organizations\\Infrastructure\\OrganizationRepository.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABUAAABjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-29T06:01:54.876Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "IOrganizationRepository.cs",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\Abstractions\\IOrganizationRepository.cs",
+              "RelativeDocumentMoniker": "Features\\Organizations\\Application\\Abstractions\\IOrganizationRepository.cs",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\Abstractions\\IOrganizationRepository.cs",
+              "RelativeToolTip": "Features\\Organizations\\Application\\Abstractions\\IOrganizationRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-29T05:59:57.166Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-29T04:40:00.205Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "SocialAccount.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Domain\\SocialAccount.cs",
               "RelativeDocumentMoniker": "Features\\SocialAccounts\\Domain\\SocialAccount.cs",
               "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Domain\\SocialAccount.cs",
               "RelativeToolTip": "Features\\SocialAccounts\\Domain\\SocialAccount.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAABQAAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAxwBIAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-08-29T04:36:24.423Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 14,
               "Title": "OrganizationConfigurations.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Infrastructure\\OrganizationConfigurations.cs",
               "RelativeDocumentMoniker": "Features\\Organizations\\Infrastructure\\OrganizationConfigurations.cs",
@@ -134,7 +253,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 10,
               "Title": "SocialOpsDbContext.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Shared\\Persistence\\SocialOpsDbContext.cs",
               "RelativeDocumentMoniker": "Shared\\Persistence\\SocialOpsDbContext.cs",
@@ -147,7 +266,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 13,
               "Title": "SocialIdentityConfiguration.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Customers\\Infrastructure\\SocialIdentityConfiguration.cs",
               "RelativeDocumentMoniker": "Features\\Customers\\Infrastructure\\SocialIdentityConfiguration.cs",
@@ -160,7 +279,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 12,
               "Title": "CustomerConfiguration.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Customers\\Infrastructure\\CustomerConfiguration.cs",
               "RelativeDocumentMoniker": "Features\\Customers\\Infrastructure\\CustomerConfiguration.cs",
@@ -173,20 +292,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 11,
               "Title": "SocialAccountConfiguration.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Infrastructure\\SocialAccountConfiguration.cs",
               "RelativeDocumentMoniker": "Features\\SocialAccounts\\Infrastructure\\SocialAccountConfiguration.cs",
               "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Infrastructure\\SocialAccountConfiguration.cs",
               "RelativeToolTip": "Features\\SocialAccounts\\Infrastructure\\SocialAccountConfiguration.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAYAAAAuAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAIBJwAYAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-08-29T04:26:35.574Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 15,
               "Title": "ConversationConfiguration.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Conversations\\Infrastructure\\ConversationConfiguration.cs",
               "RelativeDocumentMoniker": "Features\\Conversations\\Infrastructure\\ConversationConfiguration.cs",
@@ -199,7 +318,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 16,
               "Title": "MessageConfiguration.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Conversations\\Infrastructure\\MessageConfiguration.cs",
               "RelativeDocumentMoniker": "Features\\Conversations\\Infrastructure\\MessageConfiguration.cs",
@@ -212,13 +331,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 17,
               "Title": "Conversation.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Conversations\\Domain\\Conversation.cs",
               "RelativeDocumentMoniker": "Features\\Conversations\\Domain\\Conversation.cs",
               "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Conversations\\Domain\\Conversation.cs",
               "RelativeToolTip": "Features\\Conversations\\Domain\\Conversation.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAYwBQAAAA+AAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAA1wBQAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-08-29T04:30:55.185Z",
               "EditorCaption": ""

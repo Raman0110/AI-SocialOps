@@ -1,9 +1,16 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using SocialOps.Api.Features.Organizations.Application.Abstractions;
+using SocialOps.Api.Features.Organizations.Application.Controllers;
+using SocialOps.Api.Features.Organizations.Application.CreateOrganization;
+using SocialOps.Api.Features.Organizations.Infrastructure;
 using SocialOps.Api.Shared.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+
+builder.Services.AddControllers();
 
 builder.Services.AddDbContext<SocialOpsDbContext>(options =>
 {
@@ -11,6 +18,14 @@ builder.Services.AddDbContext<SocialOpsDbContext>(options =>
 
     options.UseNpgsql(connectionString);
 });
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+builder.Services.AddScoped<IOrganizationRepository,OrganizationRepository>();
+
+builder.Services.AddScoped<CreateOrganizationService>();
+
+builder.Services.AddScoped<OrganizationsController>();
 
 var app = builder.Build();
 
@@ -28,5 +43,7 @@ app.MapGet("/api/health", () =>
         timestamp = DateTime.UtcNow
     });
 });
+
+app.MapControllers();
 
 app.Run();
