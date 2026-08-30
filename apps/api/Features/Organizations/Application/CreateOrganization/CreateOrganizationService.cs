@@ -12,13 +12,13 @@ public sealed class CreateOrganizationService
         _repository = repository;
     }
 
-    public async Task<CreateOrganizationResponse> CreateAsync(CreateOrganizationRequest request, CancellationToken cancellationToken)
+    public async Task<CreateOrganizationResponse> CreateAsync(CreateOrganizationRequest request, CancellationToken cancellationToken = default)
     {
         var name = request.Name.Trim();
 
-        var alreadyExists = await _repository.ExistsByNameAsync(name, cancellationToken);
+        var exists = await _repository.ExistsByNameAsync(name, cancellationToken);
 
-        if (alreadyExists)
+        if (exists)
         {
             throw new InvalidOperationException("An organization with this name already exists.");
         }
@@ -38,5 +38,30 @@ public sealed class CreateOrganizationService
             organization.Id,
             organization.Name,
             organization.CreatedAt);
+    }
+
+    public async Task<CreateOrganizationResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var organization = await _repository.GetByIdAsync(id, cancellationToken);
+
+        if (organization == null)
+        {
+            return null;
+        }
+
+        return new CreateOrganizationResponse(
+            organization.Id,
+            organization.Name,
+            organization.CreatedAt);
+    }
+
+    public async Task<IReadOnlyList<CreateOrganizationResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        var organizations = await _repository.GetAllAsync(cancellationToken);
+
+        return organizations.Select(x => new CreateOrganizationResponse(
+                x.Id,
+                x.Name,
+                x.CreatedAt)).ToList();
     }
 }

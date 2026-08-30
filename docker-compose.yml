@@ -31,8 +31,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
 
-      ConnectionStrings__DefaultConnection: >
-        Host=postgres; Port=5432; Database=socialops; Username=socialops; Password=socialops
+      ConnectionStrings__DefaultConnection: Host=postgres; Port=5432; Database=socialops; Username=socialops; Password=socialops
 
       Agent__BaseUrl: http://agent:8000
 

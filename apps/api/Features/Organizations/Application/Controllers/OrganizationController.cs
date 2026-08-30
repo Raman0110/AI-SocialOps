@@ -2,18 +2,20 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.Organizations.Application.CreateOrganization;
 
-namespace SocialOps.Api.Features.Organizations.Application.Controllers;
+namespace SocialOps.Api.Features.Organizations.Controllers;
 
 [ApiController]
 [Route("api/organizations")]
 public sealed class OrganizationsController : ControllerBase
 {
-    private readonly CreateOrganizationService _service;
+    private readonly CreateOrganizationService _createService;
     private readonly IValidator<CreateOrganizationRequest> _validator;
 
-    public OrganizationsController(CreateOrganizationService service, IValidator<CreateOrganizationRequest> validator)
+    public OrganizationsController(
+        CreateOrganizationService createService,
+        IValidator<CreateOrganizationRequest> validator)
     {
-        _service = service;
+        _createService = createService;
         _validator = validator;
     }
 
@@ -27,17 +29,31 @@ public sealed class OrganizationsController : ControllerBase
             return ValidationProblem(new ValidationProblemDetails(validationResult.ToDictionary()));
         }
 
-        var response = await _service.CreateAsync(request, cancellationToken);
+        var response = await _createService.CreateAsync(request, cancellationToken);
 
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = response.Id },
-            response);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
     [HttpGet("{id:guid}")]
-    public IActionResult GetById(Guid id)
+    public async Task<ActionResult<CreateOrganizationService>> GetById(
+        Guid id,
+        CancellationToken cancellationToken)
     {
-        return Ok();
+        var response = await _createService.GetByIdAsync(id, cancellationToken);
+
+        if (response is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<CreateOrganizationService>>> GetAll(CancellationToken cancellationToken)
+    {
+        var response = await _createService.GetAllAsync(cancellationToken);
+
+        return Ok(response);
     }
 }

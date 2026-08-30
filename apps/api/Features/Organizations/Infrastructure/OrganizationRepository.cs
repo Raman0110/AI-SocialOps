@@ -21,14 +21,21 @@ public sealed class OrganizationRepository: IOrganizationRepository
 
     public Task<Organization?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Organizations
-            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        return _dbContext.Organizations.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Organization>> GetAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Organizations
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
     }
 
     public Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Organizations
-            .AnyAsync(x => x.Name == name, cancellationToken);
+        return _dbContext.Organizations.AnyAsync(x => x.Name == name, cancellationToken);
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)

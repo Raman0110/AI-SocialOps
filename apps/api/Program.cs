@@ -1,8 +1,8 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SocialOps.Api.Features.Organizations.Application.Abstractions;
-using SocialOps.Api.Features.Organizations.Application.Controllers;
 using SocialOps.Api.Features.Organizations.Application.CreateOrganization;
+using SocialOps.Api.Features.Organizations.Controllers;
 using SocialOps.Api.Features.Organizations.Infrastructure;
 using SocialOps.Api.Shared.Persistence;
 
@@ -27,6 +27,9 @@ builder.Services.AddScoped<CreateOrganizationService>();
 
 builder.Services.AddScoped<OrganizationsController>();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -34,15 +37,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.MapGet("/api/health", () =>
-{
-    return Results.Ok(new
-    {
-        service = "socialops-api",
-        status = "healthy",
-        timestamp = DateTime.UtcNow
-    });
-});
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapControllers();
 

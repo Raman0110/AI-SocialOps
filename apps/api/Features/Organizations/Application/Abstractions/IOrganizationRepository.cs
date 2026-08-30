@@ -8,6 +8,8 @@ public interface IOrganizationRepository
 
     Task<Organization?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Organization>> GetAllAsync(CancellationToken cancellationToken = default);
+
     Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default);
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);

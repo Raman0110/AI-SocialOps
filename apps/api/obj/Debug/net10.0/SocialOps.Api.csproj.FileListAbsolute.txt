@@ -124,3 +124,6 @@ D:\ai-socialops\apps\api\obj\Debug\net10.0\SocialOps.Api.sourcelink.json
 D:\ai-socialops\apps\api\bin\Debug\net10.0\FluentValidation.dll
 D:\ai-socialops\apps\api\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 D:\ai-socialops\apps\api\bin\Debug\net10.0\FluentValidation.DependencyInjectionExtensions.dll
+D:\ai-socialops\apps\api\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+D:\ai-socialops\apps\api\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+D:\ai-socialops\apps\api\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
