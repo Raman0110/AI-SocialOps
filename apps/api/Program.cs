@@ -1,8 +1,10 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using SocialOps.Api.Features.Customers.Application.Abstractions;
+using SocialOps.Api.Features.Customers.Application.Services;
+using SocialOps.Api.Features.Customers.Infrastructure;
 using SocialOps.Api.Features.Organizations.Application.Abstractions;
 using SocialOps.Api.Features.Organizations.Application.CreateOrganization;
-using SocialOps.Api.Features.Organizations.Controllers;
 using SocialOps.Api.Features.Organizations.Infrastructure;
 using SocialOps.Api.Shared.Persistence;
 
@@ -23,10 +25,12 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddScoped<IOrganizationRepository,OrganizationRepository>();
 
+builder.Services.AddScoped<ICustomerRepository,CustomerRepository>();
+
 builder.Services.AddScoped<CreateOrganizationService>();
 
-builder.Services.AddScoped<OrganizationsController>();
-
+builder.Services.AddScoped<CustomerService>();
+    ;
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
