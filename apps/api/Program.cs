@@ -4,7 +4,7 @@ using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.Customers.Application.Services;
 using SocialOps.Api.Features.Customers.Infrastructure;
 using SocialOps.Api.Features.Organizations.Application.Abstractions;
-using SocialOps.Api.Features.Organizations.Application.CreateOrganization;
+using SocialOps.Api.Features.Organizations.Application.Services;
 using SocialOps.Api.Features.Organizations.Infrastructure;
 using SocialOps.Api.Shared.Persistence;
 

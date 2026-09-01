@@ -22,7 +22,7 @@ public sealed class CustomersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CreateCustomerResponse>> Create(
+    public async Task<ActionResult<CustomerResponse>> Create(
         [FromBody] CreateCustomerRequest request,
         CancellationToken cancellationToken)
     {
@@ -42,7 +42,7 @@ public sealed class CustomersController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<CreateCustomerResponse>> GetById(
+    public async Task<ActionResult<CustomerResponse>> GetById(
         Guid id,
         CancellationToken cancellationToken)
     {
@@ -57,7 +57,7 @@ public sealed class CustomersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<CreateCustomerResponse>>> GetAll(
+    public async Task<ActionResult<IReadOnlyList<CustomerResponse>>> GetAll(
         [FromQuery] Guid organizationId,
         CancellationToken cancellationToken)
     {

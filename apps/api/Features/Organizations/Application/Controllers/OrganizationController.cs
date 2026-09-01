@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.Organizations.Application.CreateOrganization;
+using SocialOps.Api.Features.Organizations.Application.Services;
 
 namespace SocialOps.Api.Features.Organizations.Controllers;
 
@@ -20,7 +21,7 @@ public sealed class OrganizationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CreateOrganizationResponse>> Create([FromBody] CreateOrganizationRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<OrganizationResponse>> Create([FromBody] CreateOrganizationRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
 

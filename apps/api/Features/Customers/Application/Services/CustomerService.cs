@@ -19,7 +19,7 @@ public sealed class CustomerService
         _organizationRepository = organizationRepository;
     }
 
-    public async Task<CreateCustomerResponse> CreateAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default)
+    public async Task<CustomerResponse> CreateAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default)
     {
         var organization = await _organizationRepository.GetByIdAsync(
             request.OrganizationId,
@@ -59,7 +59,7 @@ public sealed class CustomerService
 
         await _customerRepository.SaveChangesAsync(cancellationToken);
 
-        return new CreateCustomerResponse(
+        return new CustomerResponse(
             customer.Id,
             customer.OrganizationId,
             customer.Name,
@@ -68,7 +68,7 @@ public sealed class CustomerService
             customer.CreatedAt);
     }
 
-    public async Task<CreateCustomerResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<CustomerResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var customer = await _customerRepository.GetByIdAsync(id, cancellationToken);
 
@@ -77,7 +77,7 @@ public sealed class CustomerService
             return null;
         }
 
-        return new CreateCustomerResponse(
+        return new CustomerResponse(
             customer.Id,
             customer.OrganizationId,
             customer.Name,
@@ -86,12 +86,12 @@ public sealed class CustomerService
             customer.CreatedAt);
     }
 
-    public async Task<IReadOnlyList<CreateCustomerResponse>> GetByOrganizationIdAsync(Guid organizationId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<CustomerResponse>> GetByOrganizationIdAsync(Guid organizationId, CancellationToken cancellationToken = default)
     {
         var customers = await _customerRepository.GetByOrganizationIdAsync(organizationId, cancellationToken);
 
         return customers
-            .Select(x => new CreateCustomerResponse(
+            .Select(x => new CustomerResponse(
                 x.Id,
                 x.OrganizationId,
                 x.Name,

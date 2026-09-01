@@ -1,7 +1,8 @@
 ﻿using SocialOps.Api.Features.Organizations.Application.Abstractions;
+using SocialOps.Api.Features.Organizations.Application.CreateOrganization;
 using SocialOps.Api.Features.Organizations.Domain;
 
-namespace SocialOps.Api.Features.Organizations.Application.CreateOrganization;
+namespace SocialOps.Api.Features.Organizations.Application.Services;
 
 public sealed class CreateOrganizationService
 {
@@ -12,7 +13,7 @@ public sealed class CreateOrganizationService
         _repository = repository;
     }
 
-    public async Task<CreateOrganizationResponse> CreateAsync(CreateOrganizationRequest request, CancellationToken cancellationToken = default)
+    public async Task<OrganizationResponse> CreateAsync(CreateOrganizationRequest request, CancellationToken cancellationToken = default)
     {
         var name = request.Name.Trim();
 
@@ -34,13 +35,13 @@ public sealed class CreateOrganizationService
 
         await _repository.SaveChangesAsync(cancellationToken);
 
-        return new CreateOrganizationResponse(
+        return new OrganizationResponse(
             organization.Id,
             organization.Name,
             organization.CreatedAt);
     }
 
-    public async Task<CreateOrganizationResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<OrganizationResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var organization = await _repository.GetByIdAsync(id, cancellationToken);
 
@@ -49,17 +50,17 @@ public sealed class CreateOrganizationService
             return null;
         }
 
-        return new CreateOrganizationResponse(
+        return new OrganizationResponse(
             organization.Id,
             organization.Name,
             organization.CreatedAt);
     }
 
-    public async Task<IReadOnlyList<CreateOrganizationResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<OrganizationResponse>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var organizations = await _repository.GetAllAsync(cancellationToken);
 
-        return organizations.Select(x => new CreateOrganizationResponse(
+        return organizations.Select(x => new OrganizationResponse(
                 x.Id,
                 x.Name,
                 x.CreatedAt)).ToList();

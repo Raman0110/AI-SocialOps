@@ -1,6 +1,6 @@
 ﻿namespace SocialOps.Api.Features.Customers.Application.CreateCustomer;
 
-public sealed record CreateCustomerResponse(
+public sealed record CustomerResponse(
     Guid Id,
     Guid OrganizationId,
     string Name,
