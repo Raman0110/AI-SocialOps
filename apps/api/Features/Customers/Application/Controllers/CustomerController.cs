@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.Customers.Application.CreateCustomer;
+using SocialOps.Api.Features.Customers.Application.Dtos;
 using SocialOps.Api.Features.Customers.Application.Services;
 
 

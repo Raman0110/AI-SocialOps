@@ -1,6 +1,7 @@
 ﻿
 using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.Customers.Application.CreateCustomer;
+using SocialOps.Api.Features.Customers.Application.Dtos;
 using SocialOps.Api.Features.Customers.Domain;
 using SocialOps.Api.Features.Organizations.Application.Abstractions;
 
@@ -25,10 +26,7 @@ public sealed class CustomerService
             request.OrganizationId,
             cancellationToken);
 
-        if (organization is null)
-        {
-            throw new InvalidOperationException("Organization does not exist.");
-        }
+        if (organization is null) throw new InvalidOperationException("Organization does not exist.");
 
         var email = request.Email?.Trim();
 
@@ -39,10 +37,7 @@ public sealed class CustomerService
                     email,
                     cancellationToken);
 
-            if (emailExists)
-            {
-                throw new InvalidOperationException("A customer with this email already exists.");
-            }
+            if (emailExists) throw new InvalidOperationException("A customer with this email already exists.");
         }
 
         var customer = new Customer
@@ -72,10 +67,7 @@ public sealed class CustomerService
     {
         var customer = await _customerRepository.GetByIdAsync(id, cancellationToken);
 
-        if (customer is null)
-        {
-            return null;
-        }
+        if (customer is null) return null;
 
         return new CustomerResponse(
             customer.Id,

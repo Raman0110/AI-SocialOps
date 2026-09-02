@@ -15,7 +15,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "SocialOps.Api.Features.Customers.Application.CreateCustomer.CreateCustomerResponse",
+        "Type": "SocialOps.Api.Features.Customers.Application.Dtos.CustomerResponse",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -41,7 +41,64 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[SocialOps.Api.Features.Customers.Application.CreateCustomer.CreateCustomerResponse, SocialOps.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[SocialOps.Api.Features.Customers.Application.Dtos.CustomerResponse, SocialOps.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "SocialOps.Api.Features.Customers.Controllers.SocialIdentitiesController",
+    "Method": "Create",
+    "RelativePath": "api/customers/{customerId}/social-identities",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "customerId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "SocialOps.Api.Features.Customers.Application.Dtos.CreateSocialIdentity.CreateSocialIdentityRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "SocialOps.Api.Features.Customers.Application.Dtos.SocialIdentityResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "SocialOps.Api.Features.Customers.Controllers.SocialIdentitiesController",
+    "Method": "GetAll",
+    "RelativePath": "api/customers/{customerId}/social-identities",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "customerId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[SocialOps.Api.Features.Customers.Application.Dtos.SocialIdentityResponse, SocialOps.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -67,7 +124,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "SocialOps.Api.Features.Customers.Application.CreateCustomer.CreateCustomerResponse",
+        "Type": "SocialOps.Api.Features.Customers.Application.Dtos.CustomerResponse",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -93,7 +150,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "SocialOps.Api.Features.Organizations.Application.CreateOrganization.CreateOrganizationResponse",
+        "Type": "SocialOps.Api.Features.Organizations.Application.CreateOrganization.OrganizationResponse",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -113,7 +170,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[SocialOps.Api.Features.Organizations.Application.CreateOrganization.CreateOrganizationService, SocialOps.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IReadOnlyList\u00601[[SocialOps.Api.Features.Organizations.Application.Services.CreateOrganizationService, SocialOps.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -139,7 +196,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "SocialOps.Api.Features.Organizations.Application.CreateOrganization.CreateOrganizationService",
+        "Type": "SocialOps.Api.Features.Organizations.Application.Services.CreateOrganizationService",
         "MediaTypes": [
           "text/plain",
           "application/json",

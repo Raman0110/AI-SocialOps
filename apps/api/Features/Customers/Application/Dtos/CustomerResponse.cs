@@ -1,4 +1,4 @@
-﻿namespace SocialOps.Api.Features.Customers.Application.CreateCustomer;
+﻿namespace SocialOps.Api.Features.Customers.Application.Dtos;
 
 public sealed record CustomerResponse(
     Guid Id,

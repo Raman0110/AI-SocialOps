@@ -35,17 +35,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateCustomerResponse"
+                  "$ref": "#/components/schemas/CustomerResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateCustomerResponse"
+                  "$ref": "#/components/schemas/CustomerResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateCustomerResponse"
+                  "$ref": "#/components/schemas/CustomerResponse"
                 }
               }
             }
@@ -74,7 +74,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/CreateCustomerResponse"
+                    "$ref": "#/components/schemas/CustomerResponse"
                   }
                 }
               },
@@ -82,7 +82,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/CreateCustomerResponse"
+                    "$ref": "#/components/schemas/CustomerResponse"
                   }
                 }
               },
@@ -90,7 +90,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/CreateCustomerResponse"
+                    "$ref": "#/components/schemas/CustomerResponse"
                   }
                 }
               }
@@ -121,17 +121,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateCustomerResponse"
+                  "$ref": "#/components/schemas/CustomerResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateCustomerResponse"
+                  "$ref": "#/components/schemas/CustomerResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateCustomerResponse"
+                  "$ref": "#/components/schemas/CustomerResponse"
                 }
               }
             }
@@ -169,17 +169,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateOrganizationResponse"
+                  "$ref": "#/components/schemas/OrganizationResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateOrganizationResponse"
+                  "$ref": "#/components/schemas/OrganizationResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateOrganizationResponse"
+                  "$ref": "#/components/schemas/OrganizationResponse"
                 }
               }
             }
@@ -262,6 +262,112 @@
           }
         }
       }
+    },
+    "/api/customers/{customerId}/social-identities": {
+      "post": {
+        "tags": [
+          "SocialIdentities"
+        ],
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSocialIdentityRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSocialIdentityRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSocialIdentityRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocialIdentityResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocialIdentityResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocialIdentityResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "SocialIdentities"
+        ],
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SocialIdentityResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SocialIdentityResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SocialIdentityResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -288,7 +394,42 @@
         },
         "additionalProperties": false
       },
-      "CreateCustomerResponse": {
+      "CreateOrganizationRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateOrganizationService": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CreateSocialIdentityRequest": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "platform": {
+            "$ref": "#/components/schemas/SocialPlatform"
+          },
+          "externalUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CustomerResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -318,17 +459,7 @@
         },
         "additionalProperties": false
       },
-      "CreateOrganizationRequest": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreateOrganizationResponse": {
+      "OrganizationResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -346,9 +477,45 @@
         },
         "additionalProperties": false
       },
-      "CreateOrganizationService": {
+      "SocialIdentityResponse": {
         "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "customerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "platform": {
+            "$ref": "#/components/schemas/SocialPlatform"
+          },
+          "externalUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
         "additionalProperties": false
+      },
+      "SocialPlatform": {
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "type": "integer",
+        "format": "int32"
       }
     }
   },
@@ -358,6 +525,9 @@
     },
     {
       "name": "Organizations"
+    },
+    {
+      "name": "SocialIdentities"
     }
   ]
 }
