@@ -4,11 +4,11 @@ using SocialOps.Api.Features.Organizations.Domain;
 
 namespace SocialOps.Api.Features.Organizations.Application.Services;
 
-public sealed class CreateOrganizationService
+public sealed class OrganizationService
 {
     private readonly IOrganizationRepository _repository;
 
-    public CreateOrganizationService(IOrganizationRepository repository)
+    public OrganizationService(IOrganizationRepository repository)
     {
         _repository = repository;
     }

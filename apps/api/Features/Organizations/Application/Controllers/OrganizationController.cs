@@ -9,11 +9,11 @@ namespace SocialOps.Api.Features.Organizations.Controllers;
 [Route("api/organizations")]
 public sealed class OrganizationsController : ControllerBase
 {
-    private readonly CreateOrganizationService _createService;
+    private readonly OrganizationService _createService;
     private readonly IValidator<CreateOrganizationRequest> _validator;
 
     public OrganizationsController(
-        CreateOrganizationService createService,
+        OrganizationService createService,
         IValidator<CreateOrganizationRequest> validator)
     {
         _createService = createService;
@@ -36,7 +36,7 @@ public sealed class OrganizationsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<CreateOrganizationService>> GetById(
+    public async Task<ActionResult<OrganizationService>> GetById(
         Guid id,
         CancellationToken cancellationToken)
     {
@@ -51,7 +51,7 @@ public sealed class OrganizationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<CreateOrganizationService>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyList<OrganizationService>>> GetAll(CancellationToken cancellationToken)
     {
         var response = await _createService.GetAllAsync(cancellationToken);
 
