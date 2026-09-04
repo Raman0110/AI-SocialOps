@@ -3,36 +3,24 @@
   "WorkspaceRootPath": "D:\\ai-socialops\\apps\\api\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\conversations\\infrastructure\\conversationconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\conversations\\infrastructure\\conversationconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\customers\\domain\\socialidentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\customers\\domain\\socialidentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\conversations\\domain\\conversation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\conversations\\domain\\conversation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\organizations\\application\\services\\organizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\organizations\\application\\services\\organizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\socialaccounts\\application\\controllers\\socialaccountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\socialaccounts\\application\\controllers\\socialaccountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\socialaccounts\\application\\services\\socialaccountservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\socialaccounts\\application\\services\\socialaccountservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\socialaccounts\\application\\dtos\\socialaccountresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\socialaccounts\\application\\dtos\\socialaccountresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\socialaccounts\\domain\\socialaccount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\socialaccounts\\domain\\socialaccount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\socialaccounts\\infrastructure\\socialaccountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\socialaccounts\\infrastructure\\socialaccountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\socialaccounts\\application\\dtos\\createsocialaccountvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|solutionrelative:features\\socialaccounts\\application\\dtos\\createsocialaccountvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{13C6C006-E345-2753-AB92-74AB4D7AE591}|SocialOps.Api.csproj|d:\\ai-socialops\\apps\\api\\features\\socialaccounts\\application\\dtos\\createsocialaccountrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -46,21 +34,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 15,
+          "SelectedChildIndex": 7,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "OrganizationService.cs",
-              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\Services\\OrganizationService.cs",
-              "RelativeDocumentMoniker": "Features\\Organizations\\Application\\Services\\OrganizationService.cs",
-              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Organizations\\Application\\Services\\OrganizationService.cs",
-              "RelativeToolTip": "Features\\Organizations\\Application\\Services\\OrganizationService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAATAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-03T18:04:09.842Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:2:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
@@ -91,68 +66,46 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "SocialAccountController.cs",
-              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Application\\Controllers\\SocialAccountController.cs",
-              "RelativeDocumentMoniker": "Features\\SocialAccounts\\Application\\Controllers\\SocialAccountController.cs",
-              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Application\\Controllers\\SocialAccountController.cs",
-              "RelativeToolTip": "Features\\SocialAccounts\\Application\\Controllers\\SocialAccountController.cs",
-              "ViewState": "AgIAAAQAAAAAAAAAAAAcwBcAAABCAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "ConversationConfiguration.cs",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Conversations\\Infrastructure\\ConversationConfiguration.cs",
+              "RelativeDocumentMoniker": "Features\\Conversations\\Infrastructure\\ConversationConfiguration.cs",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Conversations\\Infrastructure\\ConversationConfiguration.cs",
+              "RelativeToolTip": "Features\\Conversations\\Infrastructure\\ConversationConfiguration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-03T18:00:25.268Z",
+              "WhenOpened": "2026-09-04T13:53:52.5Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SocialIdentity.cs",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Customers\\Domain\\SocialIdentity.cs",
+              "RelativeDocumentMoniker": "Features\\Customers\\Domain\\SocialIdentity.cs",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Customers\\Domain\\SocialIdentity.cs",
+              "RelativeToolTip": "Features\\Customers\\Domain\\SocialIdentity.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAAAAsAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-04T13:51:53.856Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Conversation.cs",
+              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\Conversations\\Domain\\Conversation.cs",
+              "RelativeDocumentMoniker": "Features\\Conversations\\Domain\\Conversation.cs",
+              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\Conversations\\Domain\\Conversation.cs",
+              "RelativeToolTip": "Features\\Conversations\\Domain\\Conversation.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAkwB4AAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-04T13:49:02.94Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "SocialAccount.cs",
-              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Domain\\SocialAccount.cs",
-              "RelativeDocumentMoniker": "Features\\SocialAccounts\\Domain\\SocialAccount.cs",
-              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Domain\\SocialAccount.cs",
-              "RelativeToolTip": "Features\\SocialAccounts\\Domain\\SocialAccount.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAgAAAAQAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-03T17:58:12.6Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "SocialAccountService.cs",
-              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Application\\Services\\SocialAccountService.cs",
-              "RelativeDocumentMoniker": "Features\\SocialAccounts\\Application\\Services\\SocialAccountService.cs",
-              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Application\\Services\\SocialAccountService.cs",
-              "RelativeToolTip": "Features\\SocialAccounts\\Application\\Services\\SocialAccountService.cs",
-              "ViewState": "AgIAAFYAAAAAAAAAAAAswGMAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-03T17:51:33.796Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "SocialAccountResponse.cs",
-              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Application\\Dtos\\SocialAccountResponse.cs",
-              "RelativeDocumentMoniker": "Features\\SocialAccounts\\Application\\Dtos\\SocialAccountResponse.cs",
-              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Application\\Dtos\\SocialAccountResponse.cs",
-              "RelativeToolTip": "Features\\SocialAccounts\\Application\\Dtos\\SocialAccountResponse.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAwAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-03T17:50:19.512Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "CreateSocialAccountValidator.cs",
-              "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Application\\Dtos\\CreateSocialAccountValidator.cs",
-              "RelativeDocumentMoniker": "Features\\SocialAccounts\\Application\\Dtos\\CreateSocialAccountValidator.cs",
-              "ToolTip": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Application\\Dtos\\CreateSocialAccountValidator.cs",
-              "RelativeToolTip": "Features\\SocialAccounts\\Application\\Dtos\\CreateSocialAccountValidator.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAXAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-03T17:49:30.459Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
               "Title": "CreateSocialAccountRequest.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Application\\Dtos\\CreateSocialAccountRequest.cs",
               "RelativeDocumentMoniker": "Features\\SocialAccounts\\Application\\Dtos\\CreateSocialAccountRequest.cs",
@@ -164,7 +117,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 4,
               "Title": "SocialAccountRepository.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Features\\SocialAccounts\\Infrastructure\\SocialAccountRepository.cs",
               "RelativeDocumentMoniker": "Features\\SocialAccounts\\Infrastructure\\SocialAccountRepository.cs",
@@ -176,13 +129,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\ai-socialops\\apps\\api\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "D:\\ai-socialops\\apps\\api\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAAAAC0AAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAAAQAAAAAAAAAAAASwBoAAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-08-30T16:03:42.162Z",
               "EditorCaption": ""
