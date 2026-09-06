@@ -22,6 +22,13 @@ namespace SocialOps.Api.Features.Customers.Infrastructure
             await _dbSet.AddAsync(socialIdentity, cancellationToken);
         }
 
+        public Task<SocialIdentity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return _dbSet
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        }
+
         public async Task<IReadOnlyList<SocialIdentity>> GetByCustomerIdAsync(
             Guid customerId,
             CancellationToken cancellationToken = default)

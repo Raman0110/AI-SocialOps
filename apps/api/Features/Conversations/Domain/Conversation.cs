@@ -14,6 +14,8 @@ public class Conversation
 
     public Guid SocialAccountId { get; set; }
 
+    public Guid SocialIdentityId { get; set; }
+
     public ConversationStatus Status { get; set; } = ConversationStatus.Open;
 
     public string? ExternalConversationId { get; set; }
@@ -27,6 +29,8 @@ public class Conversation
     public Customer Customer { get; set; } = null!;
 
     public SocialAccount SocialAccount { get; set; } = null!;
+
+    public SocialIdentity SocialIdentity { get; set; } = null!;
 
     public ICollection<Message> Messages { get; set; } = new List<Message>();
 }

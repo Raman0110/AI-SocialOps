@@ -1,5 +1,8 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using SocialOps.Api.Features.Conversations.Application.Abstractions;
+using SocialOps.Api.Features.Conversations.Application.Services;
+using SocialOps.Api.Features.Conversations.Infrastructure;
 using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.Customers.Application.Services;
 using SocialOps.Api.Features.Customers.Infrastructure;
@@ -32,6 +35,14 @@ builder.Services.AddScoped<ICustomerRepository,CustomerRepository>();
 
 builder.Services.AddScoped<ISocialAccountRepository, SocialAccountRepository>();
 
+builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
+
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+
+builder.Services.AddScoped<ConversationsService>();
+
+builder.Services.AddScoped<AddMessageService>();
+
 builder.Services.AddScoped<OrganizationService>();
 
 builder.Services.AddScoped<CustomerService>();
@@ -39,6 +50,7 @@ builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<SocialAccountService>();
 
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
