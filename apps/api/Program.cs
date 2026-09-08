@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SocialOps.Api.Features.Conversations.Application.Abstractions;
 using SocialOps.Api.Features.Conversations.Application.Services;
 using SocialOps.Api.Features.Conversations.Infrastructure;
+using SocialOps.Api.Features.Customers.Application.Abstraction;
 using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.Customers.Application.Services;
 using SocialOps.Api.Features.Customers.Infrastructure;
@@ -35,6 +36,8 @@ builder.Services.AddScoped<ICustomerRepository,CustomerRepository>();
 
 builder.Services.AddScoped<ISocialAccountRepository, SocialAccountRepository>();
 
+builder.Services.AddScoped<ISocialIdentityRepository, SocialIdentityRepository>();
+
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
 
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
@@ -49,9 +52,22 @@ builder.Services.AddScoped<CustomerService>();
 
 builder.Services.AddScoped<SocialAccountService>();
 
+builder.Services.AddScoped<SocialIdentityService>();
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -62,6 +78,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseCors("Frontend");
 
 app.MapControllers();
 

@@ -48,13 +48,6 @@ public sealed class ConversationsController : ControllerBase
             response);
     }
 
-    [HttpGet("{id:guid}")]
-    public IActionResult GetById(Guid id)
-    {
-        // Implement next.
-        return Ok();
-    }
-
     [HttpPost("{conversationId:guid}/messages")]
     public async Task<ActionResult<MessageResponse>> AddMessage(
         Guid conversationId,

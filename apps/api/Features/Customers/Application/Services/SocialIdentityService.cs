@@ -6,12 +6,12 @@ using SocialOps.Api.Features.Customers.Domain;
 
 namespace SocialOps.Api.Features.Customers.Application.Services;
 
-public sealed class CreateSocialIdentityService
+public sealed class SocialIdentityService
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly ISocialIdentityRepository _socialIdentityRepository;
 
-    public CreateSocialIdentityService(
+    public SocialIdentityService(
         ICustomerRepository customerRepository,
         ISocialIdentityRepository socialIdentityRepository)
     {

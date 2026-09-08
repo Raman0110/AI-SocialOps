@@ -10,14 +10,14 @@ namespace SocialOps.Api.Features.Customers.Controllers;
 [Route("api/customers/{customerId:guid}/social-identities")]
 public sealed class SocialIdentitiesController : ControllerBase
 {
-    private readonly CreateSocialIdentityService _createService;
+    private readonly SocialIdentityService _socialIdentityService;
     private readonly IValidator<CreateSocialIdentityRequest> _validator;
 
     public SocialIdentitiesController(
-        CreateSocialIdentityService createService,
+        SocialIdentityService socialIdentityService,
         IValidator<CreateSocialIdentityRequest> validator)
     {
-        _createService = createService;
+        _socialIdentityService = socialIdentityService;
         _validator = validator;
     }
 
@@ -36,7 +36,7 @@ public sealed class SocialIdentitiesController : ControllerBase
 
         if (!validationResult.IsValid) return ValidationProblem(new ValidationProblemDetails(validationResult.ToDictionary()));
 
-        var response = await _createService.CreateAsync(request, cancellationToken);
+        var response = await _socialIdentityService.CreateAsync(request, cancellationToken);
 
         return Created(
             $"/api/customers/{customerId}/social-identities/{response.Id}",
@@ -48,7 +48,7 @@ public sealed class SocialIdentitiesController : ControllerBase
         Guid customerId,
         CancellationToken cancellationToken)
     {
-        var response = await _createService.GetByCustomerIdAsync(customerId, cancellationToken);
+        var response = await _socialIdentityService.GetByCustomerIdAsync(customerId, cancellationToken);
 
         return Ok(response);
     }
