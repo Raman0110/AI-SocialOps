@@ -58,6 +58,19 @@ namespace SocialOps.Api.Features.Conversations.Infrastructure
                     cancellationToken);
         }
 
+        public async Task<IReadOnlyList<Conversation>> GetInboxAsync(Guid organizationId, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Conversations
+                .AsNoTracking()
+                .Where(x => x.OrganizationId == organizationId)
+                .Include(x => x.Customer)
+                .Include(x => x.SocialIdentity)
+                .Include(x => x.SocialAccount)
+                .Include(x => x.Messages)
+                .OrderByDescending(x => x.LastMessageAt ?? x.CreatedAt)
+                .ToListAsync(cancellationToken);
+        }
+
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             return _dbContext.SaveChangesAsync(cancellationToken);

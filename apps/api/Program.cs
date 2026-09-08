@@ -41,7 +41,7 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 builder.Services.AddScoped<ConversationsService>();
 
-builder.Services.AddScoped<AddMessageService>();
+builder.Services.AddScoped<MessageService>();
 
 builder.Services.AddScoped<OrganizationService>();
 

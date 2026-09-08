@@ -27,7 +27,7 @@ namespace SocialOps.Api.Features.Conversations.Application.Services
             _socialAccountRepository = socialAccountRepository;
         }
 
-        public async Task<ConversationResponse> CreateAsync(CreateConversationRequest request, CancellationToken cancellationToken) {
+        public async Task<CreateConversationResponse> CreateAsync(CreateConversationRequest request, CancellationToken cancellationToken) {
             var customer = await _customerRepository.GetByIdAsync(request.CustomerId, cancellationToken);
             
             if (customer is null)
@@ -97,7 +97,7 @@ namespace SocialOps.Api.Features.Conversations.Application.Services
 
             await _conversationRepository.SaveChangesAsync(cancellationToken);
 
-            return new ConversationResponse(
+            return new CreateConversationResponse(
                 conversation.Id,
                 conversation.OrganizationId,
                 conversation.CustomerId,
@@ -106,6 +106,62 @@ namespace SocialOps.Api.Features.Conversations.Application.Services
                 conversation.Status,
                 conversation.ExternalConversationId,
                 conversation.CreatedAt);
+        }
+
+        public async Task<IReadOnlyList<GetInboxResponse>> GetAsync(Guid organizationId, CancellationToken cancellationToken = default)
+        {
+            var conversations = await _conversationRepository.GetInboxAsync(organizationId, cancellationToken);
+
+            return conversations.Select(conversation =>
+                {
+                    var lastMessage = conversation.Messages
+                        .OrderByDescending(x => x.SentAt)
+                        .FirstOrDefault();
+
+                    return new GetInboxResponse(
+                        conversation.Id,
+                        conversation.Customer.Name,
+                        conversation.SocialIdentity.Platform,
+                        conversation.SocialIdentity.Username,
+                        conversation.SocialAccount.DisplayName,
+                        conversation.Status,
+                        lastMessage?.Content,
+                        lastMessage?.SentAt
+                    );
+                })
+                .ToList();
+        }
+
+        public async Task<GetConversationResponse?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+        {
+            var conversation = await _conversationRepository.GetByIdAsync(id, cancellationToken);
+
+            if (conversation is null)
+            {
+                return null;
+            }
+
+            var messages = conversation.Messages
+                .OrderBy(x => x.SentAt)
+                .Select(x => new GetConversationMessageResponse(
+                    x.Id,
+                    x.Direction,
+                    x.SenderType,
+                    x.Content,
+                    x.SentAt))
+                .ToList();
+
+            return new GetConversationResponse(
+                conversation.Id,
+                conversation.Customer.Name,
+                conversation.SocialIdentity.Platform,
+                conversation.SocialIdentity.Username,
+                conversation.SocialAccount.DisplayName,
+                conversation.Status,
+                messages
+            );
         }
 
     }

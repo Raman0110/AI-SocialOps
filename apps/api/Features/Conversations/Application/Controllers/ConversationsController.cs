@@ -10,24 +10,24 @@ namespace SocialOps.Api.Features.Conversations.Controllers;
 public sealed class ConversationsController : ControllerBase
 {
     private readonly ConversationsService _conversationService;
-    private readonly AddMessageService _addMessageService;
+    private readonly MessageService _messageService;
     private readonly IValidator<CreateConversationRequest> _conversationValidator;
     private readonly IValidator<AddMessageRequest> _messageValidator;
 
     public ConversationsController(
         ConversationsService createConversationService,
-        AddMessageService addMessageService,
+        MessageService messageService,
         IValidator<CreateConversationRequest> conversationValidator,
         IValidator<AddMessageRequest> messageValidator)
     {
         _conversationService = createConversationService;
-        _addMessageService = addMessageService;
+        _messageService = messageService;
         _conversationValidator = conversationValidator;
         _messageValidator = messageValidator;
     }
 
     [HttpPost]
-    public async Task<ActionResult<ConversationResponse>> Create([FromBody] CreateConversationRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<CreateConversationResponse>> Create([FromBody] CreateConversationRequest request, CancellationToken cancellationToken)
     {
         var validationResult = await _conversationValidator.ValidateAsync(
                 request,
@@ -70,10 +70,37 @@ public sealed class ConversationsController : ControllerBase
             return ValidationProblem(new ValidationProblemDetails(validationResult.ToDictionary()));
         }
 
-        var response = await _addMessageService.AddAsync(
+        var response = await _messageService.AddAsync(
                 conversationId,
                 request,
                 cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<GetInboxResponse>>> GetInbox(
+    [FromQuery] Guid organizationId,
+    CancellationToken cancellationToken)
+    {
+        var response = await _conversationService.GetAsync(
+                organizationId,
+                cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<GetConversationResponse>> GetById(
+    Guid id,
+    CancellationToken cancellationToken)
+    {
+        var response = await _conversationService.GetByIdAsync(id, cancellationToken);
+
+        if (response is null)
+        {
+            return NotFound();
+        }
 
         return Ok(response);
     }

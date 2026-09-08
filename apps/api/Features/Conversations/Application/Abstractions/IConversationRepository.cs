@@ -17,5 +17,7 @@ namespace SocialOps.Api.Features.Conversations.Application.Abstractions
             CancellationToken cancellationToken = default);
 
         Task SaveChangesAsync(CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyList<Conversation>> GetInboxAsync(Guid organizationId, CancellationToken cancellationToken = default);
     }
 }

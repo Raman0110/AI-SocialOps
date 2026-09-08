@@ -4,12 +4,12 @@ using SocialOps.Api.Features.Conversations.Domain;
 
 namespace SocialOps.Api.Features.Conversations.Application.Services;
 
-public sealed class AddMessageService
+public sealed class MessageService
 {
     private readonly IConversationRepository _conversationRepository;
     private readonly IMessageRepository _messageRepository;
 
-    public AddMessageService(
+    public MessageService(
         IConversationRepository conversationRepository,
         IMessageRepository messageRepository)
     {
