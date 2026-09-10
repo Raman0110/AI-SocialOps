@@ -1,30 +1,63 @@
+import axios from "axios";
+
 import type {
   ConversationDetails,
+  ConversationMessage,
   InboxConversation,
+  MessageDirection,
+  MessageSenderType,
 } from "../types/conversations";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+const API_URL =
+  import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
-export async function getInbox(organizationId: string): Promise<InboxConversation[]> {
-  const response = await fetch(
-    `${API_URL}/api/conversations?organizationId=${organizationId}`
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export async function getInbox(
+  organizationId: string
+): Promise<InboxConversation[]> {
+  const response = await api.get<InboxConversation[]>(
+    "/api/conversations",
+    {
+      params: {
+        organizationId,
+      },
+    }
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to load inbox.");
-  }
-
-  return response.json();
+  return response.data;
 }
 
-export async function getConversation(conversationId: string): Promise<ConversationDetails> {
-  const response = await fetch(
-    `${API_URL}/api/conversations/${conversationId}`
+export async function getConversation(
+  conversationId: string
+): Promise<ConversationDetails> {
+  const response = await api.get<ConversationDetails>(
+    `/api/conversations/${conversationId}`
   );
 
-  if (!response.ok) {
-    throw new Error("Failed to load conversation.");
-  }
+  return response.data;
+}
 
-  return response.json();
+interface AddMessageRequest {
+  direction: MessageDirection;
+  senderType: MessageSenderType;
+  content: string;
+  externalMessageId: string | null;
+}
+
+export async function addMessage(
+  conversationId: string,
+  request: AddMessageRequest
+): Promise<ConversationMessage> {
+  const response = await api.post<ConversationMessage>(
+    `/api/conversations/${conversationId}/messages`,
+    request
+  );
+
+  return response.data;
 }

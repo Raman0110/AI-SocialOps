@@ -1,47 +1,46 @@
 import type {
   ConversationDetails as ConversationDetailsType,
 } from "../../types/conversations";
+import { ReplyBox } from "./ReplayBox";
 
 interface ConversationDetailsProps {
   conversation: ConversationDetailsType | null;
+  onSendMessage: (content: string) => Promise<void>;
 }
 
 export function ConversationDetails({
   conversation,
+  onSendMessage,
 }: ConversationDetailsProps) {
   if (!conversation) {
     return (
-      <div style={{ padding: "24px" }}>
+      <div className="grid h-full min-h-screen place-items-center px-6 text-sm font-medium text-slate-500">
         Select a conversation.
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "24px" }}>
-      <header
-        style={{
-          borderBottom: "1px solid #ddd",
-          paddingBottom: "16px",
-          marginBottom: "24px",
-        }}
-      >
-        <h2>{conversation.customerName}</h2>
+    <div className="flex h-full min-h-screen flex-col">
+      <header className="border-b border-slate-200 bg-white px-6 py-4">
+        <h2 className="text-lg font-semibold text-slate-950">
+          {conversation.customerName}
+        </h2>
 
-        <div>
-          {conversation.platform} · {conversation.username}
+        <div className="mt-1 text-sm text-slate-600">
+          {conversation.platform} / {conversation.username}
         </div>
 
-        <div>
+        <div className="mt-2 text-xs text-slate-500">
           Company account: {conversation.socialAccountName}
         </div>
 
-        <div>
+        <div className="mt-1 text-xs text-slate-500">
           Status: {conversation.status}
         </div>
       </header>
 
-      <div>
+      <div className="flex-1 overflow-y-auto px-6 py-6">
         {conversation.messages.map((message) => {
           const isCustomer =
             message.direction === "Inbound";
@@ -49,31 +48,34 @@ export function ConversationDetails({
           return (
             <div
               key={message.id}
-              style={{
-                display: "flex",
-                justifyContent: isCustomer
-                  ? "flex-start"
-                  : "flex-end",
-                marginBottom: "16px",
-              }}
+              className={`mb-4 flex ${
+                isCustomer ? "justify-start" : "justify-end"
+              }`}
             >
               <div
-                style={{
-                  maxWidth: "70%",
-                  padding: "12px 16px",
-                  borderRadius: "12px",
-                  background: isCustomer
-                    ? "#eeeeee"
-                    : "#dceeff",
-                }}
+                className={`max-w-[70%] rounded-lg px-4 py-3 shadow-sm ${
+                  isCustomer
+                    ? "bg-white text-slate-900"
+                    : "bg-sky-600 text-white"
+                }`}
               >
-                <small>
+                <small
+                  className={`text-xs font-medium ${
+                    isCustomer ? "text-slate-500" : "text-sky-100"
+                  }`}
+                >
                   {message.senderType}
                 </small>
 
-                <div>{message.content}</div>
+                <div className="mt-1 text-sm leading-6">
+                  {message.content}
+                </div>
 
-                <small>
+                <small
+                  className={`mt-2 block text-xs ${
+                    isCustomer ? "text-slate-400" : "text-sky-100"
+                  }`}
+                >
                   {new Date(
                     message.sentAt
                   ).toLocaleString()}
@@ -83,6 +85,10 @@ export function ConversationDetails({
           );
         })}
       </div>
+
+      <ReplyBox
+        onSend={onSendMessage}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import {
+  addMessage,
   getConversation,
   getInbox,
 } from "../../api/conversations";
@@ -74,34 +75,62 @@ export function InboxPage({ organizationId }: InboxPageProps) {
     }
   }
 
+  async function handleSendMessage(
+    content: string
+  ) {
+    if (!selectedConversationId) {
+      return;
+    }
+
+    await addMessage(
+      selectedConversationId,
+      {
+        direction: "Outbound",
+        senderType: "HumanAgent",
+        content,
+        externalMessageId: null,
+      }
+    );
+
+    const updatedConversation =
+      await getConversation(
+        selectedConversationId
+      );
+
+    setSelectedConversation(
+      updatedConversation
+    );
+
+    const updatedInbox =
+      await getInbox(
+        organizationId
+      );
+
+    setConversations(
+      updatedInbox
+    );
+  }
+
   if (loading) {
-    return <p>Loading inbox...</p>;
+    return (
+      <div className="grid min-h-screen place-items-center bg-slate-50 px-6 text-sm font-medium text-slate-600">
+        Loading inbox...
+      </div>
+    );
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <div className="grid min-h-screen place-items-center bg-slate-50 px-6 text-sm font-medium text-red-700">
+        {error}
+      </div>
+    );
   }
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "360px 1fr",
-        height: "100vh",
-      }}
-    >
-      <aside
-        style={{
-          borderRight: "1px solid #ddd",
-          overflowY: "auto",
-        }}
-      >
-        <h2
-          style={{
-            padding: "16px",
-            margin: 0,
-          }}
-        >
+    <div className="grid h-screen bg-slate-50 text-slate-950 md:grid-cols-[360px_1fr]">
+      <aside className="min-h-0 overflow-y-auto border-r border-slate-200 bg-white">
+        <h2 className="border-b border-slate-200 px-4 py-4 text-base font-semibold">
           Unified Inbox
         </h2>
 
@@ -116,15 +145,10 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         />
       </aside>
 
-      <main
-        style={{
-          overflowY: "auto",
-        }}
-      >
+      <main className="min-h-0 overflow-y-auto">
         <ConversationDetailsView
-          conversation={
-            selectedConversation
-          }
+          conversation={selectedConversation}
+          onSendMessage={handleSendMessage}
         />
       </main>
     </div>
