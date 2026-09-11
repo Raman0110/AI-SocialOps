@@ -1,6 +1,10 @@
 import type {
   ConversationDetails as ConversationDetailsType,
 } from "../../types/conversations";
+import {
+  MessageDirection,
+  MessageSenderTypeLabel,
+} from "../../types/conversations";
 import { ReplyBox } from "./ReplayBox";
 
 interface ConversationDetailsProps {
@@ -43,7 +47,7 @@ export function ConversationDetails({
       <div className="flex-1 overflow-y-auto px-6 py-6">
         {conversation.messages.map((message) => {
           const isCustomer =
-            message.direction === "Inbound";
+            message.direction === MessageDirection.Inbound;
 
           return (
             <div
@@ -64,7 +68,7 @@ export function ConversationDetails({
                     isCustomer ? "text-slate-500" : "text-sky-100"
                   }`}
                 >
-                  {message.senderType}
+                  {MessageSenderTypeLabel[message.senderType]}
                 </small>
 
                 <div className="mt-1 text-sm leading-6">

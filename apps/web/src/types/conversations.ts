@@ -11,14 +11,28 @@ export type ConversationStatus =
   | "Resolved"
   | "Escalated";
 
+export const MessageDirection = {
+  Inbound: 1,
+  Outbound: 2,
+} as const;
+
 export type MessageDirection =
-  | "Inbound"
-  | "Outbound";
+  (typeof MessageDirection)[keyof typeof MessageDirection];
+
+export const MessageSenderType = {
+  Customer: 1,
+  HumanAgent: 2,
+  AiAgent: 3,
+} as const;
 
 export type MessageSenderType =
-  | "Customer"
-  | "HumanAgent"
-  | "AiAgent";
+  (typeof MessageSenderType)[keyof typeof MessageSenderType];
+
+export const MessageSenderTypeLabel: Record<MessageSenderType, string> = {
+  [MessageSenderType.Customer]: "Customer",
+  [MessageSenderType.HumanAgent]: "Human Agent",
+  [MessageSenderType.AiAgent]: "AI Agent",
+};
 
 export interface InboxConversation {
   id: string;

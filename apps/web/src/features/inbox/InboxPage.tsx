@@ -10,6 +10,10 @@ import type {
   ConversationDetails,
   InboxConversation,
 } from "../../types/conversations";
+import {
+  MessageDirection,
+  MessageSenderType,
+} from "../../types/conversations";
 
 import { ConversationList } from "./ConversationList";
 import { ConversationDetails as ConversationDetailsView } from "./ConversationDetails";
@@ -21,15 +25,9 @@ interface InboxPageProps {
 export function InboxPage({ organizationId }: InboxPageProps) {
   const [conversations, setConversations] = useState<InboxConversation[]>([]);
 
-  const [
-    selectedConversationId,
-    setSelectedConversationId,
-  ] = useState<string | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
 
-  const [
-    selectedConversation,
-    setSelectedConversation,
-  ] = useState<ConversationDetails | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<ConversationDetails | null>(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -54,61 +52,37 @@ export function InboxPage({ organizationId }: InboxPageProps) {
     loadInbox();
   }, [organizationId]);
 
-  async function handleSelectConversation(
-    conversationId: string
-  ) {
+  async function handleSelectConversation(conversationId: string) {
     try {
-      setSelectedConversationId(
-        conversationId
-      );
+      setSelectedConversationId(conversationId);
 
-      const result =
-        await getConversation(
-          conversationId
-        );
+      const result = await getConversation(conversationId);
 
       setSelectedConversation(result);
     } catch {
-      setError(
-        "Unable to load conversation."
-      );
+      setError("Unable to load conversation.");
     }
   }
 
-  async function handleSendMessage(
-    content: string
-  ) {
+  async function handleSendMessage(content: string) {
     if (!selectedConversationId) {
       return;
     }
 
-    await addMessage(
-      selectedConversationId,
-      {
-        direction: "Outbound",
-        senderType: "HumanAgent",
-        content,
-        externalMessageId: null,
-      }
-    );
+    await addMessage(selectedConversationId, {
+      direction: MessageDirection.Outbound,
+      senderType: MessageSenderType.HumanAgent,
+      content,
+      externalMessageId: null,
+    });
 
-    const updatedConversation =
-      await getConversation(
-        selectedConversationId
-      );
+    const updatedConversation = await getConversation(selectedConversationId);
 
-    setSelectedConversation(
-      updatedConversation
-    );
+    setSelectedConversation(updatedConversation);
 
-    const updatedInbox =
-      await getInbox(
-        organizationId
-      );
+    const updatedInbox = await getInbox(organizationId);
 
-    setConversations(
-      updatedInbox
-    );
+    setConversations(updatedInbox);
   }
 
   if (loading) {
@@ -136,12 +110,8 @@ export function InboxPage({ organizationId }: InboxPageProps) {
 
         <ConversationList
           conversations={conversations}
-          selectedConversationId={
-            selectedConversationId
-          }
-          onSelect={
-            handleSelectConversation
-          }
+          selectedConversationId={selectedConversationId}
+          onSelect={handleSelectConversation}
         />
       </aside>
 
