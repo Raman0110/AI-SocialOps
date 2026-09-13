@@ -62,3 +62,11 @@ export interface ConversationDetails {
   status: ConversationStatus;
   messages: ConversationMessage[];
 }
+
+export interface MessageAnalysis {
+  intent: string;
+  sentiment: string;
+  priority: string;
+  risk: string;
+  confidence: number;
+}

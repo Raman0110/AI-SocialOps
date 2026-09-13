@@ -5,16 +5,21 @@ import {
   MessageDirection,
   MessageSenderTypeLabel,
 } from "../../types/conversations";
+import type { AnalysisState } from "./InboxPage";
 import { ReplyBox } from "./ReplayBox";
 
 interface ConversationDetailsProps {
   conversation: ConversationDetailsType | null;
   onSendMessage: (content: string) => Promise<void>;
+  analysisState: AnalysisState;
+  onAnalyze: () => Promise<void>;
 }
 
 export function ConversationDetails({
   conversation,
   onSendMessage,
+  analysisState,
+  onAnalyze
 }: ConversationDetailsProps) {
   if (!conversation) {
     return (
@@ -44,29 +49,115 @@ export function ConversationDetails({
         </div>
       </header>
 
+      <section
+        style={{
+          padding: "16px 24px",
+          borderBottom: "1px solid #ddd",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <strong>AI Analysis</strong>
+
+          <button
+            onClick={onAnalyze}
+            disabled={analysisState.isLoading}
+          >
+            {analysisState.isLoading
+              ? "Analyzing..."
+              : "Analyze with AI"}
+          </button>
+        </div>
+
+        {analysisState.error && (
+          <p>{analysisState.error}</p>
+        )}
+
+        {analysisState.data && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(5, minmax(0, 1fr))",
+              gap: "12px",
+              marginTop: "16px",
+            }}
+          >
+            <div>
+              <small>Intent</small>
+              <div>
+                <strong>
+                  {analysisState.data.intent}
+                </strong>
+              </div>
+            </div>
+
+            <div>
+              <small>Sentiment</small>
+              <div>
+                <strong>
+                  {analysisState.data.sentiment}
+                </strong>
+              </div>
+            </div>
+
+            <div>
+              <small>Priority</small>
+              <div>
+                <strong>
+                  {analysisState.data.priority}
+                </strong>
+              </div>
+            </div>
+
+            <div>
+              <small>Risk</small>
+              <div>
+                <strong>
+                  {analysisState.data.risk}
+                </strong>
+              </div>
+            </div>
+
+            <div>
+              <small>Confidence</small>
+              <div>
+                <strong>
+                  {Math.round(
+                    analysisState.data.confidence * 100
+                  )}
+                  %
+                </strong>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
       <div className="flex-1 overflow-y-auto px-6 py-6">
         {conversation.messages.map((message) => {
-          const isCustomer =
-            message.direction === MessageDirection.Inbound;
+          const isCustomer = message.direction === MessageDirection.Inbound;
 
           return (
             <div
               key={message.id}
-              className={`mb-4 flex ${
-                isCustomer ? "justify-start" : "justify-end"
-              }`}
+              className={`mb-4 flex ${isCustomer ? "justify-start" : "justify-end"
+                }`}
             >
               <div
-                className={`max-w-[70%] rounded-lg px-4 py-3 shadow-sm ${
-                  isCustomer
-                    ? "bg-white text-slate-900"
-                    : "bg-sky-600 text-white"
-                }`}
+                className={`max-w-[70%] rounded-lg px-4 py-3 shadow-sm ${isCustomer
+                  ? "bg-white text-slate-900"
+                  : "bg-sky-600 text-white"
+                  }`}
               >
                 <small
-                  className={`text-xs font-medium ${
-                    isCustomer ? "text-slate-500" : "text-sky-100"
-                  }`}
+                  className={`text-xs font-medium ${isCustomer ? "text-slate-500" : "text-sky-100"
+                    }`}
                 >
                   {MessageSenderTypeLabel[message.senderType]}
                 </small>
@@ -76,9 +167,8 @@ export function ConversationDetails({
                 </div>
 
                 <small
-                  className={`mt-2 block text-xs ${
-                    isCustomer ? "text-slate-400" : "text-sky-100"
-                  }`}
+                  className={`mt-2 block text-xs ${isCustomer ? "text-slate-400" : "text-sky-100"
+                    }`}
                 >
                   {new Date(
                     message.sentAt

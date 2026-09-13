@@ -9,6 +9,7 @@ import {
 import type {
   ConversationDetails,
   InboxConversation,
+  MessageAnalysis,
 } from "../../types/conversations";
 import {
   MessageDirection,
@@ -17,10 +18,17 @@ import {
 
 import { ConversationList } from "./ConversationList";
 import { ConversationDetails as ConversationDetailsView } from "./ConversationDetails";
+import { analyzeMessage } from "../../api/ai";
 
 interface InboxPageProps {
   organizationId: string;
 }
+
+export type AnalysisState = {
+  data: MessageAnalysis | null;
+  isLoading: boolean;
+  error: string | null;
+};
 
 export function InboxPage({ organizationId }: InboxPageProps) {
   const [conversations, setConversations] = useState<InboxConversation[]>([]);
@@ -28,6 +36,12 @@ export function InboxPage({ organizationId }: InboxPageProps) {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
 
   const [selectedConversation, setSelectedConversation] = useState<ConversationDetails | null>(null);
+
+  const [analysisState, setAnalysisState] = useState<AnalysisState>({
+    data: null,
+    isLoading: false,
+    error: null,
+  });
 
   const [loading, setLoading] = useState(true);
 
@@ -56,6 +70,12 @@ export function InboxPage({ organizationId }: InboxPageProps) {
     try {
       setSelectedConversationId(conversationId);
 
+      setAnalysisState({
+        data: null,
+        isLoading: false,
+        error: null,
+      });
+
       const result = await getConversation(conversationId);
 
       setSelectedConversation(result);
@@ -83,6 +103,46 @@ export function InboxPage({ organizationId }: InboxPageProps) {
     const updatedInbox = await getInbox(organizationId);
 
     setConversations(updatedInbox);
+  }
+
+  async function handleAnalyzeMessage() {
+    if (!selectedConversation) return;
+
+    const latestInboundMessage = [...selectedConversation.messages]
+      .reverse()
+      .find((message) => message.direction === MessageDirection.Inbound);
+
+    if (!latestInboundMessage) {
+      setAnalysisState({
+        data: null,
+        isLoading: false,
+        error: "No inbound customer message found.",
+      });
+
+      return;
+    }
+
+    try {
+      setAnalysisState((current) => ({
+        ...current,
+        isLoading: true,
+        error: null,
+      }));
+
+      const result = await analyzeMessage(latestInboundMessage.content);
+
+      setAnalysisState({
+        data: result,
+        isLoading: false,
+        error: null,
+      });
+    } catch {
+      setAnalysisState({
+        data: null,
+        isLoading: false,
+        error: "Unable to analyze this message.",
+      });
+    }
   }
 
   if (loading) {
@@ -119,6 +179,8 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         <ConversationDetailsView
           conversation={selectedConversation}
           onSendMessage={handleSendMessage}
+          analysisState={analysisState}
+          onAnalyze={handleAnalyzeMessage}
         />
       </main>
     </div>
