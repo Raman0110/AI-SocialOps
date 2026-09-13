@@ -4,7 +4,7 @@ using SocialOps.Api.Features.Customers.Domain;
 using SocialOps.Api.Features.Organizations.Domain;
 using SocialOps.Api.Features.SocialAccounts.Domain;
 
-namespace SocialOps.Api.Shared.Persistence;
+namespace SocialOps.Api.Shared.Data;
 
 public class SocialOpsDbContext : DbContext
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialOps.Api.Features.Conversations.Application.Abstractions;
 using SocialOps.Api.Features.Conversations.Domain;
-using SocialOps.Api.Shared.Persistence;
+using SocialOps.Api.Shared.Data;
 
 namespace SocialOps.Api.Features.Conversations.Infrastructure
 {

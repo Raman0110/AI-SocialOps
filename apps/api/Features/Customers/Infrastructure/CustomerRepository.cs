@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.Customers.Domain;
-using SocialOps.Api.Shared.Persistence;
+using SocialOps.Api.Shared.Data;
 
 namespace SocialOps.Api.Features.Customers.Infrastructure
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialOps.Api.Features.Organizations.Application.Abstractions;
 using SocialOps.Api.Features.Organizations.Domain;
-using SocialOps.Api.Shared.Persistence;
+using SocialOps.Api.Shared.Data;
 
 namespace SocialOps.Api.Features.Organizations.Infrastructure;
 

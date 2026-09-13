@@ -1,5 +1,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using SocialOps.Api.Features.AI.Application.AnalyzeMessage.Services;
+using SocialOps.Api.Features.AI.Infrastructure;
 using SocialOps.Api.Features.Conversations.Application.Abstractions;
 using SocialOps.Api.Features.Conversations.Application.Services;
 using SocialOps.Api.Features.Conversations.Infrastructure;
@@ -13,7 +15,7 @@ using SocialOps.Api.Features.Organizations.Infrastructure;
 using SocialOps.Api.Features.SocialAccounts.Application.Abstractions;
 using SocialOps.Api.Features.SocialAccounts.Application.Services;
 using SocialOps.Api.Features.SocialAccounts.Infrastructure;
-using SocialOps.Api.Shared.Persistence;
+using SocialOps.Api.Shared.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +55,16 @@ builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<SocialAccountService>();
 
 builder.Services.AddScoped<SocialIdentityService>();
+
+builder.Services.AddHttpClient<AgentClient>(
+    client =>
+    {
+        var baseUrl = builder.Configuration["Agent:BaseUrl"];
+
+        client.BaseAddress = new Uri(baseUrl!);
+    });
+
+builder.Services.AddScoped<AnalyzeMessageService>();
 
 builder.Services.AddEndpointsApiExplorer();
 

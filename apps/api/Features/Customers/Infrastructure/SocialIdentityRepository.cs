@@ -2,7 +2,7 @@
 using SocialOps.Api.Features.Customers.Application.Abstraction;
 using SocialOps.Api.Features.Customers.Domain;
 using SocialOps.Api.Features.SocialAccounts.Domain;
-using SocialOps.Api.Shared.Persistence;
+using SocialOps.Api.Shared.Data;
 
 namespace SocialOps.Api.Features.Customers.Infrastructure
 {

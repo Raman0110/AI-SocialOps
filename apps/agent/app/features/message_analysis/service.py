@@ -60,19 +60,27 @@ def analyze_message(message: str) -> AnalyzeMessageResponse:
                                 "urgent",
                             ],
                         },
-                        "risk": {
-                            "type": "string",
-                            "enum": [
-                                "low",
-                                "medium",
-                                "high",
-                            ],
-                        },
-                        "confidence": {
-                            "type": "number",
-                            "minimum": 0,
-                            "maximum": 1,
-                        },
+                    "risk": {
+                        "type": "string",
+                        "enum": [
+                            "low",
+                            "medium",
+                            "high",
+                        ],
+                    },
+                    "confidence": {
+                        "anyOf": [
+                            {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1,
+                            },
+                            {
+                                "type": "string",
+                                "pattern": "^(0(\\.\\d+)?|1(\\.0+)?)$",
+                            },
+                        ],
+                    },
                     },
                     "required": [
                         "intent",
