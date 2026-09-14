@@ -15,6 +15,7 @@ public class SocialOpsDbContext : DbContext
     public DbSet<SocialAccount> SocialAccounts => Set<SocialAccount>();
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<Message> Messages => Set<Message>();
+    public DbSet<MessageAnalysis> MessageAnalyses => Set<MessageAnalysis>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

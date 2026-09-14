@@ -2,6 +2,7 @@ import type {
   ConversationDetails,
   ConversationMessage,
   InboxConversation,
+  MessageAnalysis,
   MessageDirection,
   MessageSenderType,
 } from "../types/conversations";
@@ -34,5 +35,12 @@ export async function addMessage(conversationId: string, message: AddMessageRequ
     method: "POST",
     url: `/api/conversations/${conversationId}/messages`,
     data: message,
+  });
+}
+
+export async function analyzeConversation(conversationId: string): Promise<MessageAnalysis> {
+  return request<MessageAnalysis>({
+    method: "POST",
+    url: `/api/conversations/${conversationId}/analyze`,
   });
 }

@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SocialOps.Api.Shared.Data;
 
-
-
 #nullable disable
 
 namespace SocialOps.Api.Migrations
@@ -49,6 +47,9 @@ namespace SocialOps.Api.Migrations
                     b.Property<Guid>("SocialAccountId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("SocialIdentityId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -59,6 +60,8 @@ namespace SocialOps.Api.Migrations
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("SocialAccountId");
+
+                    b.HasIndex("SocialIdentityId");
 
                     b.HasIndex("OrganizationId", "Status", "LastMessageAt");
 
@@ -100,6 +103,53 @@ namespace SocialOps.Api.Migrations
                     b.HasIndex("ConversationId", "SentAt");
 
                     b.ToTable("messages", (string)null);
+                });
+
+            modelBuilder.Entity("SocialOps.Api.Features.Conversations.Domain.MessageAnalysis", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AnalyzedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double>("Confidence")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Intent")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Risk")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Sentiment")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId")
+                        .IsUnique();
+
+                    b.ToTable("message_analyses", (string)null);
                 });
 
             modelBuilder.Entity("SocialOps.Api.Features.Customers.Domain.Customer", b =>
@@ -248,11 +298,19 @@ namespace SocialOps.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("SocialOps.Api.Features.Customers.Domain.SocialIdentity", "SocialIdentity")
+                        .WithMany()
+                        .HasForeignKey("SocialIdentityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Customer");
 
                     b.Navigation("Organization");
 
                     b.Navigation("SocialAccount");
+
+                    b.Navigation("SocialIdentity");
                 });
 
             modelBuilder.Entity("SocialOps.Api.Features.Conversations.Domain.Message", b =>
@@ -264,6 +322,17 @@ namespace SocialOps.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Conversation");
+                });
+
+            modelBuilder.Entity("SocialOps.Api.Features.Conversations.Domain.MessageAnalysis", b =>
+                {
+                    b.HasOne("SocialOps.Api.Features.Conversations.Domain.Message", "Message")
+                        .WithOne("Analysis")
+                        .HasForeignKey("SocialOps.Api.Features.Conversations.Domain.MessageAnalysis", "MessageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Message");
                 });
 
             modelBuilder.Entity("SocialOps.Api.Features.Customers.Domain.Customer", b =>
@@ -302,6 +371,11 @@ namespace SocialOps.Api.Migrations
             modelBuilder.Entity("SocialOps.Api.Features.Conversations.Domain.Conversation", b =>
                 {
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("SocialOps.Api.Features.Conversations.Domain.Message", b =>
+                {
+                    b.Navigation("Analysis");
                 });
 
             modelBuilder.Entity("SocialOps.Api.Features.Customers.Domain.Customer", b =>

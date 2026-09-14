@@ -4,6 +4,7 @@ using SocialOps.Api.Features.AI.Application.AnalyzeMessage.Services;
 using SocialOps.Api.Features.AI.Infrastructure;
 using SocialOps.Api.Features.Conversations.Application.Abstractions;
 using SocialOps.Api.Features.Conversations.Application.Services;
+using SocialOps.Api.Features.Conversations.Application.Services.AnalyzeConversation;
 using SocialOps.Api.Features.Conversations.Infrastructure;
 using SocialOps.Api.Features.Customers.Application.Abstraction;
 using SocialOps.Api.Features.Customers.Application.Abstractions;
@@ -43,6 +44,10 @@ builder.Services.AddScoped<ISocialIdentityRepository, SocialIdentityRepository>(
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
 
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+
+builder.Services.AddScoped<IMessageAnalysisRepository, MessageAnalysisRepository>();
+
+builder.Services.AddScoped<AnalyzeConversationService>();
 
 builder.Services.AddScoped<ConversationsService>();
 

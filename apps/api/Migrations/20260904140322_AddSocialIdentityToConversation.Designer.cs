@@ -11,7 +11,7 @@ using SocialOps.Api.Shared.Data;
 
 #nullable disable
 
-namespace SocialOps.Api.Shared.Persistence.Migrations
+namespace SocialOps.Api.Migrations
 {
     [DbContext(typeof(SocialOpsDbContext))]
     [Migration("20260904140322_AddSocialIdentityToConversation")]

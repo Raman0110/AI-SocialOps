@@ -9,6 +9,4 @@ router = APIRouter(prefix="/agent",tags=["Agent"])
 
 @router.post("/analyze-message", response_model=AnalyzeMessageResponse)
 async def analyze_message_endpoint(request: AnalyzeMessageRequest) -> AnalyzeMessageResponse:
-    return analyze_message(
-        request.message
-    )
+    return analyze_message(request.message)

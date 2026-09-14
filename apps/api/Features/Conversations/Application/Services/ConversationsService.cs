@@ -27,9 +27,10 @@ namespace SocialOps.Api.Features.Conversations.Application.Services
             _socialAccountRepository = socialAccountRepository;
         }
 
-        public async Task<CreateConversationResponse> CreateAsync(CreateConversationRequest request, CancellationToken cancellationToken) {
+        public async Task<CreateConversationResponse> CreateAsync(CreateConversationRequest request, CancellationToken cancellationToken)
+        {
             var customer = await _customerRepository.GetByIdAsync(request.CustomerId, cancellationToken);
-            
+
             if (customer is null)
             {
                 throw new InvalidOperationException("Customer does not exist.");
@@ -87,8 +88,7 @@ namespace SocialOps.Api.Features.Conversations.Application.Services
                 CustomerId = request.CustomerId,
                 SocialIdentityId = request.SocialIdentityId,
                 SocialAccountId = request.SocialAccountId,
-                ExternalConversationId =
-                    request.ExternalConversationId?.Trim(),
+                ExternalConversationId = request.ExternalConversationId?.Trim(),
                 Status = ConversationStatus.Open,
                 CreatedAt = DateTime.UtcNow
             };

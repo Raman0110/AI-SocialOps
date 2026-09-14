@@ -64,9 +64,11 @@ export interface ConversationDetails {
 }
 
 export interface MessageAnalysis {
+  messageId: string;
   intent: string;
   sentiment: string;
   priority: string;
   risk: string;
   confidence: number;
+  analyzedAt: string;
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import {
   addMessage,
+  analyzeConversation,
   getConversation,
   getInbox,
 } from "../../api/conversations";
@@ -18,7 +19,6 @@ import {
 
 import { ConversationList } from "./ConversationList";
 import { ConversationDetails as ConversationDetailsView } from "./ConversationDetails";
-import { analyzeMessage } from "../../api/ai";
 
 interface InboxPageProps {
   organizationId: string;
@@ -52,8 +52,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
       try {
         setLoading(true);
 
-        const result =
-          await getInbox(organizationId);
+        const result = await getInbox(organizationId);
 
         setConversations(result);
       } catch {
@@ -106,21 +105,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
   }
 
   async function handleAnalyzeMessage() {
-    if (!selectedConversation) return;
-
-    const latestInboundMessage = [...selectedConversation.messages]
-      .reverse()
-      .find((message) => message.direction === MessageDirection.Inbound);
-
-    if (!latestInboundMessage) {
-      setAnalysisState({
-        data: null,
-        isLoading: false,
-        error: "No inbound customer message found.",
-      });
-
-      return;
-    }
+    if (!selectedConversationId) return;
 
     try {
       setAnalysisState((current) => ({
@@ -129,7 +114,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         error: null,
       }));
 
-      const result = await analyzeMessage(latestInboundMessage.content);
+      const result = await analyzeConversation(selectedConversationId);
 
       setAnalysisState({
         data: result,
@@ -140,7 +125,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
       setAnalysisState({
         data: null,
         isLoading: false,
-        error: "Unable to analyze this message.",
+        error: "Unable to analyze this conversation.",
       });
     }
   }

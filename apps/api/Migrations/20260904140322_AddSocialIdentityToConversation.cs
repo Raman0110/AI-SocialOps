@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SocialOps.Api.Shared.Persistence.Migrations
+namespace SocialOps.Api.Migrations
 {
     /// <inheritdoc />
     public partial class AddSocialIdentityToConversation : Migration

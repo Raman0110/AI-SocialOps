@@ -46,9 +46,19 @@ public sealed class MessageRepository: IMessageRepository
                 cancellationToken);
     }
 
-    public Task SaveChangesAsync(
-        CancellationToken cancellationToken = default)
+    public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task<Message?> GetLatestInboundAsync(Guid conversationId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Messages
+            .AsNoTracking()
+            .Where(x =>
+                x.ConversationId == conversationId &&
+                x.Direction == MessageDirection.Inbound)
+            .OrderByDescending(x => x.SentAt)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }
