@@ -1,8 +1,11 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using SocialOps.Api.Features.Conversations.Application.Services.SuggestReplyService;
+using SocialOps.Api.Features.Conversations.Application.Services.AnalyzeConversation;
+using SocialOps.Api.Features.Conversations.Application.Dtos.SuggestReply;
 using SocialOps.Api.Features.Conversations.Application.Dtos;
 using SocialOps.Api.Features.Conversations.Application.Services;
-using SocialOps.Api.Features.Conversations.Application.Services.AnalyzeConversation;
+
 
 namespace SocialOps.Api.Features.Conversations.Controllers;
 
@@ -15,19 +18,23 @@ public sealed class ConversationsController : ControllerBase
     private readonly IValidator<CreateConversationRequest> _conversationValidator;
     private readonly IValidator<AddMessageRequest> _messageValidator;
     private readonly AnalyzeConversationService _analyzeService;
+    private readonly SuggestReplyService _suggestReplyService;
 
     public ConversationsController(
         ConversationsService createConversationService,
         MessageService messageService,
         IValidator<CreateConversationRequest> conversationValidator,
         IValidator<AddMessageRequest> messageValidator,
-        AnalyzeConversationService analyzeService)
+        AnalyzeConversationService analyzeService,
+        SuggestReplyService suggestReplyService
+        )
     {
         _conversationService = createConversationService;
         _messageService = messageService;
         _conversationValidator = conversationValidator;
         _messageValidator = messageValidator;
         _analyzeService = analyzeService;
+        _suggestReplyService = suggestReplyService;
     }
 
     [HttpPost]
@@ -37,7 +44,7 @@ public sealed class ConversationsController : ControllerBase
 
         if (!validationResult.IsValid) return ValidationProblem(new ValidationProblemDetails(validationResult.ToDictionary()));
 
-        var response =  await _conversationService.CreateAsync(request, cancellationToken);
+        var response = await _conversationService.CreateAsync(request, cancellationToken);
 
         return CreatedAtAction(
             nameof(GetById),
@@ -86,6 +93,16 @@ public sealed class ConversationsController : ControllerBase
         var response = await _analyzeService.AnalyzeAsync(conversationId, cancellationToken);
 
         if (response is null) return NotFound("No inbound message was found for this conversation.");
+
+        return Ok(response);
+    }
+
+    [HttpPost("{conversationId:guid}/suggest-reply")]
+    public async Task<ActionResult<SuggestReplyResponse>> SuggestReply(Guid conversationId, CancellationToken cancellationToken)
+    {
+        var response = await _suggestReplyService.GenerateAsync(conversationId, cancellationToken);
+
+        if (response is null) return NotFound("Conversation or conversation messages were not found.");
 
         return Ok(response);
     }

@@ -5,6 +5,7 @@ using SocialOps.Api.Features.AI.Infrastructure;
 using SocialOps.Api.Features.Conversations.Application.Abstractions;
 using SocialOps.Api.Features.Conversations.Application.Services;
 using SocialOps.Api.Features.Conversations.Application.Services.AnalyzeConversation;
+using SocialOps.Api.Features.Conversations.Application.Services.SuggestReplyService;
 using SocialOps.Api.Features.Conversations.Infrastructure;
 using SocialOps.Api.Features.Customers.Application.Abstraction;
 using SocialOps.Api.Features.Customers.Application.Abstractions;
@@ -33,9 +34,9 @@ builder.Services.AddDbContext<SocialOpsDbContext>(options =>
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-builder.Services.AddScoped<IOrganizationRepository,OrganizationRepository>();
+builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
 
-builder.Services.AddScoped<ICustomerRepository,CustomerRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 builder.Services.AddScoped<ISocialAccountRepository, SocialAccountRepository>();
 
@@ -60,6 +61,8 @@ builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<SocialAccountService>();
 
 builder.Services.AddScoped<SocialIdentityService>();
+
+builder.Services.AddScoped<SuggestReplyService>();
 
 builder.Services.AddHttpClient<AgentClient>(
     client =>
