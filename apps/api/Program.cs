@@ -5,6 +5,7 @@ using SocialOps.Api.Features.AI.Infrastructure;
 using SocialOps.Api.Features.Conversations.Application.Abstractions;
 using SocialOps.Api.Features.Conversations.Application.Services;
 using SocialOps.Api.Features.Conversations.Application.Services.AnalyzeConversation;
+using SocialOps.Api.Features.Conversations.Application.Services.GetCustomerContext;
 using SocialOps.Api.Features.Conversations.Application.Services.SuggestReplyService;
 using SocialOps.Api.Features.Conversations.Infrastructure;
 using SocialOps.Api.Features.Customers.Application.Abstraction;
@@ -63,7 +64,9 @@ builder.Services.AddScoped<SocialAccountService>();
 builder.Services.AddScoped<SocialIdentityService>();
 
 builder.Services.AddScoped<SuggestReplyService>();
-  
+
+builder.Services.AddScoped<GetCustomerContextService>();
+
 builder.Services.AddHttpClient<AgentClient>(
     client =>
     {
