@@ -1,0 +1,106 @@
+import json
+
+from groq import AsyncGroq
+from groq.types.chat import (
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageParam,
+    ChatCompletionMessageToolCallParam,
+    ChatCompletionToolMessageParam,
+)
+
+from app.config.settings import settings
+from app.features.conversation_agent.models import (RunConversationAgentRequest, RunConversationAgentResponse)
+from app.features.conversation_agent.tools import TOOLS, execute_tool
+
+
+client = AsyncGroq(api_key=settings.groq_api_key)
+
+
+MAX_TOOL_ITERATIONS = 5
+
+
+async def run_conversation_agent(request: RunConversationAgentRequest) -> RunConversationAgentResponse:
+    messages: list[ChatCompletionMessageParam] = [
+        {
+            "role": "system",
+            "content": (
+                "You are a customer support AI assistant "
+                "inside a social media operations platform. "
+                "Use available tools whenever trusted "
+                "business context is needed. "
+                "Do not invent customer information. "
+                "Do not claim an action was completed unless "
+                "a tool confirms it. "
+                "Keep replies concise, polite, and suitable "
+                "for sending to a social media customer."
+            ),
+        },
+        {
+            "role": "user",
+            "content": (
+                f"Conversation ID: "
+                f"{request.conversation_id}\n\n"
+                f"Customer message:\n"
+                f"{request.message}"
+            ),
+        },
+    ]
+
+    for _ in range(MAX_TOOL_ITERATIONS):
+        response = (
+            await client.chat.completions.create(
+                model=settings.groq_model,
+                messages=messages,
+                tools=TOOLS,
+                tool_choice="auto",
+                temperature=0.2,
+            )
+        )
+
+        assistant_message = response.choices[0].message
+
+        tool_calls = assistant_message.tool_calls
+
+        if not tool_calls:
+            content = assistant_message.content
+
+            if not content:
+                raise RuntimeError("Agent returned an empty response.")
+
+            return RunConversationAgentResponse(reply=content.strip())
+
+        assistant_tool_calls: list[ChatCompletionMessageToolCallParam] = [
+            {
+                "id": tool_call.id,
+                "type": "function",
+                "function": {
+                    "name": tool_call.function.name,
+                    "arguments": tool_call.function.arguments,
+                },
+            }
+            for tool_call in tool_calls
+        ]
+
+        assistant_param: ChatCompletionAssistantMessageParam = {
+            "role": "assistant",
+            "content": assistant_message.content,
+            "tool_calls": assistant_tool_calls,
+        }
+
+        messages.append(assistant_param)
+
+        for tool_call in tool_calls:
+            result = await execute_tool(
+                tool_call.function.name,
+                tool_call.function.arguments,
+            )
+
+            tool_message: ChatCompletionToolMessageParam = {
+                "role": "tool",
+                "tool_call_id": tool_call.id,
+                "content": json.dumps(result),
+            }
+
+            messages.append(tool_message)
+
+    raise RuntimeError("Agent exceeded maximum tool iterations.")

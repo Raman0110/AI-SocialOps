@@ -10,11 +10,7 @@ class SocialOpsApiClient:
 
     async def get_customer_context(self, conversation_id: str) -> dict:
 
-        url = (
-            f"{self.base_url}"
-            f"/internal/agent-tools/"
-            f"conversations/{conversation_id}/customer-context"
-        )
+        url = f"{self.base_url}/internal/agent-tools/conversations/{conversation_id}/customer-context"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url)

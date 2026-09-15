@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.features.message_analysis.router import (router as message_analysis_router)
 from app.features.suggested_reply.router import (router as suggested_reply_router)
+from app.features.conversation_agent.router import (router as conversation_agent_router)
 
 
 app = FastAPI(
@@ -20,3 +21,4 @@ async def health():
 
 app.include_router(message_analysis_router)
 app.include_router(suggested_reply_router)
+app.include_router(conversation_agent_router)
