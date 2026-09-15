@@ -5,6 +5,10 @@ interface AnalyzeMessageRequest {
   message: string;
 }
 
+export interface SuggestedReply {
+  reply: string;
+}
+
 export async function analyzeMessage(message: string): Promise<MessageAnalysis> {
   return request<MessageAnalysis>({
     method: "POST",
@@ -12,5 +16,12 @@ export async function analyzeMessage(message: string): Promise<MessageAnalysis> 
     data: {
       message,
     } satisfies AnalyzeMessageRequest,
+  });
+}
+
+export async function suggestReply(conversationId: string): Promise<SuggestedReply> {
+  return request<SuggestedReply>({
+    method: "POST",
+    url: `/api/conversations/${conversationId}/suggest-reply`,
   });
 }

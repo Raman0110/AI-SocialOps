@@ -46,10 +46,7 @@ public sealed class ConversationsController : ControllerBase
 
         var response = await _conversationService.CreateAsync(request, cancellationToken);
 
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = response.Id },
-            response);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
     [HttpPost("{conversationId:guid}/messages")]
@@ -70,9 +67,7 @@ public sealed class ConversationsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<GetInboxResponse>>> GetInbox([FromQuery] Guid organizationId, CancellationToken cancellationToken)
     {
-        var response = await _conversationService.GetAsync(
-                organizationId,
-                cancellationToken);
+        var response = await _conversationService.GetAsync(organizationId, cancellationToken);
 
         return Ok(response);
     }

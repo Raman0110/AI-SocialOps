@@ -19,6 +19,7 @@ import {
 
 import { ConversationList } from "./ConversationList";
 import { ConversationDetails as ConversationDetailsView } from "./ConversationDetails";
+import { suggestReply } from "../../api/ai";
 
 interface InboxPageProps {
   organizationId: string;
@@ -26,6 +27,12 @@ interface InboxPageProps {
 
 export type AnalysisState = {
   data: MessageAnalysis | null;
+  isLoading: boolean;
+  error: string | null;
+};
+
+export type SuggestedReplyState = {
+  data: string | null;
   isLoading: boolean;
   error: string | null;
 };
@@ -46,6 +53,15 @@ export function InboxPage({ organizationId }: InboxPageProps) {
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState<string | null>(null);
+
+  const [
+    suggestedReplyState,
+    setSuggestedReplyState,
+  ] = useState<SuggestedReplyState>({
+    data: null,
+    isLoading: false,
+    error: null,
+  });
 
   useEffect(() => {
     async function loadInbox() {
@@ -130,6 +146,35 @@ export function InboxPage({ organizationId }: InboxPageProps) {
     }
   }
 
+  async function handleSuggestReply() {
+    if (!selectedConversationId) {
+      return;
+    }
+
+    try {
+      setSuggestedReplyState((current) => ({
+        ...current,
+        isLoading: true,
+        error: null,
+      }));
+
+      const result = await suggestReply(selectedConversationId);
+
+      setSuggestedReplyState({
+        data: result.reply,
+        isLoading: false,
+        error: null,
+      });
+    } catch {
+      setSuggestedReplyState({
+        data: null,
+        isLoading: false,
+        error:
+          "Unable to generate a suggested reply.",
+      });
+    }
+  }
+
   if (loading) {
     return (
       <div className="grid min-h-screen place-items-center bg-slate-50 px-6 text-sm font-medium text-slate-600">
@@ -166,6 +211,8 @@ export function InboxPage({ organizationId }: InboxPageProps) {
           onSendMessage={handleSendMessage}
           analysisState={analysisState}
           onAnalyze={handleAnalyzeMessage}
+          onSuggestReply={handleSuggestReply}
+          suggestedReplyState={suggestedReplyState}
         />
       </main>
     </div>

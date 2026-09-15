@@ -1,22 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 
 interface ReplyBoxProps {
   disabled?: boolean;
+  suggestedReply: string | null;
+  isGeneratingReply: boolean;
+  onGenerateReply: () => Promise<void>;
   onSend: (message: string) => Promise<void>;
 }
 
-export function ReplyBox({
-  disabled = false,
-  onSend,
-}: ReplyBoxProps) {
+export function ReplyBox({ disabled = false, onSend, suggestedReply, isGeneratingReply, onGenerateReply }: ReplyBoxProps) {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+
+  useEffect(() => {
+    if (suggestedReply) {
+      setMessage(suggestedReply);
+    }
+  }, [suggestedReply]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const content = message.trim();
@@ -55,18 +60,40 @@ export function ReplyBox({
           rows={3}
           className="min-h-24 flex-1 resize-none rounded-md border border-slate-300 px-3 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-slate-100"
         />
-
-        <button
-          type="submit"
-          disabled={
-            disabled ||
-            sending ||
-            !message.trim()
-          }
-          className="h-10 self-end rounded-md bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            marginTop: "8px",
+          }}
         >
-          {sending ? "Sending..." : "Send"}
-        </button>
+          <button
+            type="button"
+            onClick={onGenerateReply}
+            disabled={
+              disabled ||
+              sending ||
+              isGeneratingReply
+            }
+          >
+            {isGeneratingReply
+              ? "Generating..."
+              : "Generate AI Reply"}
+          </button>
+
+          <button
+            type="submit"
+            disabled={
+              disabled ||
+              sending ||
+              !message.trim()
+            }
+          >
+            {sending
+              ? "Sending..."
+              : "Send"}
+          </button>
+        </div>
       </div>
 
       {error && (

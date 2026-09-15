@@ -5,7 +5,7 @@ import {
   MessageDirection,
   MessageSenderTypeLabel,
 } from "../../types/conversations";
-import type { AnalysisState } from "./InboxPage";
+import type { AnalysisState, SuggestedReplyState } from "./InboxPage";
 import { ReplyBox } from "./ReplayBox";
 
 interface ConversationDetailsProps {
@@ -13,13 +13,17 @@ interface ConversationDetailsProps {
   onSendMessage: (content: string) => Promise<void>;
   analysisState: AnalysisState;
   onAnalyze: () => Promise<void>;
+  suggestedReplyState: SuggestedReplyState;
+  onSuggestReply: () => Promise<void>;
 }
 
 export function ConversationDetails({
   conversation,
   onSendMessage,
   analysisState,
-  onAnalyze
+  onAnalyze,
+  suggestedReplyState,
+  onSuggestReply
 }: ConversationDetailsProps) {
   if (!conversation) {
     return (
@@ -170,9 +174,7 @@ export function ConversationDetails({
                   className={`mt-2 block text-xs ${isCustomer ? "text-slate-400" : "text-sky-100"
                     }`}
                 >
-                  {new Date(
-                    message.sentAt
-                  ).toLocaleString()}
+                  {new Date(message.sentAt).toLocaleString()}
                 </small>
               </div>
             </div>
@@ -181,6 +183,9 @@ export function ConversationDetails({
       </div>
 
       <ReplyBox
+        suggestedReply={suggestedReplyState.data}
+        isGeneratingReply={suggestedReplyState.isLoading}
+        onGenerateReply={onSuggestReply}
         onSend={onSendMessage}
       />
     </div>

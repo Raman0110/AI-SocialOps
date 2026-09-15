@@ -63,7 +63,7 @@ builder.Services.AddScoped<SocialAccountService>();
 builder.Services.AddScoped<SocialIdentityService>();
 
 builder.Services.AddScoped<SuggestReplyService>();
-
+  
 builder.Services.AddHttpClient<AgentClient>(
     client =>
     {
