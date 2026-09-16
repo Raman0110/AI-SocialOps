@@ -25,3 +25,10 @@ export async function suggestReply(conversationId: string): Promise<SuggestedRep
     url: `/api/conversations/${conversationId}/suggest-reply`,
   });
 }
+
+export async function generateAgentReply(conversationId: string): Promise<SuggestedReply> {
+  return request<SuggestedReply>({
+    method: "POST",
+    url: `/api/conversations/${conversationId}/agent-reply"`,
+  });
+}

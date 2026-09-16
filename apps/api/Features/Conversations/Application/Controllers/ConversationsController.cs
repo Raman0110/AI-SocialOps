@@ -5,6 +5,7 @@ using SocialOps.Api.Features.Conversations.Application.Services.AnalyzeConversat
 using SocialOps.Api.Features.Conversations.Application.Dtos.SuggestReply;
 using SocialOps.Api.Features.Conversations.Application.Dtos;
 using SocialOps.Api.Features.Conversations.Application.Services;
+using SocialOps.Api.Features.Conversations.Application.GenerateAgentReply;
 
 
 namespace SocialOps.Api.Features.Conversations.Controllers;
@@ -19,6 +20,7 @@ public sealed class ConversationsController : ControllerBase
     private readonly IValidator<AddMessageRequest> _messageValidator;
     private readonly AnalyzeConversationService _analyzeService;
     private readonly SuggestReplyService _suggestReplyService;
+    private readonly GenerateAgentReplyService _generateAgentReplyService;
 
     public ConversationsController(
         ConversationsService createConversationService,
@@ -26,7 +28,8 @@ public sealed class ConversationsController : ControllerBase
         IValidator<CreateConversationRequest> conversationValidator,
         IValidator<AddMessageRequest> messageValidator,
         AnalyzeConversationService analyzeService,
-        SuggestReplyService suggestReplyService
+        SuggestReplyService suggestReplyService,
+        GenerateAgentReplyService generateAgentReplyService
         )
     {
         _conversationService = createConversationService;
@@ -35,6 +38,7 @@ public sealed class ConversationsController : ControllerBase
         _messageValidator = messageValidator;
         _analyzeService = analyzeService;
         _suggestReplyService = suggestReplyService;
+        _generateAgentReplyService = generateAgentReplyService;
     }
 
     [HttpPost]
@@ -98,6 +102,17 @@ public sealed class ConversationsController : ControllerBase
         var response = await _suggestReplyService.GenerateAsync(conversationId, cancellationToken);
 
         if (response is null) return NotFound("Conversation or conversation messages were not found.");
+
+        return Ok(response);
+    }
+
+    [HttpPost(
+    "{conversationId:guid}/agent-reply")]
+    public async Task<ActionResult<GenerateAgentReplyResponse>> GenerateAgentReply(Guid conversationId, CancellationToken cancellationToken)
+    {
+        var response = await _generateAgentReplyService.GenerateAsync(conversationId, cancellationToken);
+
+        if (response is null) return NotFound("Conversation or inbound message was not found.");
 
         return Ok(response);
     }

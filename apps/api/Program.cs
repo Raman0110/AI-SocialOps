@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SocialOps.Api.Features.AI.Application.AnalyzeMessage.Services;
 using SocialOps.Api.Features.AI.Infrastructure;
 using SocialOps.Api.Features.Conversations.Application.Abstractions;
+using SocialOps.Api.Features.Conversations.Application.GenerateAgentReply;
 using SocialOps.Api.Features.Conversations.Application.Services;
 using SocialOps.Api.Features.Conversations.Application.Services.AnalyzeConversation;
 using SocialOps.Api.Features.Conversations.Application.Services.GetCustomerContext;
@@ -66,6 +67,8 @@ builder.Services.AddScoped<SocialIdentityService>();
 builder.Services.AddScoped<SuggestReplyService>();
 
 builder.Services.AddScoped<GetCustomerContextService>();
+
+builder.Services.AddScoped<GenerateAgentReplyService>();
 
 builder.Services.AddHttpClient<AgentClient>(
     client =>

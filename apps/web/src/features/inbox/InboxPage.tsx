@@ -19,7 +19,7 @@ import {
 
 import { ConversationList } from "./ConversationList";
 import { ConversationDetails as ConversationDetailsView } from "./ConversationDetails";
-import { suggestReply } from "../../api/ai";
+import { generateAgentReply } from "../../api/ai";
 
 interface InboxPageProps {
   organizationId: string;
@@ -158,7 +158,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         error: null,
       }));
 
-      const result = await suggestReply(selectedConversationId);
+      const result = await generateAgentReply(selectedConversationId);
 
       setSuggestedReplyState({
         data: result.reply,
