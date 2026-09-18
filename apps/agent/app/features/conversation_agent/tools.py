@@ -1,8 +1,8 @@
 import json
-
 from groq.types.chat import ChatCompletionToolParam
+from app.tools.customer_tools import get_customer_context
+from app.tools.conversation_tools import get_conversation_history
 
-from app.tools.customer_tools import (get_customer_context)
 
 
 CUSTOMER_CONTEXT_TOOL: ChatCompletionToolParam = {
@@ -29,8 +29,46 @@ CUSTOMER_CONTEXT_TOOL: ChatCompletionToolParam = {
     },
 }
 
+CONVERSATION_HISTORY_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "get_conversation_history",
+        "description": (
+            "Get recent messages from the current "
+            "customer conversation. Use this when "
+            "previous messages are needed to understand "
+            "context, references, previous questions, "
+            "or what support has already told the customer."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "conversation_id": {
+                    "type": "string",
+                    "description": (
+                        "The current conversation identifier."
+                    ),
+                },
+                "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": (
+                        "Maximum number of recent "
+                        "messages to retrieve."
+                    ),
+                },
+            },
+            "required": [
+                "conversation_id",
+            ],
+            "additionalProperties": False,
+        },
+    },
+}
 
-TOOLS: list[ChatCompletionToolParam] = [CUSTOMER_CONTEXT_TOOL]
+
+TOOLS = [CUSTOMER_CONTEXT_TOOL, CONVERSATION_HISTORY_TOOL]
 
 
 async def execute_tool(tool_name: str, arguments: str):
@@ -38,5 +76,11 @@ async def execute_tool(tool_name: str, arguments: str):
 
     if tool_name == "get_customer_context":
         return await get_customer_context(conversation_id = parsed_arguments["conversation_id"])
+
+    if tool_name == "get_conversation_history":
+        return await get_conversation_history(
+            conversation_id=parsed_arguments["conversation_id"],
+            limit=parsed_arguments.get("limit",20)
+        )
 
     raise ValueError(f"Unknown tool: {tool_name}")

@@ -18,3 +18,14 @@ class SocialOpsApiClient:
             response.raise_for_status()
 
             return response.json()
+
+    async def get_conversation_history(self, conversation_id: str, limit: int = 20) -> dict:
+
+        url = f"{self.base_url}/internal/agent-tools/conversations/{conversation_id}/history"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params={"limit": limit,})
+
+            response.raise_for_status()
+
+            return response.json()

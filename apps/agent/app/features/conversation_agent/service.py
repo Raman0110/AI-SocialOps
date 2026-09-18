@@ -7,7 +7,6 @@ from groq.types.chat import (
     ChatCompletionMessageToolCallParam,
     ChatCompletionToolMessageParam,
 )
-
 from app.config.settings import settings
 from app.features.conversation_agent.models import (RunConversationAgentRequest, RunConversationAgentResponse)
 from app.features.conversation_agent.tools import TOOLS, execute_tool
@@ -26,13 +25,23 @@ async def run_conversation_agent(request: RunConversationAgentRequest) -> RunCon
             "content": (
                 "You are a customer support AI assistant "
                 "inside a social media operations platform. "
-                "Use available tools whenever trusted "
-                "business context is needed. "
-                "Do not invent customer information. "
-                "Do not claim an action was completed unless "
-                "a tool confirms it. "
-                "Keep replies concise, polite, and suitable "
-                "for sending to a social media customer."
+
+                "Use get_customer_context when customer identity "
+                "or customer profile information is needed. "
+
+                "Use get_conversation_history when previous "
+                "messages are necessary to understand context "
+                "or determine what has already been discussed. "
+
+                "Use tools only when they are useful. "
+                "Do not call tools unnecessarily. "
+
+                "Never invent customer information or business facts. "
+                "Do not claim an action was completed unless a tool "
+                "confirms it. "
+
+                "Your final response should be a concise and polite "
+                "draft suitable for sending to the customer."
             ),
         },
         {

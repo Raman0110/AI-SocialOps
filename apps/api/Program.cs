@@ -70,6 +70,8 @@ builder.Services.AddScoped<GetCustomerContextService>();
 
 builder.Services.AddScoped<GenerateAgentReplyService>();
 
+builder.Services.AddScoped<GetConversationHistoryService>();
+
 builder.Services.AddHttpClient<AgentClient>(
     client =>
     {
