@@ -19,12 +19,36 @@ class SocialOpsApiClient:
 
             return response.json()
 
+
     async def get_conversation_history(self, conversation_id: str, limit: int = 20) -> dict:
 
         url = f"{self.base_url}/internal/agent-tools/conversations/{conversation_id}/history"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, params={"limit": limit,})
+
+            response.raise_for_status()
+
+            return response.json()
+        
+
+    async def propose_support_ticket(self, conversation_id: str, title: str, description: str,priority: str) -> dict:
+
+        url = (
+            f"{self.base_url}"
+            f"/internal/agent-tools/"
+            f"conversations/{conversation_id}"
+            f"/ticket-proposals"
+        )
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url,
+                json={
+                    "title": title,
+                    "description": description,
+                    "priority": priority,
+                },
+            )
 
             response.raise_for_status()
 

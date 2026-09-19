@@ -3,12 +3,14 @@ using SocialOps.Api.Features.Conversations.Domain;
 using SocialOps.Api.Features.Customers.Domain;
 using SocialOps.Api.Features.Organizations.Domain;
 using SocialOps.Api.Features.SocialAccounts.Domain;
+using SocialOps.Api.Features.Tickets.Domain;
+
 
 namespace SocialOps.Api.Shared.Data;
 
 public class SocialOpsDbContext : DbContext
 {
-    public SocialOpsDbContext(DbContextOptions<SocialOpsDbContext> options): base(options){ }
+    public SocialOpsDbContext(DbContextOptions<SocialOpsDbContext> options) : base(options) { }
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<SocialIdentity> SocialIdentities => Set<SocialIdentity>();
@@ -16,6 +18,10 @@ public class SocialOpsDbContext : DbContext
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<MessageAnalysis> MessageAnalyses => Set<MessageAnalysis>();
+
+    public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
+
+    public DbSet<PendingAgentAction> PendingAgentActions => Set<PendingAgentAction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

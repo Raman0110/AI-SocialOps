@@ -1,5 +1,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using SocialOps.Api.Features.AgentActions.Application.Services.ApproveAgentAction;
+using SocialOps.Api.Features.AgentActions.Application.Services.CreateTicketProposal;
 using SocialOps.Api.Features.AI.Application.AnalyzeMessage.Services;
 using SocialOps.Api.Features.AI.Infrastructure;
 using SocialOps.Api.Features.Conversations.Application.Abstractions;
@@ -71,6 +73,10 @@ builder.Services.AddScoped<GetCustomerContextService>();
 builder.Services.AddScoped<GenerateAgentReplyService>();
 
 builder.Services.AddScoped<GetConversationHistoryService>();
+
+builder.Services.AddScoped<CreateTicketProposalService>();
+
+builder.Services.AddScoped<AgentActionService>();
 
 builder.Services.AddHttpClient<AgentClient>(
     client =>

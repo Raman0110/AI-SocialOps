@@ -1,6 +1,8 @@
 import json
+from typing import cast
 
 from groq import AsyncGroq
+from groq.resources.chat import AsyncChat
 from groq.types.chat import (
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
@@ -8,9 +10,11 @@ from groq.types.chat import (
     ChatCompletionToolMessageParam,
 )
 from app.config.settings import settings
-from app.features.conversation_agent.models import (RunConversationAgentRequest, RunConversationAgentResponse)
+from app.features.conversation_agent.models import (
+    RunConversationAgentRequest,
+    RunConversationAgentResponse,
+)
 from app.features.conversation_agent.tools import TOOLS, execute_tool
-
 
 client = AsyncGroq(api_key=settings.groq_api_key)
 
@@ -18,28 +22,32 @@ client = AsyncGroq(api_key=settings.groq_api_key)
 MAX_TOOL_ITERATIONS = 5
 
 
-async def run_conversation_agent(request: RunConversationAgentRequest) -> RunConversationAgentResponse:
+async def run_conversation_agent(
+    request: RunConversationAgentRequest,
+) -> RunConversationAgentResponse:
     messages: list[ChatCompletionMessageParam] = [
         {
             "role": "system",
             "content": (
                 "You are a customer support AI assistant "
                 "inside a social media operations platform. "
-
                 "Use get_customer_context when customer identity "
                 "or customer profile information is needed. "
-
                 "Use get_conversation_history when previous "
                 "messages are necessary to understand context "
                 "or determine what has already been discussed. "
-
+                "Use propose_support_ticket when an issue genuinely "
+                "requires escalation, investigation, or follow-up that "
+                "cannot be resolved directly in the conversation. "
+                "The support-ticket tool only creates an approval request. "
+                "Never tell the customer that a ticket has been created "
+                "until a tool explicitly confirms that the real ticket "
+                "was created. "
                 "Use tools only when they are useful. "
                 "Do not call tools unnecessarily. "
-
                 "Never invent customer information or business facts. "
                 "Do not claim an action was completed unless a tool "
                 "confirms it. "
-
                 "Your final response should be a concise and polite "
                 "draft suitable for sending to the customer."
             ),
@@ -56,14 +64,12 @@ async def run_conversation_agent(request: RunConversationAgentRequest) -> RunCon
     ]
 
     for _ in range(MAX_TOOL_ITERATIONS):
-        response = (
-            await client.chat.completions.create(
-                model=settings.groq_model,
-                messages=messages,
-                tools=TOOLS,
-                tool_choice="auto",
-                temperature=0.2,
-            )
+        response = await cast(AsyncChat, client.chat).completions.create(
+            model=settings.groq_model,
+            messages=messages,
+            tools=TOOLS,
+            tool_choice="auto",
+            temperature=0.2,
         )
 
         assistant_message = response.choices[0].message

@@ -1,7 +1,4 @@
-from app.clients.socialops_api import SocialOpsApiClient
-
-
-api_client = SocialOpsApiClient()
+from app.clients import socialops_api
 
 
 async def get_conversation_history(conversation_id: str, limit: int = 20) -> dict:
@@ -10,4 +7,4 @@ async def get_conversation_history(conversation_id: str, limit: int = 20) -> dic
     for the specified conversation.
     """
 
-    return await api_client.get_conversation_history(conversation_id, limit)
+    return await socialops_api.get_conversation_history(conversation_id, limit)

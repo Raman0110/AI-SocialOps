@@ -2,8 +2,7 @@ import json
 from groq.types.chat import ChatCompletionToolParam
 from app.tools.customer_tools import get_customer_context
 from app.tools.conversation_tools import get_conversation_history
-
-
+from app.tools.ticket_tools import propose_support_ticket
 
 CUSTOMER_CONTEXT_TOOL: ChatCompletionToolParam = {
     "type": "function",
@@ -45,17 +44,14 @@ CONVERSATION_HISTORY_TOOL = {
             "properties": {
                 "conversation_id": {
                     "type": "string",
-                    "description": (
-                        "The current conversation identifier."
-                    ),
+                    "description": ("The current conversation identifier."),
                 },
                 "limit": {
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 50,
                     "description": (
-                        "Maximum number of recent "
-                        "messages to retrieve."
+                        "Maximum number of recent " "messages to retrieve."
                     ),
                 },
             },
@@ -67,20 +63,74 @@ CONVERSATION_HISTORY_TOOL = {
     },
 }
 
+SUPPORT_TICKET_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "propose_support_ticket",
+        "description": (
+            "Propose creating a support ticket when "
+            "the customer's issue requires escalation "
+            "or follow-up beyond the current conversation. "
+            "This does not immediately create the ticket. "
+            "The proposal requires human approval."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "conversation_id": {
+                    "type": "string",
+                },
+                "title": {
+                    "type": "string",
+                },
+                "description": {
+                    "type": "string",
+                },
+                "priority": {
+                    "type": "string",
+                    "enum": [
+                        "Low",
+                        "Normal",
+                        "High",
+                        "Urgent",
+                    ],
+                },
+            },
+            "required": [
+                "conversation_id",
+                "title",
+                "description",
+                "priority",
+            ],
+            "additionalProperties": False,
+        },
+    },
+}
 
-TOOLS = [CUSTOMER_CONTEXT_TOOL, CONVERSATION_HISTORY_TOOL]
+
+TOOLS = [CUSTOMER_CONTEXT_TOOL, CONVERSATION_HISTORY_TOOL, SUPPORT_TICKET_TOOL]
 
 
 async def execute_tool(tool_name: str, arguments: str):
     parsed_arguments = json.loads(arguments)
 
     if tool_name == "get_customer_context":
-        return await get_customer_context(conversation_id = parsed_arguments["conversation_id"])
+        return await get_customer_context(
+            conversation_id=parsed_arguments["conversation_id"]
+        )
 
     if tool_name == "get_conversation_history":
         return await get_conversation_history(
             conversation_id=parsed_arguments["conversation_id"],
-            limit=parsed_arguments.get("limit",20)
+            limit=parsed_arguments.get("limit", 20),
+        )
+
+    if tool_name == "propose_support_ticket":
+        return await propose_support_ticket(
+            conversation_id=parsed_arguments["conversation_id"],
+            title=parsed_arguments["title"],
+            description=parsed_arguments["description"],
+            priority=parsed_arguments["priority"],
         )
 
     raise ValueError(f"Unknown tool: {tool_name}")

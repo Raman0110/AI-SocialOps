@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using SocialOps.Api.Features.AgentActions.Application.CreateTicketProposal;
+using SocialOps.Api.Features.AgentActions.Application.Services.CreateTicketProposal;
 using SocialOps.Api.Features.Conversations.Application.Dtos;
 using SocialOps.Api.Features.Conversations.Application.Dtos.GetCustomerContext;
 using SocialOps.Api.Features.Conversations.Application.Services;
 using SocialOps.Api.Features.Conversations.Application.Services.GetCustomerContext;
+using SocialOps.Api.Features.Tickets.Domain;
 
 namespace SocialOps.Api.Features.AgentTools.Controllers;
 
@@ -12,11 +15,13 @@ public sealed class AgentToolsController : ControllerBase
 {
   private readonly GetCustomerContextService _customerContextService;
   private readonly GetConversationHistoryService _conversationHistoryService;
+  private readonly CreateTicketProposalService _createTicketProposalService;
 
-  public AgentToolsController(GetCustomerContextService customerContextService, GetConversationHistoryService conversationHistoryService)
+  public AgentToolsController(GetCustomerContextService customerContextService, GetConversationHistoryService conversationHistoryService, CreateTicketProposalService createTicketProposalService)
   {
     _customerContextService = customerContextService;
     _conversationHistoryService = conversationHistoryService;
+    _createTicketProposalService = createTicketProposalService;
   }
 
   [HttpGet("conversations/{conversationId:guid}/customer-context")]
@@ -43,5 +48,28 @@ public sealed class AgentToolsController : ControllerBase
     if (response is null) return NotFound();
 
     return Ok(response);
+  }
+
+  public sealed record ProposeTicketRequest(
+      string Title,
+      string Description,
+      TicketPriority Priority
+  );
+
+  [HttpPost("conversations/{conversationId:guid}/ticket-proposals")]
+  public async Task<ActionResult<object>> ProposeTicket(Guid conversationId, ProposeTicketRequest request, CancellationToken cancellationToken)
+  {
+    var ticketPorposalPayload = new CreateTicketProposalPayload(request.Title, request.Description, request.Priority);
+
+    var actionId = await _createTicketProposalService.CreateAsync(conversationId, ticketPorposalPayload, cancellationToken);
+
+    if (actionId is null) return NotFound();
+
+    return Ok(new
+    {
+      actionId,
+      status = "Pending",
+      requiresApproval = true
+    });
   }
 }

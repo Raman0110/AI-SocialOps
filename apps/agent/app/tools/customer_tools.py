@@ -1,7 +1,5 @@
-from app.clients.socialops_api import SocialOpsApiClient
 
-
-api_client = SocialOpsApiClient()
+from app.clients import socialops_api
 
 
 async def get_customer_context(conversation_id: str) -> dict:
@@ -10,4 +8,4 @@ async def get_customer_context(conversation_id: str) -> dict:
     for a conversation.
     """
 
-    return await api_client.get_customer_context(conversation_id)
+    return await socialops_api.get_customer_context(conversation_id)
