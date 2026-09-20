@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using SocialOps.Api.Features.AgentActions.Application.Dtos;
+using SocialOps.Api.Features.AgentActions.Application.GetPendingActions;
 using SocialOps.Api.Features.AgentActions.Application.Services.ApproveAgentAction;
 
 namespace SocialOps.Api.Features.AgentActions.Controllers;
@@ -8,10 +10,13 @@ namespace SocialOps.Api.Features.AgentActions.Controllers;
 public sealed class AgentActionsController : ControllerBase
 {
   private readonly AgentActionService _agentActionService;
+  private readonly GetPendingAgentActionsService
+    _getPendingService;
 
-  public AgentActionsController(AgentActionService agentActionService)
+  public AgentActionsController(AgentActionService agentActionService, GetPendingAgentActionsService getPendingService)
   {
     _agentActionService = agentActionService;
+    _getPendingService = getPendingService;
   }
 
   [HttpPost("{id:guid}/approve")]
@@ -35,5 +40,15 @@ public sealed class AgentActionsController : ControllerBase
     if (!success) return NotFound();
 
     return NoContent();
+  }
+
+  [HttpGet]
+  public async Task<ActionResult<IReadOnlyList<GetPendingAgentActionResponse>>> GetPending(
+    [FromQuery] Guid conversationId,
+    CancellationToken cancellationToken)
+  {
+    var actions = await _getPendingService.GetAsync(conversationId, cancellationToken);
+
+    return Ok(actions);
   }
 }

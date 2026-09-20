@@ -5,7 +5,8 @@ import {
   MessageDirection,
   MessageSenderTypeLabel,
 } from "../../types/conversations";
-import type { AnalysisState, SuggestedReplyState } from "./InboxPage";
+import { AgentActionsPanel } from "./AgentActionPanel";
+import type { AgentActionsState, AnalysisState, SuggestedReplyState } from "./InboxPage";
 import { ReplyBox } from "./ReplayBox";
 
 interface ConversationDetailsProps {
@@ -15,6 +16,9 @@ interface ConversationDetailsProps {
   onAnalyze: () => Promise<void>;
   suggestedReplyState: SuggestedReplyState;
   onSuggestReply: () => Promise<void>;
+  onApproveAction: (actionId: string) => Promise<void>;
+  onRejectAction: (actionId: string) => Promise<void>;
+  agentActionsState: AgentActionsState;
 }
 
 export function ConversationDetails({
@@ -23,7 +27,10 @@ export function ConversationDetails({
   analysisState,
   onAnalyze,
   suggestedReplyState,
-  onSuggestReply
+  onSuggestReply,
+  onApproveAction,
+  onRejectAction,
+  agentActionsState
 }: ConversationDetailsProps) {
   if (!conversation) {
     return (
@@ -142,6 +149,14 @@ export function ConversationDetails({
           </div>
         )}
       </section>
+
+      <AgentActionsPanel
+        actions={agentActionsState.data}
+        isLoading={agentActionsState.isLoading}
+        error={agentActionsState.error}
+        onApprove={onApproveAction}
+        onReject={onRejectAction}
+      />
 
       <div className="flex-1 overflow-y-auto px-6 py-6">
         {conversation.messages.map((message) => {

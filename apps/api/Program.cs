@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using SocialOps.Api.Features.AgentActions.Application.GetPendingActions;
 using SocialOps.Api.Features.AgentActions.Application.Services.ApproveAgentAction;
 using SocialOps.Api.Features.AgentActions.Application.Services.CreateTicketProposal;
 using SocialOps.Api.Features.AI.Application.AnalyzeMessage.Services;
@@ -77,6 +78,8 @@ builder.Services.AddScoped<GetConversationHistoryService>();
 builder.Services.AddScoped<CreateTicketProposalService>();
 
 builder.Services.AddScoped<AgentActionService>();
+
+builder.Services.AddScoped<GetPendingAgentActionsService>();
 
 builder.Services.AddHttpClient<AgentClient>(
     client =>

@@ -20,6 +20,8 @@ import {
 import { ConversationList } from "./ConversationList";
 import { ConversationDetails as ConversationDetailsView } from "./ConversationDetails";
 import { generateAgentReply } from "../../api/ai";
+import type { PendingAgentAction } from "../../types/agentActions";
+import { approveAgentAction, getPendingAgentActions, rejectAgentAction } from "../../api/agentActions";
 
 interface InboxPageProps {
   organizationId: string;
@@ -37,6 +39,12 @@ export type SuggestedReplyState = {
   error: string | null;
 };
 
+export type AgentActionsState = {
+  data: PendingAgentAction[];
+  isLoading: boolean;
+  error: string | null;
+};
+
 export function InboxPage({ organizationId }: InboxPageProps) {
   const [conversations, setConversations] = useState<InboxConversation[]>([]);
 
@@ -46,6 +54,12 @@ export function InboxPage({ organizationId }: InboxPageProps) {
 
   const [analysisState, setAnalysisState] = useState<AnalysisState>({
     data: null,
+    isLoading: false,
+    error: null,
+  });
+
+  const [agentActionsState, setAgentActionsState] = useState<AgentActionsState>({
+    data: [],
     isLoading: false,
     error: null,
   });
@@ -91,11 +105,21 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         error: null,
       });
 
+      setSuggestedReplyState({
+        data: null,
+        isLoading: false,
+        error: null,
+      });
+
       const result = await getConversation(conversationId);
 
       setSelectedConversation(result);
+
+      await loadPendingActions(conversationId);
     } catch {
-      setError("Unable to load conversation.");
+      setError(
+        "Unable to load conversation."
+      );
     }
   }
 
@@ -147,9 +171,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
   }
 
   async function handleSuggestReply() {
-    if (!selectedConversationId) {
-      return;
-    }
+    if (!selectedConversationId) return;
 
     try {
       setSuggestedReplyState((current) => ({
@@ -165,13 +187,68 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         isLoading: false,
         error: null,
       });
+
+      await loadPendingActions(selectedConversationId);
     } catch {
       setSuggestedReplyState({
         data: null,
         isLoading: false,
-        error:
-          "Unable to generate a suggested reply.",
+        error: "Unable to generate a suggested reply.",
       });
+    }
+  }
+
+  async function loadPendingActions(conversationId: string) {
+    try {
+      setAgentActionsState({
+        data: [],
+        isLoading: true,
+        error: null,
+      });
+
+      const actions = await getPendingAgentActions(conversationId);
+
+      setAgentActionsState({
+        data: actions,
+        isLoading: false,
+        error: null,
+      });
+    } catch {
+      setAgentActionsState({
+        data: [],
+        isLoading: false,
+        error: "Unable to load pending actions.",
+      });
+    }
+  }
+
+  async function handleApproveAction(actionId: string) {
+    if (!selectedConversationId) return;
+
+    try {
+      await approveAgentAction(actionId);
+
+      await loadPendingActions(selectedConversationId);
+    } catch {
+      setAgentActionsState((current) => ({
+        ...current,
+        error: "Unable to approve action.",
+      }));
+    }
+  }
+
+  async function handleRejectAction(actionId: string) {
+    if (!selectedConversationId) return;
+
+    try {
+      await rejectAgentAction(actionId);
+
+      await loadPendingActions(selectedConversationId);
+    } catch {
+      setAgentActionsState((current) => ({
+        ...current,
+        error: "Unable to reject action.",
+      }));
     }
   }
 
@@ -213,6 +290,9 @@ export function InboxPage({ organizationId }: InboxPageProps) {
           onAnalyze={handleAnalyzeMessage}
           onSuggestReply={handleSuggestReply}
           suggestedReplyState={suggestedReplyState}
+          onApproveAction={handleApproveAction}
+          onRejectAction={handleRejectAction}
+          agentActionsState={agentActionsState}
         />
       </main>
     </div>
