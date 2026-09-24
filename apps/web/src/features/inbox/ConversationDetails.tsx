@@ -6,7 +6,7 @@ import {
   MessageSenderTypeLabel,
 } from "../../types/conversations";
 import { AgentActionsPanel } from "./AgentActionPanel";
-import type { AgentActionsState, AnalysisState, SuggestedReplyState } from "./InboxPage";
+import type { AgentActionsState, AgentReplyState, AnalysisState } from "./InboxPage";
 import { ReplyBox } from "./ReplayBox";
 
 interface ConversationDetailsProps {
@@ -14,7 +14,7 @@ interface ConversationDetailsProps {
   onSendMessage: (content: string) => Promise<void>;
   analysisState: AnalysisState;
   onAnalyze: () => Promise<void>;
-  suggestedReplyState: SuggestedReplyState;
+  agentReplyState: AgentReplyState;
   onSuggestReply: () => Promise<void>;
   onApproveAction: (actionId: string) => Promise<void>;
   onRejectAction: (actionId: string) => Promise<void>;
@@ -26,7 +26,7 @@ export function ConversationDetails({
   onSendMessage,
   analysisState,
   onAnalyze,
-  suggestedReplyState,
+  agentReplyState,
   onSuggestReply,
   onApproveAction,
   onRejectAction,
@@ -198,8 +198,8 @@ export function ConversationDetails({
       </div>
 
       <ReplyBox
-        suggestedReply={suggestedReplyState.data}
-        isGeneratingReply={suggestedReplyState.isLoading}
+        suggestedReply={agentReplyState.data?.reply ?? null}
+        isGeneratingReply={agentReplyState?.isLoading}
         onGenerateReply={onSuggestReply}
         onSend={onSendMessage}
       />

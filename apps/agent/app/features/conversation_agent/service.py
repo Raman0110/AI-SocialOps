@@ -63,6 +63,9 @@ async def run_conversation_agent(
         },
     ]
 
+    tools_used: list[str] = []
+    pending_action_ids: list[str] = []
+
     for _ in range(MAX_TOOL_ITERATIONS):
         response = await cast(AsyncChat, client.chat).completions.create(
             model=settings.groq_model,
@@ -82,7 +85,11 @@ async def run_conversation_agent(
             if not content:
                 raise RuntimeError("Agent returned an empty response.")
 
-            return RunConversationAgentResponse(reply=content.strip())
+            return RunConversationAgentResponse(
+                reply=content.strip(),
+                tools_used=tools_used,
+                pending_action_ids=pending_action_ids,
+            )
 
         assistant_tool_calls: list[ChatCompletionMessageToolCallParam] = [
             {
@@ -105,10 +112,20 @@ async def run_conversation_agent(
         messages.append(assistant_param)
 
         for tool_call in tool_calls:
+            tool_name = tool_call.function.name
+
+            if tool_name not in tools_used:
+                tools_used.append(tool_name)
+
             result = await execute_tool(
                 tool_call.function.name,
                 tool_call.function.arguments,
             )
+
+            if tool_name == "propose_support_ticket" and isinstance(result, dict):
+                action_id = result.get("actionId")
+                if action_id:
+                    pending_action_ids.append(str(action_id))
 
             tool_message: ChatCompletionToolMessageParam = {
                 "role": "tool",

@@ -19,7 +19,7 @@ import {
 
 import { ConversationList } from "./ConversationList";
 import { ConversationDetails as ConversationDetailsView } from "./ConversationDetails";
-import { generateAgentReply } from "../../api/ai";
+import { generateAgentReply, type AgentReplyResult } from "../../api/ai";
 import type { PendingAgentAction } from "../../types/agentActions";
 import { approveAgentAction, getPendingAgentActions, rejectAgentAction } from "../../api/agentActions";
 
@@ -45,6 +45,12 @@ export type AgentActionsState = {
   error: string | null;
 };
 
+export type AgentReplyState = {
+  data: AgentReplyResult | null;
+  isLoading: boolean;
+  error: string | null;
+};
+
 export function InboxPage({ organizationId }: InboxPageProps) {
   const [conversations, setConversations] = useState<InboxConversation[]>([]);
 
@@ -60,6 +66,12 @@ export function InboxPage({ organizationId }: InboxPageProps) {
 
   const [agentActionsState, setAgentActionsState] = useState<AgentActionsState>({
     data: [],
+    isLoading: false,
+    error: null,
+  });
+
+  const [agentReplyState, setAgentReplyState] = useState<AgentReplyState>({
+    data: null,
     isLoading: false,
     error: null,
   });
@@ -170,30 +182,33 @@ export function InboxPage({ organizationId }: InboxPageProps) {
     }
   }
 
-  async function handleSuggestReply() {
-    if (!selectedConversationId) return;
+  async function handleGenerateAgentReply() {
+    if (!selectedConversationId) {
+      return;
+    }
 
     try {
-      setSuggestedReplyState((current) => ({
-        ...current,
+      setAgentReplyState({
+        data: null,
         isLoading: true,
         error: null,
-      }));
+      });
 
       const result = await generateAgentReply(selectedConversationId);
 
-      setSuggestedReplyState({
-        data: result.reply,
+      setAgentReplyState({
+        data: result,
         isLoading: false,
         error: null,
       });
 
       await loadPendingActions(selectedConversationId);
     } catch {
-      setSuggestedReplyState({
+      setAgentReplyState({
         data: null,
         isLoading: false,
-        error: "Unable to generate a suggested reply.",
+        error:
+          "Unable to generate agent reply.",
       });
     }
   }
@@ -288,8 +303,8 @@ export function InboxPage({ organizationId }: InboxPageProps) {
           onSendMessage={handleSendMessage}
           analysisState={analysisState}
           onAnalyze={handleAnalyzeMessage}
-          onSuggestReply={handleSuggestReply}
-          suggestedReplyState={suggestedReplyState}
+          onSuggestReply={handleGenerateAgentReply}
+          agentReplyState={agentReplyState}
           onApproveAction={handleApproveAction}
           onRejectAction={handleRejectAction}
           agentActionsState={agentActionsState}

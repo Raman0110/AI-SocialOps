@@ -34,6 +34,10 @@ public sealed class GenerateAgentReplyService
 
     var result = await _agentClient.RunAgentAsync(new RunAgentRequest(conversationId.ToString(), latestMessage.Content), cancellationToken);
 
-    return new GenerateAgentReplyResponse(result.Reply);
+    return new GenerateAgentReplyResponse(
+        result.Reply,
+        result.ToolsUsed,
+        result.PendingActionIds
+    );
   }
 }

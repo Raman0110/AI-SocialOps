@@ -5,8 +5,10 @@ interface AnalyzeMessageRequest {
   message: string;
 }
 
-export interface SuggestedReply {
+export interface AgentReplyResult {
   reply: string;
+  toolsUsed: string[];
+  pendingActionIds: string[];
 }
 
 export async function analyzeMessage(message: string): Promise<MessageAnalysis> {
@@ -19,15 +21,15 @@ export async function analyzeMessage(message: string): Promise<MessageAnalysis> 
   });
 }
 
-export async function suggestReply(conversationId: string): Promise<SuggestedReply> {
-  return request<SuggestedReply>({
+export async function suggestReply(conversationId: string): Promise<AgentReplyResult> {
+  return request<AgentReplyResult>({
     method: "POST",
     url: `/api/conversations/${conversationId}/suggest-reply`,
   });
 }
 
-export async function generateAgentReply(conversationId: string): Promise<SuggestedReply> {
-  return request<SuggestedReply>({
+export async function generateAgentReply(conversationId: string): Promise<AgentReplyResult> {
+  return request<AgentReplyResult>({
     method: "POST",
     url: `/api/conversations/${conversationId}/agent-reply"`,
   });
