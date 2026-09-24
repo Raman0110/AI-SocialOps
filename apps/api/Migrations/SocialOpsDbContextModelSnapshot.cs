@@ -22,6 +22,92 @@ namespace SocialOps.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("SocialOps.Api.Features.AgentRuns.Domain.AgentRun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ConversationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<string>("FinalReply")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)");
+
+                    b.Property<Guid>("InputMessageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConversationId", "StartedAt");
+
+                    b.ToTable("agent_runs", (string)null);
+                });
+
+            modelBuilder.Entity("SocialOps.Api.Features.AgentRuns.Domain.AgentToolExecution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AgentRunId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ArgumentsJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<string>("ResultJson")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ToolName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentRunId");
+
+                    b.ToTable("agent_tool_executions", (string)null);
+                });
+
             modelBuilder.Entity("SocialOps.Api.Features.Conversations.Domain.Conversation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -359,6 +445,17 @@ namespace SocialOps.Api.Migrations
                     b.ToTable("support_tickets", (string)null);
                 });
 
+            modelBuilder.Entity("SocialOps.Api.Features.AgentRuns.Domain.AgentToolExecution", b =>
+                {
+                    b.HasOne("SocialOps.Api.Features.AgentRuns.Domain.AgentRun", "AgentRun")
+                        .WithMany("ToolExecutions")
+                        .HasForeignKey("AgentRunId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AgentRun");
+                });
+
             modelBuilder.Entity("SocialOps.Api.Features.Conversations.Domain.Conversation", b =>
                 {
                     b.HasOne("SocialOps.Api.Features.Customers.Domain.Customer", "Customer")
@@ -447,6 +544,11 @@ namespace SocialOps.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("SocialOps.Api.Features.AgentRuns.Domain.AgentRun", b =>
+                {
+                    b.Navigation("ToolExecutions");
                 });
 
             modelBuilder.Entity("SocialOps.Api.Features.Conversations.Domain.Conversation", b =>

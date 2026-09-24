@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SocialOps.Api.Features.AgentRuns.Domain;
 using SocialOps.Api.Features.Conversations.Domain;
 using SocialOps.Api.Features.Customers.Domain;
 using SocialOps.Api.Features.Organizations.Domain;
@@ -18,11 +19,10 @@ public class SocialOpsDbContext : DbContext
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<Message> Messages => Set<Message>();
     public DbSet<MessageAnalysis> MessageAnalyses => Set<MessageAnalysis>();
-
     public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
-
     public DbSet<PendingAgentAction> PendingAgentActions => Set<PendingAgentAction>();
-
+    public DbSet<AgentRun> AgentRuns => Set<AgentRun>();
+    public DbSet<AgentToolExecution> AgentToolExecutions => Set<AgentToolExecution>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
