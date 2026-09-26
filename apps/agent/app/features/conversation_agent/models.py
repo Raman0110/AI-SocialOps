@@ -6,17 +6,21 @@ class RunConversationAgentRequest(BaseModel):
     message: str
 
 
+class ToolExecutionResult(BaseModel):
+    toolName: str
+    argumentsJson: str
+    resultJson: str | None = None
+    success: bool
+    error: str | None = None
+
+
 class RunConversationAgentResponse(BaseModel):
     reply: str
 
-    tools_used: list[str] = Field(
-        default_factory=list,
-        serialization_alias="toolsUsed",
-    )
+    toolsUsed: list[str] = Field(default_factory=list)
 
-    pending_action_ids: list[str] = Field(
-        default_factory=list,
-        serialization_alias="pendingActionIds",
-    )
+    pendingActionIds: list[str] = Field(default_factory=list)
 
-    model_config = {"populate_by_name": True}
+    toolExecutions: list[ToolExecutionResult] = Field(default_factory=list)
+
+    model: str

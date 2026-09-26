@@ -31,6 +31,6 @@ export async function suggestReply(conversationId: string): Promise<AgentReplyRe
 export async function generateAgentReply(conversationId: string): Promise<AgentReplyResult> {
   return request<AgentReplyResult>({
     method: "POST",
-    url: `/api/conversations/${conversationId}/agent-reply"`,
+    url: `/api/conversations/${conversationId}/agent-reply`,
   });
 }

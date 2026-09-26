@@ -13,6 +13,7 @@ from app.config.settings import settings
 from app.features.conversation_agent.models import (
     RunConversationAgentRequest,
     RunConversationAgentResponse,
+    ToolExecutionResult,
 )
 from app.features.conversation_agent.tools import TOOLS, execute_tool
 
@@ -65,6 +66,7 @@ async def run_conversation_agent(
 
     tools_used: list[str] = []
     pending_action_ids: list[str] = []
+    tool_executions: list[ToolExecutionResult] = []
 
     for _ in range(MAX_TOOL_ITERATIONS):
         response = await cast(AsyncChat, client.chat).completions.create(
@@ -87,8 +89,10 @@ async def run_conversation_agent(
 
             return RunConversationAgentResponse(
                 reply=content.strip(),
-                tools_used=tools_used,
-                pending_action_ids=pending_action_ids,
+                toolsUsed=tools_used,
+                pendingActionIds=pending_action_ids,
+                toolExecutions=tool_executions,
+                model=settings.groq_model,
             )
 
         assistant_tool_calls: list[ChatCompletionMessageToolCallParam] = [
@@ -113,24 +117,49 @@ async def run_conversation_agent(
 
         for tool_call in tool_calls:
             tool_name = tool_call.function.name
+            arguments_json = tool_call.function.arguments
 
             if tool_name not in tools_used:
                 tools_used.append(tool_name)
 
-            result = await execute_tool(
-                tool_call.function.name,
-                tool_call.function.arguments,
-            )
+            try:
+                result = await execute_tool(tool_name, arguments_json)
+                result_json = json.dumps(result)
 
-            if tool_name == "propose_support_ticket" and isinstance(result, dict):
-                action_id = result.get("actionId")
-                if action_id:
-                    pending_action_ids.append(str(action_id))
+                tool_executions.append(
+                    ToolExecutionResult(
+                        toolName=tool_name,
+                        argumentsJson=arguments_json,
+                        resultJson=result_json,
+                        success=True,
+                        error=None,
+                    )
+                )
+
+                if tool_name == "propose_support_ticket" and isinstance(result, dict):
+                    action_id = result.get("actionId")
+
+                    if action_id:
+                        pending_action_ids.append(str(action_id))
+
+            except Exception as exc:
+                error = str(exc)
+                result_json = json.dumps({"error": error})
+
+                tool_executions.append(
+                    ToolExecutionResult(
+                        toolName=tool_name,
+                        argumentsJson=arguments_json,
+                        resultJson=None,
+                        success=False,
+                        error=error,
+                    )
+                )
 
             tool_message: ChatCompletionToolMessageParam = {
                 "role": "tool",
                 "tool_call_id": tool_call.id,
-                "content": json.dumps(result),
+                "content": result_json,
             }
 
             messages.append(tool_message)

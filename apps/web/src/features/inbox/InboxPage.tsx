@@ -80,14 +80,6 @@ export function InboxPage({ organizationId }: InboxPageProps) {
 
   const [error, setError] = useState<string | null>(null);
 
-  const [
-    suggestedReplyState,
-    setSuggestedReplyState,
-  ] = useState<SuggestedReplyState>({
-    data: null,
-    isLoading: false,
-    error: null,
-  });
 
   useEffect(() => {
     async function loadInbox() {
@@ -117,11 +109,6 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         error: null,
       });
 
-      setSuggestedReplyState({
-        data: null,
-        isLoading: false,
-        error: null,
-      });
 
       const result = await getConversation(conversationId);
 

@@ -5,6 +5,8 @@ using SocialOps.Api.Features.AgentActions.Application.GetPendingActions;
 using SocialOps.Api.Features.AgentActions.Application.Services.ApproveAgentAction;
 using SocialOps.Api.Features.AgentActions.Application.Services.CreateTicketProposal;
 using SocialOps.Api.Features.AgentActions.Infrastructure;
+using SocialOps.Api.Features.AgentRuns.Application.Abstractions;
+using SocialOps.Api.Features.AgentRuns.Infrastructure;
 using SocialOps.Api.Features.AI.Application.AnalyzeMessage.Services;
 using SocialOps.Api.Features.AI.Infrastructure;
 using SocialOps.Api.Features.Conversations.Application.Abstractions;
@@ -84,6 +86,8 @@ builder.Services.AddScoped<CreateTicketProposalService>();
 builder.Services.AddScoped<AgentActionService>();
 
 builder.Services.AddScoped<GetPendingAgentActionsService>();
+
+builder.Services.AddScoped<IAgentRunRepository, AgentRunRepository>();
 
 builder.Services.AddHttpClient<AgentClient>(
     client =>
