@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -12,6 +14,8 @@ class ToolExecutionResult(BaseModel):
     resultJson: str | None = None
     success: bool
     error: str | None = None
+    startedAt: datetime
+    completedAt: datetime
 
 
 class RunConversationAgentResponse(BaseModel):

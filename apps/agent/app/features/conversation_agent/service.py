@@ -1,4 +1,5 @@
 import json
+from datetime import UTC, datetime
 from typing import cast
 
 from groq import AsyncGroq
@@ -118,6 +119,7 @@ async def run_conversation_agent(
         for tool_call in tool_calls:
             tool_name = tool_call.function.name
             arguments_json = tool_call.function.arguments
+            started_at = datetime.now(UTC)
 
             if tool_name not in tools_used:
                 tools_used.append(tool_name)
@@ -133,6 +135,8 @@ async def run_conversation_agent(
                         resultJson=result_json,
                         success=True,
                         error=None,
+                        startedAt=started_at,
+                        completedAt=datetime.now(UTC),
                     )
                 )
 
@@ -153,6 +157,8 @@ async def run_conversation_agent(
                         resultJson=None,
                         success=False,
                         error=error,
+                        startedAt=started_at,
+                        completedAt=datetime.now(UTC),
                     )
                 )
 

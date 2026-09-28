@@ -19,11 +19,33 @@ public sealed class AgentRunRepository : IAgentRunRepository
     await _dbContext.AgentRuns.AddAsync(run, cancellationToken);
   }
 
-  public Task<AgentRun?> GetTrackedByIdAsync(Guid id, CancellationToken cancellationToken = default)
+  public Task<AgentRun?> GetByIdAsync(
+      Guid id,
+      Guid organizationId,
+      CancellationToken cancellationToken = default)
   {
     return _dbContext.AgentRuns
+        .AsNoTracking()
         .Include(x => x.ToolExecutions)
-        .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        .FirstOrDefaultAsync(
+            x => x.Id == id && x.OrganizationId == organizationId,
+            cancellationToken);
+  }
+
+  public async Task<IReadOnlyList<AgentRun>> GetByConversationIdAsync(
+      Guid conversationId,
+      Guid organizationId,
+      int limit,
+      CancellationToken cancellationToken = default)
+  {
+    return await _dbContext.AgentRuns
+        .AsNoTracking()
+        .Where(x =>
+            x.ConversationId == conversationId &&
+            x.OrganizationId == organizationId)
+        .OrderByDescending(x => x.StartedAt)
+        .Take(limit)
+        .ToListAsync(cancellationToken);
   }
 
   public Task SaveChangesAsync(CancellationToken cancellationToken = default)

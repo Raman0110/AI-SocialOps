@@ -5,5 +5,7 @@ public sealed record RunAgentToolExecution(
     string ArgumentsJson,
     string? ResultJson,
     bool Success,
-    string? Error
+    string? Error,
+    DateTime StartedAt,
+    DateTime CompletedAt
 );

@@ -75,8 +75,8 @@ public sealed class GenerateAgentReplyService
               ResultJson = execution.ResultJson,
               Success = execution.Success,
               Error = execution.Error,
-              StartedAt = agentRun.StartedAt,
-              CompletedAt = DateTime.UtcNow
+              StartedAt = execution.StartedAt,
+              CompletedAt = execution.CompletedAt
             });
       }
 
