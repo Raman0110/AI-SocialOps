@@ -5,6 +5,7 @@ using SocialOps.Api.Features.Conversations.Infrastructure;
 using SocialOps.Api.Features.Customers.Application.Abstraction;
 using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.SocialAccounts.Application.Abstractions;
+using SocialOps.Api.Shared.Exceptions;
 
 namespace SocialOps.Api.Features.Conversations.Application.Services
 {
@@ -33,41 +34,41 @@ namespace SocialOps.Api.Features.Conversations.Application.Services
 
             if (customer is null)
             {
-                throw new InvalidOperationException("Customer does not exist.");
+                throw new ResourceNotFoundException("Customer does not exist.");
             }
 
             if (customer.OrganizationId != request.OrganizationId)
             {
-                throw new InvalidOperationException("Customer does not belong to this organization.");
+                throw new BusinessRuleException("Customer does not belong to this organization.");
             }
 
             var socialIdentity = await _socialIdentityRepository.GetByIdAsync(request.SocialIdentityId, cancellationToken);
 
             if (socialIdentity is null)
             {
-                throw new InvalidOperationException("Social identity does not exist.");
+                throw new ResourceNotFoundException("Social identity does not exist.");
             }
 
             if (socialIdentity.CustomerId != customer.Id)
             {
-                throw new InvalidOperationException("Social identity does not belong to this customer.");
+                throw new BusinessRuleException("Social identity does not belong to this customer.");
             }
 
             var socialAccount = await _socialAccountRepository.GetByIdAsync(request.SocialAccountId, cancellationToken);
 
             if (socialAccount is null)
             {
-                throw new InvalidOperationException("Social account does not exist.");
+                throw new ResourceNotFoundException("Social account does not exist.");
             }
 
             if (socialAccount.OrganizationId != request.OrganizationId)
             {
-                throw new InvalidOperationException("Social account does not belong to this organization.");
+                throw new BusinessRuleException("Social account does not belong to this organization.");
             }
 
             if (socialIdentity.Platform != socialAccount.Platform)
             {
-                throw new InvalidOperationException("Customer identity and company social account must use the same platform.");
+                throw new BusinessRuleException("Customer identity and company social account must use the same platform.");
             }
 
             var existing = await _conversationRepository.GetExistingAsync(
@@ -78,7 +79,7 @@ namespace SocialOps.Api.Features.Conversations.Application.Services
 
             if (existing is not null)
             {
-                throw new InvalidOperationException("Conversation already exists.");
+                throw new ConflictException("Conversation already exists.");
             }
 
             var conversation = new Conversation

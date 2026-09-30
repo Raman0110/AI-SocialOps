@@ -2,6 +2,7 @@
 using SocialOps.Api.Features.SocialAccounts.Application.Abstractions;
 using SocialOps.Api.Features.SocialAccounts.Application.Dtos;
 using SocialOps.Api.Features.SocialAccounts.Domain;
+using SocialOps.Api.Shared.Exceptions;
 
 namespace SocialOps.Api.Features.SocialAccounts.Application.Services;
 
@@ -24,7 +25,7 @@ public sealed class SocialAccountService
                 request.OrganizationId,
                 cancellationToken);
 
-        if (organization is null) throw new InvalidOperationException("Organization does not exist.");
+        if (organization is null) throw new ResourceNotFoundException("Organization does not exist.");
 
         var externalAccountId = request.ExternalAccountId.Trim();
 
@@ -34,7 +35,7 @@ public sealed class SocialAccountService
                 externalAccountId,
                 cancellationToken);
 
-        if (exists) throw new InvalidOperationException("This social account is already connected.");
+        if (exists) throw new ConflictException("This social account is already connected.");
 
         var socialAccount = new SocialAccount
         {

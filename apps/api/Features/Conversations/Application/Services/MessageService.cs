@@ -1,6 +1,7 @@
 ﻿using SocialOps.Api.Features.Conversations.Application.Abstractions;
 using SocialOps.Api.Features.Conversations.Application.Dtos;
 using SocialOps.Api.Features.Conversations.Domain;
+using SocialOps.Api.Shared.Exceptions;
 
 namespace SocialOps.Api.Features.Conversations.Application.Services;
 
@@ -28,7 +29,7 @@ public sealed class MessageService
 
         if (conversation is null)
         {
-            throw new InvalidOperationException("Conversation does not exist.");
+            throw new ResourceNotFoundException("Conversation does not exist.");
         }
 
         var externalMessageId = request.ExternalMessageId?.Trim();
@@ -41,7 +42,7 @@ public sealed class MessageService
 
             if (exists)
             {
-                throw new InvalidOperationException("Message already exists.");
+                throw new ConflictException("Message already exists.");
             }
         }
 

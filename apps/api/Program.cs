@@ -28,10 +28,15 @@ using SocialOps.Api.Features.SocialAccounts.Application.Abstractions;
 using SocialOps.Api.Features.SocialAccounts.Application.Services;
 using SocialOps.Api.Features.SocialAccounts.Infrastructure;
 using SocialOps.Api.Shared.Data;
+using SocialOps.Api.Shared.Errors;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+
+builder.Services.AddProblemDetails();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddControllers();
 
@@ -96,8 +101,10 @@ builder.Services.AddHttpClient<AgentClient>(
     client =>
     {
         var baseUrl = builder.Configuration["Agent:BaseUrl"];
+        var timeoutSeconds = builder.Configuration.GetValue<int?>("Agent:TimeoutSeconds") ?? 30;
 
         client.BaseAddress = new Uri(baseUrl!);
+        client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
     });
 
 builder.Services.AddScoped<AnalyzeMessageService>();
@@ -118,6 +125,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {

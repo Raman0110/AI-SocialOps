@@ -1,6 +1,7 @@
 ﻿using SocialOps.Api.Features.Organizations.Application.Abstractions;
 using SocialOps.Api.Features.Organizations.Application.CreateOrganization;
 using SocialOps.Api.Features.Organizations.Domain;
+using SocialOps.Api.Shared.Exceptions;
 
 namespace SocialOps.Api.Features.Organizations.Application.Services;
 
@@ -21,7 +22,7 @@ public sealed class OrganizationService
 
         if (exists)
         {
-            throw new InvalidOperationException("An organization with this name already exists.");
+            throw new ConflictException("An organization with this name already exists.");
         }
 
         var organization = new Organization

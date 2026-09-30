@@ -3,6 +3,7 @@ using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.Customers.Application.Dtos;
 using SocialOps.Api.Features.Customers.Application.Dtos.CreateSocialIdentity;
 using SocialOps.Api.Features.Customers.Domain;
+using SocialOps.Api.Shared.Exceptions;
 
 namespace SocialOps.Api.Features.Customers.Application.Services;
 
@@ -27,7 +28,7 @@ public sealed class SocialIdentityService
             request.CustomerId,
             cancellationToken);
 
-        if (customer is null) throw new InvalidOperationException("Customer does not exist.");
+        if (customer is null) throw new ResourceNotFoundException("Customer does not exist.");
 
         var externalUserId = request.ExternalUserId.Trim();
 
@@ -36,7 +37,7 @@ public sealed class SocialIdentityService
             externalUserId,
             cancellationToken);
 
-        if (exists) throw new InvalidOperationException("This social identity is already linked.");
+        if (exists) throw new ConflictException("This social identity is already linked.");
 
         var socialIdentity = new SocialIdentity
         {
