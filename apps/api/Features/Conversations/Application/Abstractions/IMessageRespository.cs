@@ -8,6 +8,8 @@ public interface IMessageRepository
 
     Task<IReadOnlyList<Message>> GetByConversationIdAsync(Guid conversationId, CancellationToken cancellationToken = default);
 
+    Task<Message?> GetByExternalMessageIdAsync(string externalMessageId, CancellationToken cancellationToken = default);
+
     Task<bool> ExistsByExternalMessageIdAsync(string externalMessageId, CancellationToken cancellationToken = default);
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);

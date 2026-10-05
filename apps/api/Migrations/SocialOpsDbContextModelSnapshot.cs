@@ -186,6 +186,10 @@ namespace SocialOps.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ExternalMessageId")
+                        .IsUnique()
+                        .HasFilter("\"ExternalMessageId\" IS NOT NULL");
+
                     b.HasIndex("ConversationId", "SentAt");
 
                     b.ToTable("messages", (string)null);

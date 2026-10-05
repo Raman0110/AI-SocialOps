@@ -8,6 +8,11 @@ public interface ISocialAccountRepository
 
     Task<SocialAccount?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
+    Task<SocialAccount?> GetByExternalAccountAsync(
+        SocialPlatform platform,
+        string externalAccountId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<SocialAccount>> GetByOrganizationIdAsync(Guid organizationId, CancellationToken cancellationToken = default);
 
     Task<bool> ExistsAsync(

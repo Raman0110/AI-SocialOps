@@ -36,6 +36,19 @@ public sealed class SocialAccountRepository: ISocialAccountRepository
                 cancellationToken);
     }
 
+    public Task<SocialAccount?> GetByExternalAccountAsync(
+        SocialPlatform platform,
+        string externalAccountId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbSet
+            .FirstOrDefaultAsync(
+                x =>
+                    x.Platform == platform &&
+                    x.ExternalAccountId == externalAccountId,
+                cancellationToken);
+    }
+
     public async Task<IReadOnlyList<SocialAccount>> GetByOrganizationIdAsync(
         Guid organizationId,
         CancellationToken cancellationToken = default)

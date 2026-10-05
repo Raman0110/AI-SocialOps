@@ -46,6 +46,18 @@ public sealed class MessageRepository: IMessageRepository
                 cancellationToken);
     }
 
+    public Task<Message?> GetByExternalMessageIdAsync(
+        string externalMessageId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbSet
+            .AsNoTracking()
+            .Include(x => x.Conversation)
+            .FirstOrDefaultAsync(
+                x => x.ExternalMessageId == externalMessageId,
+                cancellationToken);
+    }
+
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return _dbContext.SaveChangesAsync(cancellationToken);

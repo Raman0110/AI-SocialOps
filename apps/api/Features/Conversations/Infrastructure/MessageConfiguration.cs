@@ -31,5 +31,9 @@ public sealed class MessageConfiguration: IEntityTypeConfiguration<Message>
             x.ConversationId,
             x.SentAt
         });
+
+        builder.HasIndex(x => x.ExternalMessageId)
+            .IsUnique()
+            .HasFilter("\"ExternalMessageId\" IS NOT NULL");
     }
 }

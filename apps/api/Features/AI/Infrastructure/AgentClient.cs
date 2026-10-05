@@ -6,16 +6,19 @@ namespace SocialOps.Api.Features.AI.Infrastructure
 {
     public class AgentClient
     {
-        private readonly HttpClient _httpClient;
+        public const string RetrySafeClientName = "AgentRetrySafe";
+        public const string SingleAttemptClientName = "AgentSingleAttempt";
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public AgentClient(HttpClient httpClient)
+        public AgentClient(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<AnalyzeMessageResponse> AnalyzeMessageAsync(AnalyzeMessageRequest request, CancellationToken cancellationToken = default)
         {
-            var response = await _httpClient.PostAsJsonAsync("/agent/analyze-message", request, cancellationToken);
+            var client = _httpClientFactory.CreateClient(RetrySafeClientName);
+            using var response = await client.PostAsJsonAsync("/agent/analyze-message", request, cancellationToken);
 
             response.EnsureSuccessStatusCode();
 
@@ -28,7 +31,8 @@ namespace SocialOps.Api.Features.AI.Infrastructure
 
         public async Task<GenerateReplyResponse> GenerateReplyAsync(GenerateReplyRequest request, CancellationToken cancellationToken = default)
         {
-            var response = await _httpClient.PostAsJsonAsync("/agent/generate-reply", request, cancellationToken);
+            var client = _httpClientFactory.CreateClient(RetrySafeClientName);
+            using var response = await client.PostAsJsonAsync("/agent/generate-reply", request, cancellationToken);
 
             response.EnsureSuccessStatusCode();
 
@@ -41,7 +45,8 @@ namespace SocialOps.Api.Features.AI.Infrastructure
 
         public async Task<RunAgentResponse> RunAgentAsync(RunAgentRequest request, CancellationToken cancellationToken = default)
         {
-            var response = await _httpClient.PostAsJsonAsync("/agent/run", request, cancellationToken);
+            var client = _httpClientFactory.CreateClient(SingleAttemptClientName);
+            using var response = await client.PostAsJsonAsync("/agent/run", request, cancellationToken);
 
             response.EnsureSuccessStatusCode();
 

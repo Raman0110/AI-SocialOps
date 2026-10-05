@@ -29,6 +29,20 @@ namespace SocialOps.Api.Features.Customers.Infrastructure
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
 
+        public Task<SocialIdentity?> GetByPlatformAndExternalUserIdAsync(
+            SocialPlatform platform,
+            string externalUserId,
+            CancellationToken cancellationToken = default)
+        {
+            return _dbSet
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    x =>
+                        x.Platform == platform &&
+                        x.ExternalUserId == externalUserId,
+                    cancellationToken);
+        }
+
         public async Task<IReadOnlyList<SocialIdentity>> GetByCustomerIdAsync(
             Guid customerId,
             CancellationToken cancellationToken = default)

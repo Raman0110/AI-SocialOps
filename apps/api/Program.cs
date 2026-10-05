@@ -1,5 +1,8 @@
+using System.Net;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Http.Resilience;
+using Polly;
 using SocialOps.Api.Features.AgentActions.Application.Abstractions;
 using SocialOps.Api.Features.AgentActions.Application.GetPendingActions;
 using SocialOps.Api.Features.AgentActions.Application.Services.ApproveAgentAction;
@@ -21,6 +24,10 @@ using SocialOps.Api.Features.Customers.Application.Abstraction;
 using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.Customers.Application.Services;
 using SocialOps.Api.Features.Customers.Infrastructure;
+using SocialOps.Api.Features.InboundWebhooks.Application.Abstractions;
+using SocialOps.Api.Features.InboundWebhooks.Application.Dtos;
+using SocialOps.Api.Features.InboundWebhooks.Application.Services;
+using SocialOps.Api.Features.InboundWebhooks.Infrastructure;
 using SocialOps.Api.Features.Organizations.Application.Abstractions;
 using SocialOps.Api.Features.Organizations.Application.Services;
 using SocialOps.Api.Features.Organizations.Infrastructure;
@@ -97,15 +104,67 @@ builder.Services.AddScoped<IAgentRunRepository, AgentRunRepository>();
 
 builder.Services.AddScoped<GetAgentRunsService>();
 
-builder.Services.AddHttpClient<AgentClient>(
-    client =>
-    {
-        var baseUrl = builder.Configuration["Agent:BaseUrl"];
-        var timeoutSeconds = builder.Configuration.GetValue<int?>("Agent:TimeoutSeconds") ?? 30;
+builder.Services.AddScoped<InboundWebhookIngestionService>();
 
-        client.BaseAddress = new Uri(baseUrl!);
-        client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+builder.Services.AddScoped<IInboundWebhookAdapter<SandboxInstagramWebhookRequest>, SandboxInstagramWebhookAdapter>();
+
+var agentBaseUrl = builder.Configuration["Agent:BaseUrl"]
+    ?? throw new InvalidOperationException("Agent:BaseUrl is required.");
+var agentTimeoutSeconds = builder.Configuration.GetValue<int?>("Agent:TimeoutSeconds") ?? 30;
+var agentRetryAttempts = builder.Configuration.GetValue<int?>("Agent:Retry:MaxAttempts") ?? 2;
+var agentRetryDelayMilliseconds = builder.Configuration.GetValue<int?>("Agent:Retry:BaseDelayMilliseconds") ?? 250;
+
+if (agentTimeoutSeconds <= 0)
+{
+    throw new InvalidOperationException("Agent:TimeoutSeconds must be greater than zero.");
+}
+
+if (agentRetryAttempts is < 0 or > 5)
+{
+    throw new InvalidOperationException("Agent:Retry:MaxAttempts must be between zero and five.");
+}
+
+if (agentRetryDelayMilliseconds < 0)
+{
+    throw new InvalidOperationException("Agent:Retry:BaseDelayMilliseconds cannot be negative.");
+}
+
+void ConfigureAgentHttpClient(HttpClient client)
+{
+    client.BaseAddress = new Uri(agentBaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(agentTimeoutSeconds);
+}
+
+builder.Services
+    .AddHttpClient(AgentClient.RetrySafeClientName, ConfigureAgentHttpClient)
+    .AddResilienceHandler("agent-retry", resilienceBuilder =>
+    {
+        resilienceBuilder.AddRetry(new HttpRetryStrategyOptions
+        {
+            MaxRetryAttempts = agentRetryAttempts,
+            Delay = TimeSpan.FromMilliseconds(agentRetryDelayMilliseconds),
+            BackoffType = DelayBackoffType.Exponential,
+            UseJitter = true,
+            ShouldRetryAfterHeader = true,
+            ShouldHandle = static arguments =>
+            {
+                var statusCode = arguments.Outcome.Result?.StatusCode;
+                var shouldRetry =
+                    arguments.Outcome.Exception is HttpRequestException ||
+                    statusCode is HttpStatusCode.TooManyRequests or
+                        HttpStatusCode.BadGateway or
+                        HttpStatusCode.ServiceUnavailable;
+
+                return ValueTask.FromResult(shouldRetry);
+            }
+        });
     });
+
+builder.Services.AddHttpClient(
+    AgentClient.SingleAttemptClientName,
+    ConfigureAgentHttpClient);
+
+builder.Services.AddScoped<AgentClient>();
 
 builder.Services.AddScoped<AnalyzeMessageService>();
 
