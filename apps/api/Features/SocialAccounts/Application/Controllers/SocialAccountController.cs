@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.SocialAccounts.Application.Dtos;
 using SocialOps.Api.Features.SocialAccounts.Application.Services;
+using SocialOps.Api.Shared.Tenancy;
 
 namespace SocialOps.Api.Features.SocialAccounts.Controllers;
 
@@ -11,13 +12,16 @@ public sealed class SocialAccountsController : ControllerBase
 {
     private readonly SocialAccountService _socialAccountService;
     private readonly IValidator<CreateSocialAccountRequest> _validator;
+    private readonly ITenantContext _tenantContext;
 
     public SocialAccountsController(
         SocialAccountService createService,
-        IValidator<CreateSocialAccountRequest> validator)
+        IValidator<CreateSocialAccountRequest> validator,
+        ITenantContext tenantContext)
     {
         _socialAccountService = createService;
         _validator = validator;
+        _tenantContext = tenantContext;
     }
 
     [HttpPost]
@@ -25,6 +29,11 @@ public sealed class SocialAccountsController : ControllerBase
         [FromBody] CreateSocialAccountRequest request,
         CancellationToken cancellationToken)
     {
+        request = request with
+        {
+            OrganizationId = _tenantContext.RequireOrganizationId()
+        };
+
         var validationResult = await _validator.ValidateAsync(
                 request,
                 cancellationToken);
@@ -52,16 +61,25 @@ public sealed class SocialAccountsController : ControllerBase
 
         if (response is null) return NotFound();
 
+        _tenantContext.EnsureOrganization(response.OrganizationId);
+
         return Ok(response);
     }
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<SocialAccountResponse>>> GetAll(
-        [FromQuery] Guid organizationId,
+        [FromQuery] Guid? organizationId,
         CancellationToken cancellationToken)
     {
+        var tenantOrganizationId = _tenantContext.RequireOrganizationId();
+
+        if (organizationId.HasValue)
+        {
+            _tenantContext.EnsureOrganization(organizationId.Value);
+        }
+
         var response = await _socialAccountService.GetByOrganizationIdAsync(
-                organizationId,
+                tenantOrganizationId,
                 cancellationToken);
 
         return Ok(response);

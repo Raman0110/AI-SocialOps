@@ -26,12 +26,16 @@ public sealed class AgentActionRepository : IAgentActionRepository
     return _dbSet.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
   }
 
-  public async Task<IReadOnlyList<PendingAgentAction>> GetPendingByConversationIdAsync(Guid conversationId, CancellationToken cancellationToken = default)
+  public async Task<IReadOnlyList<PendingAgentAction>> GetPendingByConversationIdAsync(
+    Guid conversationId,
+    Guid organizationId,
+    CancellationToken cancellationToken = default)
   {
     return await _dbSet
         .AsNoTracking()
         .Where(x =>
             x.ConversationId == conversationId &&
+            x.OrganizationId == organizationId &&
             x.Status == AgentActionStatus.Pending)
         .OrderBy(x => x.CreatedAt)
         .ToListAsync(cancellationToken);

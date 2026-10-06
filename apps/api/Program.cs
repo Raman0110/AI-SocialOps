@@ -36,6 +36,7 @@ using SocialOps.Api.Features.SocialAccounts.Application.Services;
 using SocialOps.Api.Features.SocialAccounts.Infrastructure;
 using SocialOps.Api.Shared.Data;
 using SocialOps.Api.Shared.Errors;
+using SocialOps.Api.Shared.Tenancy;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,8 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddControllers();
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<SocialOpsDbContext>(options =>
 {
@@ -107,6 +110,8 @@ builder.Services.AddScoped<GetAgentRunsService>();
 builder.Services.AddScoped<InboundWebhookIngestionService>();
 
 builder.Services.AddScoped<IInboundWebhookAdapter<SandboxInstagramWebhookRequest>, SandboxInstagramWebhookAdapter>();
+
+builder.Services.AddScoped<ITenantContext, HeaderTenantContext>();
 
 var agentBaseUrl = builder.Configuration["Agent:BaseUrl"]
     ?? throw new InvalidOperationException("Agent:BaseUrl is required.");

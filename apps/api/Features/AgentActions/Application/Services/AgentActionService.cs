@@ -17,11 +17,19 @@ public sealed class AgentActionService
     _dbContext = dbContext;
   }
 
-  public async Task<Guid?> ApproveAsync(Guid actionId, CancellationToken cancellationToken = default)
+  public async Task<Guid?> ApproveAsync(
+    Guid actionId,
+    Guid organizationId,
+    CancellationToken cancellationToken = default)
   {
     var action = await _actionRepository.GetByIdAsync(actionId, cancellationToken);
 
-    if (action is null || action.Status != AgentActionStatus.Pending) return null;
+    if (action is null ||
+        action.OrganizationId != organizationId ||
+        action.Status != AgentActionStatus.Pending)
+    {
+      return null;
+    }
 
     if (action.Type != AgentActionType.CreateSupportTicket) throw new InvalidOperationException($"Unsupported action type: {action.Type}");
 
@@ -50,11 +58,19 @@ public sealed class AgentActionService
     return ticket.Id;
   }
 
-  public async Task<bool> RejectAsync(Guid actionId, CancellationToken cancellationToken = default)
+  public async Task<bool> RejectAsync(
+    Guid actionId,
+    Guid organizationId,
+    CancellationToken cancellationToken = default)
   {
     var action = await _actionRepository.GetByIdAsync(actionId, cancellationToken);
 
-    if (action is null || action.Status != AgentActionStatus.Pending) return false;
+    if (action is null ||
+        action.OrganizationId != organizationId ||
+        action.Status != AgentActionStatus.Pending)
+    {
+      return false;
+    }
 
     action.Status = AgentActionStatus.Rejected;
 

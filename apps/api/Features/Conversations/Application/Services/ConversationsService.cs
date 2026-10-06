@@ -156,6 +156,7 @@ namespace SocialOps.Api.Features.Conversations.Application.Services
 
             return new GetConversationResponse(
                 conversation.Id,
+                conversation.OrganizationId,
                 conversation.Customer.Name,
                 conversation.SocialIdentity.Platform,
                 conversation.SocialIdentity.Username,

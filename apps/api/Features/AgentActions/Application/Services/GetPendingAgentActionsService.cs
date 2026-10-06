@@ -12,9 +12,15 @@ public sealed class GetPendingAgentActionsService
     _repository = repository;
   }
 
-  public async Task<IReadOnlyList<GetPendingAgentActionResponse>> GetAsync(Guid conversationId, CancellationToken cancellationToken = default)
+  public async Task<IReadOnlyList<GetPendingAgentActionResponse>> GetAsync(
+    Guid conversationId,
+    Guid organizationId,
+    CancellationToken cancellationToken = default)
   {
-    var actions = await _repository.GetPendingByConversationIdAsync(conversationId, cancellationToken);
+    var actions = await _repository.GetPendingByConversationIdAsync(
+        conversationId,
+        organizationId,
+        cancellationToken);
 
     return actions
         .Select(x => new GetPendingAgentActionResponse(

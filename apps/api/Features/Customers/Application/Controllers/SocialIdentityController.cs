@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.Customers.Application.Dtos;
 using SocialOps.Api.Features.Customers.Application.Dtos.CreateSocialIdentity;
 using SocialOps.Api.Features.Customers.Application.Services;
+using SocialOps.Api.Shared.Tenancy;
 
 namespace SocialOps.Api.Features.Customers.Controllers;
 
@@ -11,14 +12,20 @@ namespace SocialOps.Api.Features.Customers.Controllers;
 public sealed class SocialIdentitiesController : ControllerBase
 {
     private readonly SocialIdentityService _socialIdentityService;
+    private readonly CustomerService _customerService;
     private readonly IValidator<CreateSocialIdentityRequest> _validator;
+    private readonly ITenantContext _tenantContext;
 
     public SocialIdentitiesController(
         SocialIdentityService socialIdentityService,
-        IValidator<CreateSocialIdentityRequest> validator)
+        CustomerService customerService,
+        IValidator<CreateSocialIdentityRequest> validator,
+        ITenantContext tenantContext)
     {
         _socialIdentityService = socialIdentityService;
+        _customerService = customerService;
         _validator = validator;
+        _tenantContext = tenantContext;
     }
 
     [HttpPost]
@@ -27,6 +34,12 @@ public sealed class SocialIdentitiesController : ControllerBase
         [FromBody] CreateSocialIdentityRequest request,
         CancellationToken cancellationToken)
     {
+        var customer = await _customerService.GetByIdAsync(customerId, cancellationToken);
+
+        if (customer is null) return NotFound();
+
+        _tenantContext.EnsureOrganization(customer.OrganizationId);
+
         request = request with
         {
             CustomerId = customerId
@@ -48,6 +61,12 @@ public sealed class SocialIdentitiesController : ControllerBase
         Guid customerId,
         CancellationToken cancellationToken)
     {
+        var customer = await _customerService.GetByIdAsync(customerId, cancellationToken);
+
+        if (customer is null) return NotFound();
+
+        _tenantContext.EnsureOrganization(customer.OrganizationId);
+
         var response = await _socialIdentityService.GetByCustomerIdAsync(customerId, cancellationToken);
 
         return Ok(response);

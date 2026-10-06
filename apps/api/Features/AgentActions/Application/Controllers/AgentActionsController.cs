@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.AgentActions.Application.Dtos;
 using SocialOps.Api.Features.AgentActions.Application.GetPendingActions;
 using SocialOps.Api.Features.AgentActions.Application.Services.ApproveAgentAction;
+using SocialOps.Api.Shared.Tenancy;
 
 namespace SocialOps.Api.Features.AgentActions.Controllers;
 
@@ -10,19 +11,24 @@ namespace SocialOps.Api.Features.AgentActions.Controllers;
 public sealed class AgentActionsController : ControllerBase
 {
   private readonly AgentActionService _agentActionService;
-  private readonly GetPendingAgentActionsService
-    _getPendingService;
+  private readonly GetPendingAgentActionsService _getPendingService;
+  private readonly ITenantContext _tenantContext;
 
-  public AgentActionsController(AgentActionService agentActionService, GetPendingAgentActionsService getPendingService)
+  public AgentActionsController(
+    AgentActionService agentActionService,
+    GetPendingAgentActionsService getPendingService,
+    ITenantContext tenantContext)
   {
     _agentActionService = agentActionService;
     _getPendingService = getPendingService;
+    _tenantContext = tenantContext;
   }
 
   [HttpPost("{id:guid}/approve")]
   public async Task<IActionResult> Approve(Guid id, CancellationToken cancellationToken)
   {
-    var ticketId = await _agentActionService.ApproveAsync(id, cancellationToken);
+    var organizationId = _tenantContext.RequireOrganizationId();
+    var ticketId = await _agentActionService.ApproveAsync(id, organizationId, cancellationToken);
 
     if (ticketId is null) return NotFound();
 
@@ -35,7 +41,8 @@ public sealed class AgentActionsController : ControllerBase
   [HttpPost("{id:guid}/reject")]
   public async Task<IActionResult> Reject(Guid id, CancellationToken cancellationToken)
   {
-    var success = await _agentActionService.RejectAsync(id, cancellationToken);
+    var organizationId = _tenantContext.RequireOrganizationId();
+    var success = await _agentActionService.RejectAsync(id, organizationId, cancellationToken);
 
     if (!success) return NotFound();
 
@@ -47,7 +54,8 @@ public sealed class AgentActionsController : ControllerBase
     [FromQuery] Guid conversationId,
     CancellationToken cancellationToken)
   {
-    var actions = await _getPendingService.GetAsync(conversationId, cancellationToken);
+    var organizationId = _tenantContext.RequireOrganizationId();
+    var actions = await _getPendingService.GetAsync(conversationId, organizationId, cancellationToken);
 
     return Ok(actions);
   }

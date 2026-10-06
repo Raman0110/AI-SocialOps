@@ -70,6 +70,14 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
           StatusCodes.Status422UnprocessableEntity,
           "Business rule violation",
           exception.Message),
+      TenantContextRequiredException => Create(
+          StatusCodes.Status400BadRequest,
+          "Tenant context required",
+          exception.Message),
+      TenantAccessDeniedException => Create(
+          StatusCodes.Status403Forbidden,
+          "Tenant access denied",
+          exception.Message),
       ValidationException validationException => CreateValidationProblem(validationException),
       HttpRequestException => Create(
           StatusCodes.Status503ServiceUnavailable,

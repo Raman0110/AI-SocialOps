@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.Customers.Application.CreateCustomer;
 using SocialOps.Api.Features.Customers.Application.Dtos;
 using SocialOps.Api.Features.Customers.Application.Services;
+using SocialOps.Api.Shared.Tenancy;
 
 
 namespace SocialOps.Api.Features.Customers.Controllers;
@@ -13,13 +14,16 @@ public sealed class CustomersController : ControllerBase
 {
     private readonly CustomerService _customerService;
     private readonly IValidator<CreateCustomerRequest> _validator;
+    private readonly ITenantContext _tenantContext;
 
     public CustomersController(
         CustomerService createService,
-        IValidator<CreateCustomerRequest> validator)
+        IValidator<CreateCustomerRequest> validator,
+        ITenantContext tenantContext)
     {
         _customerService = createService;
         _validator = validator;
+        _tenantContext = tenantContext;
     }
 
     [HttpPost]
@@ -27,6 +31,11 @@ public sealed class CustomersController : ControllerBase
         [FromBody] CreateCustomerRequest request,
         CancellationToken cancellationToken)
     {
+        request = request with
+        {
+            OrganizationId = _tenantContext.RequireOrganizationId()
+        };
+
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
@@ -54,16 +63,25 @@ public sealed class CustomersController : ControllerBase
             return NotFound();
         }
 
+        _tenantContext.EnsureOrganization(response.OrganizationId);
+
         return Ok(response);
     }
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<CustomerResponse>>> GetAll(
-        [FromQuery] Guid organizationId,
+        [FromQuery] Guid? organizationId,
         CancellationToken cancellationToken)
     {
-        var response =  await _customerService.GetByOrganizationIdAsync(organizationId, cancellationToken);
+        var tenantOrganizationId = _tenantContext.RequireOrganizationId();
+
+        if (organizationId.HasValue)
+        {
+            _tenantContext.EnsureOrganization(organizationId.Value);
+        }
+
+        var response =  await _customerService.GetByOrganizationIdAsync(tenantOrganizationId, cancellationToken);
 
         return Ok(response);
     }
-}   
+}

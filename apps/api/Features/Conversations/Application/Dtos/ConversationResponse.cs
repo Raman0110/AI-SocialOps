@@ -16,6 +16,7 @@ public sealed record CreateConversationResponse(
 
 public sealed record GetConversationResponse(
     Guid Id,
+    Guid OrganizationId,
     string CustomerName,
     SocialPlatform Platform,
     string Username,

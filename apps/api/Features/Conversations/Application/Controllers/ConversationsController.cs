@@ -6,6 +6,7 @@ using SocialOps.Api.Features.Conversations.Application.Dtos.SuggestReply;
 using SocialOps.Api.Features.Conversations.Application.Dtos;
 using SocialOps.Api.Features.Conversations.Application.Services;
 using SocialOps.Api.Features.Conversations.Application.GenerateAgentReply;
+using SocialOps.Api.Shared.Tenancy;
 
 
 namespace SocialOps.Api.Features.Conversations.Controllers;
@@ -21,6 +22,7 @@ public sealed class ConversationsController : ControllerBase
     private readonly AnalyzeConversationService _analyzeService;
     private readonly SuggestReplyService _suggestReplyService;
     private readonly GenerateAgentReplyService _generateAgentReplyService;
+    private readonly ITenantContext _tenantContext;
 
     public ConversationsController(
         ConversationsService createConversationService,
@@ -29,7 +31,8 @@ public sealed class ConversationsController : ControllerBase
         IValidator<AddMessageRequest> messageValidator,
         AnalyzeConversationService analyzeService,
         SuggestReplyService suggestReplyService,
-        GenerateAgentReplyService generateAgentReplyService
+        GenerateAgentReplyService generateAgentReplyService,
+        ITenantContext tenantContext
         )
     {
         _conversationService = createConversationService;
@@ -39,11 +42,17 @@ public sealed class ConversationsController : ControllerBase
         _analyzeService = analyzeService;
         _suggestReplyService = suggestReplyService;
         _generateAgentReplyService = generateAgentReplyService;
+        _tenantContext = tenantContext;
     }
 
     [HttpPost]
     public async Task<ActionResult<CreateConversationResponse>> Create([FromBody] CreateConversationRequest request, CancellationToken cancellationToken)
     {
+        request = request with
+        {
+            OrganizationId = _tenantContext.RequireOrganizationId()
+        };
+
         var validationResult = await _conversationValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid) return ValidationProblem(new ValidationProblemDetails(validationResult.ToDictionary()));
@@ -56,6 +65,10 @@ public sealed class ConversationsController : ControllerBase
     [HttpPost("{conversationId:guid}/messages")]
     public async Task<ActionResult<MessageResponse>> AddMessage(Guid conversationId, [FromBody] AddMessageRequest request, CancellationToken cancellationToken)
     {
+        var conversation = await RequireConversationAccess(conversationId, cancellationToken);
+
+        if (conversation is null) return NotFound();
+
         var validationResult = await _messageValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
@@ -69,9 +82,16 @@ public sealed class ConversationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<GetInboxResponse>>> GetInbox([FromQuery] Guid organizationId, CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyList<GetInboxResponse>>> GetInbox([FromQuery] Guid? organizationId, CancellationToken cancellationToken)
     {
-        var response = await _conversationService.GetAsync(organizationId, cancellationToken);
+        var tenantOrganizationId = _tenantContext.RequireOrganizationId();
+
+        if (organizationId.HasValue)
+        {
+            _tenantContext.EnsureOrganization(organizationId.Value);
+        }
+
+        var response = await _conversationService.GetAsync(tenantOrganizationId, cancellationToken);
 
         return Ok(response);
     }
@@ -83,12 +103,18 @@ public sealed class ConversationsController : ControllerBase
 
         if (response is null) return NotFound();
 
+        _tenantContext.EnsureOrganization(response.OrganizationId);
+
         return Ok(response);
     }
 
     [HttpPost("{conversationId:guid}/analyze")]
     public async Task<ActionResult<AnalyzeConversationResponse>> Analyze(Guid conversationId, CancellationToken cancellationToken)
     {
+        var conversation = await RequireConversationAccess(conversationId, cancellationToken);
+
+        if (conversation is null) return NotFound();
+
         var response = await _analyzeService.AnalyzeAsync(conversationId, cancellationToken);
 
         if (response is null) return NotFound("No inbound message was found for this conversation.");
@@ -99,6 +125,10 @@ public sealed class ConversationsController : ControllerBase
     [HttpPost("{conversationId:guid}/suggest-reply")]
     public async Task<ActionResult<SuggestReplyResponse>> SuggestReply(Guid conversationId, CancellationToken cancellationToken)
     {
+        var conversation = await RequireConversationAccess(conversationId, cancellationToken);
+
+        if (conversation is null) return NotFound();
+
         var response = await _suggestReplyService.GenerateAsync(conversationId, cancellationToken);
 
         if (response is null) return NotFound("Conversation or conversation messages were not found.");
@@ -110,10 +140,30 @@ public sealed class ConversationsController : ControllerBase
     "{conversationId:guid}/agent-reply")]
     public async Task<ActionResult<GenerateAgentReplyResponse>> GenerateAgentReply(Guid conversationId, CancellationToken cancellationToken)
     {
+        var conversation = await RequireConversationAccess(conversationId, cancellationToken);
+
+        if (conversation is null) return NotFound();
+
         var response = await _generateAgentReplyService.GenerateAsync(conversationId, cancellationToken);
 
         if (response is null) return NotFound("Conversation or inbound message was not found.");
 
         return Ok(response);
+    }
+
+    private async Task<GetConversationResponse?> RequireConversationAccess(
+        Guid conversationId,
+        CancellationToken cancellationToken)
+    {
+        var conversation = await _conversationService.GetByIdAsync(conversationId, cancellationToken);
+
+        if (conversation is null)
+        {
+            return null;
+        }
+
+        _tenantContext.EnsureOrganization(conversation.OrganizationId);
+
+        return conversation;
     }
 }
