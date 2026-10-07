@@ -34,6 +34,7 @@ using SocialOps.Api.Features.Organizations.Infrastructure;
 using SocialOps.Api.Features.SocialAccounts.Application.Abstractions;
 using SocialOps.Api.Features.SocialAccounts.Application.Services;
 using SocialOps.Api.Features.SocialAccounts.Infrastructure;
+using SocialOps.Api.Shared.Auth;
 using SocialOps.Api.Shared.Data;
 using SocialOps.Api.Shared.Errors;
 using SocialOps.Api.Shared.Tenancy;
@@ -49,6 +50,35 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddControllers();
 
 builder.Services.AddHttpContextAccessor();
+
+builder.Services
+    .AddAuthentication(ApiKeyAuthenticationOptions.Scheme)
+    .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
+        ApiKeyAuthenticationOptions.Scheme,
+        options => builder.Configuration
+            .GetSection("Authentication:ApiKey")
+            .Bind(options));
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(
+        SocialOpsPolicies.TenantReader,
+        policy => policy
+            .RequireAuthenticatedUser()
+            .RequireRole(SocialOpsRoles.TenantReaders));
+
+    options.AddPolicy(
+        SocialOpsPolicies.TenantOperator,
+        policy => policy
+            .RequireAuthenticatedUser()
+            .RequireRole(SocialOpsRoles.TenantOperators));
+
+    options.AddPolicy(
+        SocialOpsPolicies.TenantAdmin,
+        policy => policy
+            .RequireAuthenticatedUser()
+            .RequireRole(SocialOpsRoles.TenantAdmins));
+});
 
 builder.Services.AddDbContext<SocialOpsDbContext>(options =>
 {
@@ -201,6 +231,10 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseCors("Frontend");
+
+app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.MapControllers();
 

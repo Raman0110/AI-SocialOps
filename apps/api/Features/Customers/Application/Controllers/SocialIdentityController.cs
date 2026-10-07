@@ -1,13 +1,16 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.Customers.Application.Dtos;
 using SocialOps.Api.Features.Customers.Application.Dtos.CreateSocialIdentity;
 using SocialOps.Api.Features.Customers.Application.Services;
+using SocialOps.Api.Shared.Auth;
 using SocialOps.Api.Shared.Tenancy;
 
 namespace SocialOps.Api.Features.Customers.Controllers;
 
 [ApiController]
+[Authorize(Policy = SocialOpsPolicies.TenantReader)]
 [Route("api/customers/{customerId:guid}/social-identities")]
 public sealed class SocialIdentitiesController : ControllerBase
 {
@@ -29,6 +32,7 @@ public sealed class SocialIdentitiesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = SocialOpsPolicies.TenantOperator)]
     public async Task<ActionResult<SocialIdentityResponse>> Create(
         Guid customerId,
         [FromBody] CreateSocialIdentityRequest request,

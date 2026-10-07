@@ -1,3 +1,4 @@
+using SocialOps.Api.Shared.Auth;
 using SocialOps.Api.Shared.Exceptions;
 
 namespace SocialOps.Api.Shared.Tenancy;
@@ -16,6 +17,14 @@ public sealed class HeaderTenantContext : ITenantContext
     public Guid RequireOrganizationId()
     {
         var httpContext = _httpContextAccessor.HttpContext ?? throw new TenantContextRequiredException("Tenant context is not available.");
+
+        var claimValue = httpContext.User.FindFirst(SocialOpsClaimTypes.OrganizationId)?.Value;
+
+        if (Guid.TryParse(claimValue, out var claimOrganizationId) &&
+            claimOrganizationId != Guid.Empty)
+        {
+            return claimOrganizationId;
+        }
 
         if (!httpContext.Request.Headers.TryGetValue(OrganizationHeaderName, out var values) ||
             !Guid.TryParse(values.FirstOrDefault(), out var organizationId) ||

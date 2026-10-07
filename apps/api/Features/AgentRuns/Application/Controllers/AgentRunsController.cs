@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.AgentRuns.Application.Dtos;
 using SocialOps.Api.Features.AgentRuns.Application.Services;
+using SocialOps.Api.Shared.Auth;
 using SocialOps.Api.Shared.Tenancy;
 
 namespace SocialOps.Api.Features.AgentRuns.Controllers;
 
 [ApiController]
+[Authorize(Policy = SocialOpsPolicies.TenantReader)]
 [Route("api/agent-runs")]
 public sealed class AgentRunsController : ControllerBase
 {

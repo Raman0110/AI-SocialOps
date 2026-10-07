@@ -1,14 +1,17 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.Customers.Application.CreateCustomer;
 using SocialOps.Api.Features.Customers.Application.Dtos;
 using SocialOps.Api.Features.Customers.Application.Services;
+using SocialOps.Api.Shared.Auth;
 using SocialOps.Api.Shared.Tenancy;
 
 
 namespace SocialOps.Api.Features.Customers.Controllers;
 
 [ApiController]
+[Authorize(Policy = SocialOpsPolicies.TenantReader)]
 [Route("api/customers")]
 public sealed class CustomersController : ControllerBase
 {
@@ -27,6 +30,7 @@ public sealed class CustomersController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = SocialOpsPolicies.TenantOperator)]
     public async Task<ActionResult<CustomerResponse>> Create(
         [FromBody] CreateCustomerRequest request,
         CancellationToken cancellationToken)

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.Conversations.Application.Services.SuggestReplyService;
 using SocialOps.Api.Features.Conversations.Application.Services.AnalyzeConversation;
@@ -6,12 +7,14 @@ using SocialOps.Api.Features.Conversations.Application.Dtos.SuggestReply;
 using SocialOps.Api.Features.Conversations.Application.Dtos;
 using SocialOps.Api.Features.Conversations.Application.Services;
 using SocialOps.Api.Features.Conversations.Application.GenerateAgentReply;
+using SocialOps.Api.Shared.Auth;
 using SocialOps.Api.Shared.Tenancy;
 
 
 namespace SocialOps.Api.Features.Conversations.Controllers;
 
 [ApiController]
+[Authorize(Policy = SocialOpsPolicies.TenantReader)]
 [Route("api/conversations")]
 public sealed class ConversationsController : ControllerBase
 {
@@ -46,6 +49,7 @@ public sealed class ConversationsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = SocialOpsPolicies.TenantOperator)]
     public async Task<ActionResult<CreateConversationResponse>> Create([FromBody] CreateConversationRequest request, CancellationToken cancellationToken)
     {
         request = request with
@@ -63,6 +67,7 @@ public sealed class ConversationsController : ControllerBase
     }
 
     [HttpPost("{conversationId:guid}/messages")]
+    [Authorize(Policy = SocialOpsPolicies.TenantOperator)]
     public async Task<ActionResult<MessageResponse>> AddMessage(Guid conversationId, [FromBody] AddMessageRequest request, CancellationToken cancellationToken)
     {
         var conversation = await RequireConversationAccess(conversationId, cancellationToken);
@@ -109,6 +114,7 @@ public sealed class ConversationsController : ControllerBase
     }
 
     [HttpPost("{conversationId:guid}/analyze")]
+    [Authorize(Policy = SocialOpsPolicies.TenantOperator)]
     public async Task<ActionResult<AnalyzeConversationResponse>> Analyze(Guid conversationId, CancellationToken cancellationToken)
     {
         var conversation = await RequireConversationAccess(conversationId, cancellationToken);
@@ -123,6 +129,7 @@ public sealed class ConversationsController : ControllerBase
     }
 
     [HttpPost("{conversationId:guid}/suggest-reply")]
+    [Authorize(Policy = SocialOpsPolicies.TenantOperator)]
     public async Task<ActionResult<SuggestReplyResponse>> SuggestReply(Guid conversationId, CancellationToken cancellationToken)
     {
         var conversation = await RequireConversationAccess(conversationId, cancellationToken);
@@ -138,6 +145,7 @@ public sealed class ConversationsController : ControllerBase
 
     [HttpPost(
     "{conversationId:guid}/agent-reply")]
+    [Authorize(Policy = SocialOpsPolicies.TenantOperator)]
     public async Task<ActionResult<GenerateAgentReplyResponse>> GenerateAgentReply(Guid conversationId, CancellationToken cancellationToken)
     {
         var conversation = await RequireConversationAccess(conversationId, cancellationToken);

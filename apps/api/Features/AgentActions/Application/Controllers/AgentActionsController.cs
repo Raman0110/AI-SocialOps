@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Features.AgentActions.Application.Dtos;
 using SocialOps.Api.Features.AgentActions.Application.GetPendingActions;
 using SocialOps.Api.Features.AgentActions.Application.Services.ApproveAgentAction;
+using SocialOps.Api.Shared.Auth;
 using SocialOps.Api.Shared.Tenancy;
 
 namespace SocialOps.Api.Features.AgentActions.Controllers;
 
 [ApiController]
+[Authorize(Policy = SocialOpsPolicies.TenantReader)]
 [Route("api/agent-actions")]
 public sealed class AgentActionsController : ControllerBase
 {
@@ -25,6 +28,7 @@ public sealed class AgentActionsController : ControllerBase
   }
 
   [HttpPost("{id:guid}/approve")]
+  [Authorize(Policy = SocialOpsPolicies.TenantOperator)]
   public async Task<IActionResult> Approve(Guid id, CancellationToken cancellationToken)
   {
     var organizationId = _tenantContext.RequireOrganizationId();
@@ -39,6 +43,7 @@ public sealed class AgentActionsController : ControllerBase
   }
 
   [HttpPost("{id:guid}/reject")]
+  [Authorize(Policy = SocialOpsPolicies.TenantOperator)]
   public async Task<IActionResult> Reject(Guid id, CancellationToken cancellationToken)
   {
     var organizationId = _tenantContext.RequireOrganizationId();
