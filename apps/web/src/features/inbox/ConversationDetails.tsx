@@ -198,6 +198,7 @@ export function ConversationDetails({
       </div>
 
       <ReplyBox
+        key={conversation.id}
         suggestedReply={agentReplyState.data?.reply ?? null}
         isGeneratingReply={agentReplyState?.isLoading}
         onGenerateReply={onSuggestReply}

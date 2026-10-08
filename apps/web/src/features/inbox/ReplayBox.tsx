@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 
 interface ReplyBoxProps {
@@ -10,16 +10,11 @@ interface ReplyBoxProps {
 }
 
 export function ReplyBox({ disabled = false, onSend, suggestedReply, isGeneratingReply, onGenerateReply }: ReplyBoxProps) {
-  const [message, setMessage] = useState("");
+  const [draftMessage, setDraftMessage] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-
-  useEffect(() => {
-    if (suggestedReply) {
-      setMessage(suggestedReply);
-    }
-  }, [suggestedReply]);
+  const message = draftMessage ?? suggestedReply ?? "";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,7 +31,7 @@ export function ReplyBox({ disabled = false, onSend, suggestedReply, isGeneratin
 
       await onSend(content);
 
-      setMessage("");
+      setDraftMessage("");
     } catch {
       setError("Unable to send message.");
     } finally {
@@ -53,7 +48,7 @@ export function ReplyBox({ disabled = false, onSend, suggestedReply, isGeneratin
         <textarea
           value={message}
           onChange={(event) =>
-            setMessage(event.target.value)
+            setDraftMessage(event.target.value)
           }
           placeholder="Type a reply..."
           disabled={disabled || sending}

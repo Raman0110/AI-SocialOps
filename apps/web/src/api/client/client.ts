@@ -9,6 +9,7 @@ const DEFAULT_API_URL = "http://localhost:8080";
 const DEFAULT_TIMEOUT_MS = 15_000;
 
 const apiBaseUrl = import.meta.env.VITE_API_URL?.trim() || DEFAULT_API_URL;
+const apiKey = import.meta.env.VITE_API_KEY?.trim();
 
 function createApiClient(): AxiosInstance {
   const client = axios.create({
@@ -16,6 +17,7 @@ function createApiClient(): AxiosInstance {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      ...(apiKey ? { "X-Api-Key": apiKey } : {}),
     },
     timeout: DEFAULT_TIMEOUT_MS,
   });
