@@ -8,10 +8,12 @@ import {
   MessageDirection,
   MessageSenderType,
 } from "../types/conversations";
-import type { AgentReplyResult } from "../api/ai";
+import type { AgentReplyResult } from "../../../api/ai";
 
 const delay = (duration = 250) =>
-  new Promise((resolve) => window.setTimeout(resolve, duration));
+  import.meta.env.MODE === "test"
+    ? Promise.resolve()
+    : new Promise((resolve) => window.setTimeout(resolve, duration));
 
 const conversations: InboxConversation[] = [
   {

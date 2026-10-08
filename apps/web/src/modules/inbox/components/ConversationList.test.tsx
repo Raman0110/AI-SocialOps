@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import type { InboxConversation } from "../../types/conversations";
+import type { InboxConversation } from "../types/conversations";
 import { ConversationList } from "./ConversationList";
 
 const conversations: InboxConversation[] = [

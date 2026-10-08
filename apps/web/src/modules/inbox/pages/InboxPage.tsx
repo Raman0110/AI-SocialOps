@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Alert, Badge, Input, Select, Spin, Typography } from "antd";
 
 import {
   addMockMessage,
@@ -8,7 +9,7 @@ import {
   getMockInbox,
   getMockPendingActions,
   resolveMockPendingAction,
-} from "../../mocks/socialopsMock";
+} from "../mocks/socialopsMock";
 
 import type {
   ConversationStatus,
@@ -16,12 +17,14 @@ import type {
   InboxConversation,
   MessageAnalysis,
   SocialPlatform,
-} from "../../types/conversations";
+} from "../types/conversations";
 
-import { ConversationList } from "./ConversationList";
-import { ConversationDetails as ConversationDetailsView } from "./ConversationDetails";
-import type { AgentReplyResult } from "../../api/ai";
-import type { PendingAgentAction } from "../../types/agentActions";
+import { ConversationList } from "../components/ConversationList";
+import { ConversationDetails as ConversationDetailsView } from "../components/ConversationDetails";
+import type { AgentReplyResult } from "../../../api/ai";
+import type { PendingAgentAction } from "../types/agentActions";
+
+const { Text } = Typography;
 
 interface InboxPageProps {
   organizationId: string;
@@ -136,16 +139,13 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         error: null,
       });
 
-
       const result = await getMockConversation(conversationId);
 
       setSelectedConversation(result);
 
       await loadPendingActions(conversationId);
     } catch {
-      setError(
-        "Unable to load conversation."
-      );
+      setError("Unable to load conversation.");
     }
   }
 
@@ -214,8 +214,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
       setAgentReplyState({
         data: null,
         isLoading: false,
-        error:
-          "Unable to generate agent reply.",
+        error: "Unable to generate agent reply.",
       });
     }
   }
@@ -276,97 +275,69 @@ export function InboxPage({ organizationId }: InboxPageProps) {
 
   if (loading) {
     return (
-      <div className="grid min-h-screen place-items-center bg-slate-50 px-6 text-sm font-medium text-slate-600">
-        Loading inbox...
+      <div className="grid min-h-screen place-items-center bg-slate-50 px-6">
+        <Spin description="Loading inbox..." />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="grid min-h-screen place-items-center bg-slate-50 px-6 text-sm font-medium text-red-700">
-        {error}
+      <div className="grid min-h-screen place-items-center bg-slate-50 px-6">
+        <Alert showIcon type="error" message={error} />
       </div>
     );
   }
 
   return (
-    <div className="grid h-screen bg-slate-100 text-slate-950 lg:grid-cols-[240px_minmax(360px,420px)_1fr]">
-      <aside className="hidden border-r border-slate-200 bg-slate-950 px-4 py-5 text-white lg:block">
-        <div className="text-lg font-semibold tracking-tight">AI SocialOps</div>
-        <div className="mt-1 text-xs text-slate-400">Mock workspace</div>
-
-        <nav className="mt-8 space-y-1 text-sm">
-          {["Inbox", "Customers", "Social Accounts", "AI Actions", "Agent Runs", "Settings"].map((item) => (
-            <button
-              key={item}
-              className={`w-full rounded-md px-3 py-2 text-left transition ${
-                item === "Inbox"
-                  ? "bg-white text-slate-950"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
-              }`}
-              type="button"
-            >
-              {item}
-            </button>
-          ))}
-        </nav>
-
-        <div className="mt-8 rounded-lg border border-slate-800 bg-slate-900 p-3 text-xs text-slate-300">
-          <div className="font-medium text-white">Testing focus</div>
-          <p className="mt-1 leading-5">
-            This screen is mock-only so we can test states and interactions before wiring the API.
-          </p>
-        </div>
-      </aside>
-
-      <aside className="min-h-0 overflow-y-auto border-r border-slate-200 bg-white">
-        <div className="border-b border-slate-200 px-4 py-4">
+    <div className="flex h-[calc(100vh-64px)] gap-4 bg-slate-100 p-4">
+      <aside className="w-[360px] shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white app-panel-shadow">
+        <div className="border-b border-slate-200 bg-slate-50/80 p-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h1 className="text-base font-semibold">Unified Inbox</h1>
-              <p className="mt-1 text-xs text-slate-500">
+              <Text strong>Conversations</Text>
+              <br />
+              <Text type="secondary">
                 {filteredConversations.length} of {conversations.length} conversations
-              </p>
+              </Text>
             </div>
 
-            <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-              Mock mode
-            </span>
+            <Badge color="green" text="Mock mode" />
           </div>
 
-          <input
+          <Input.Search
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search conversations"
-            className="mt-4 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+            className="mt-4"
+            allowClear
           />
 
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <select
+            <Select
               value={platformFilter}
-              onChange={(event) => setPlatformFilter(event.target.value as SocialPlatform | "All")}
-              className="rounded-md border border-slate-300 px-2 py-2 text-sm outline-none"
-            >
-              <option value="All">All platforms</option>
-              <option value="Instagram">Instagram</option>
-              <option value="Facebook">Facebook</option>
-              <option value="WhatsApp">WhatsApp</option>
-              <option value="TikTok">TikTok</option>
-              <option value="X">X</option>
-            </select>
+              onChange={(value) => setPlatformFilter(value)}
+              options={[
+                { value: "All", label: "All platforms" },
+                { value: "Instagram", label: "Instagram" },
+                { value: "Facebook", label: "Facebook" },
+                { value: "WhatsApp", label: "WhatsApp" },
+                { value: "TikTok", label: "TikTok" },
+                { value: "X", label: "X" },
+              ]}
+            />
 
-            <select
+            <Select
               value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value as ConversationStatus | "All")}
-              className="rounded-md border border-slate-300 px-2 py-2 text-sm outline-none"
-            >
-              <option value="All">All statuses</option>
-              <option value="Open">Open</option>
-              <option value="Pending">Pending</option>
-              <option value="Escalated">Escalated</option>
-              <option value="Resolved">Resolved</option>
-            </select>
+              onChange={(value) => setStatusFilter(value)}
+              options={[
+                { value: "All", label: "All statuses" },
+                { value: "Open", label: "Open" },
+                { value: "Pending", label: "Pending" },
+                { value: "Escalated", label: "Escalated" },
+                { value: "Resolved", label: "Resolved" },
+              ]}
+            />
           </div>
         </div>
 
@@ -377,7 +348,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         />
       </aside>
 
-      <main className="min-h-0 overflow-y-auto">
+      <main className="min-w-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white app-panel-shadow">
         <ConversationDetailsView
           conversation={selectedConversation}
           onSendMessage={handleSendMessage}
