@@ -2,17 +2,21 @@ import {
   AppstoreOutlined,
   AuditOutlined,
   BellOutlined,
+  DashboardOutlined,
   DownOutlined,
+  LeftOutlined,
+  MenuOutlined,
   MessageOutlined,
   RobotOutlined,
   SettingOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { Avatar, Badge, Button, ConfigProvider, Layout, Menu, Tag, Typography } from "antd";
-import type { MenuProps, ThemeConfig } from "antd";
+import { Avatar, Badge, Button, ConfigProvider, Layout, Tag, Typography } from "antd";
+import type { ThemeConfig } from "antd";
+import { useState } from "react";
 import type { ReactNode } from "react";
 
-const { Content, Header, Sider } = Layout;
+const { Content, Header } = Layout;
 const { Text } = Typography;
 
 /* -------------------------------------------------------------------------- */
@@ -54,22 +58,6 @@ const appTheme: ThemeConfig = {
       headerHeight: 64,
       headerPadding: "0 24px",
     },
-    Menu: {
-      itemBg: "transparent",
-      itemColor: "#475569",
-      itemHoverBg: color.hover,
-      itemHoverColor: color.ink,
-      itemSelectedBg: color.accentSoft,
-      itemSelectedColor: color.accent,
-      itemHeight: 36,
-      itemBorderRadius: 8,
-      itemMarginInline: 8,
-      itemMarginBlock: 2,
-      iconSize: 16,
-      groupTitleColor: color.textMuted,
-      groupTitleFontSize: 12,
-      activeBarBorderWidth: 0,
-    },
     Tag: { defaultBg: color.hover, defaultColor: color.textMuted },
   },
 };
@@ -79,6 +67,10 @@ const appTheme: ThemeConfig = {
 /* -------------------------------------------------------------------------- */
 
 const NAV_GROUPS = [
+  {
+    title: "Overview",
+    items: [{ key: "dashboard", label: "Dashboard", icon: <DashboardOutlined /> }],
+  },
   {
     title: "Conversations",
     items: [
@@ -104,19 +96,6 @@ const FOOTER_NAV = [{ key: "settings", label: "Settings", icon: <SettingOutlined
 export type NavKey =
   | (typeof NAV_GROUPS)[number]["items"][number]["key"]
   | (typeof FOOTER_NAV)[number]["key"];
-
-const mainMenuItems: MenuProps["items"] = NAV_GROUPS.map((group) => ({
-  type: "group",
-  key: group.title,
-  label: group.title,
-  children: group.items.map(({ key, label, icon }) => ({ key, label, icon })),
-}));
-
-const footerMenuItems: MenuProps["items"] = FOOTER_NAV.map(({ key, label, icon }) => ({
-  key,
-  label,
-  icon,
-}));
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                      */
@@ -149,40 +128,157 @@ interface AppLayoutProps {
   children: ReactNode;
 }
 
-function WorkspaceSwitcher({ tenant, onClick }: { tenant: Tenant; onClick?: () => void }) {
+function WorkspaceSwitcher({
+  tenant,
+  collapsed,
+  onClick,
+}: {
+  tenant: Tenant;
+  collapsed: boolean;
+  onClick?: () => void;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-left shadow-sm transition-colors hover:bg-slate-100 active:bg-slate-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+      title={collapsed ? tenant.name : undefined}
+      className={`flex w-full items-center rounded-xl border border-white/15 bg-white/10 p-2.5 text-left text-white transition hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 ${collapsed ? "justify-center" : "gap-2.5"
+        }`}
     >
-      <span className="grid size-6 shrink-0 place-items-center rounded-md bg-blue-50 text-xs font-semibold text-blue-700">
-        {tenant.name.charAt(0).toUpperCase()}
-      </span>
-      <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-900">
-        {tenant.name}
-      </span>
-      {tenant.badge && <Tag className="m-0 border-none text-xs">{tenant.badge}</Tag>}
-      <DownOutlined className="text-[10px] text-slate-400" />
+      {!collapsed && (
+        <>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-xs font-bold uppercase tracking-wider">
+              {tenant.name}
+            </span>
+            <span className="block truncate text-[10px] text-white/55">Active workspace</span>
+          </span>
+          {tenant.badge && <Tag className="m-0 border-none text-xs">{tenant.badge}</Tag>}
+          <DownOutlined className="text-[10px] text-white/55" />
+        </>
+      )}
     </button>
   );
 }
 
-function UserRow({ user }: { user: CurrentUser }) {
+function UserRow({ user, collapsed }: { user: CurrentUser; collapsed: boolean }) {
   return (
-    <div className="flex items-center gap-2.5 rounded-lg px-2 py-2 transition-colors hover:bg-slate-100 active:bg-slate-200">
+    <div className={`flex items-center rounded-xl px-2 py-2 text-white transition-colors hover:bg-white/10 ${collapsed ? "justify-center" : "gap-2.5"}`}>
       <Badge dot status="success" offset={[-2, 26]}>
-        <Avatar size={32} src={user.avatarUrl} className="bg-slate-800">
+        <Avatar size={32} src={user.avatarUrl} className="bg-blue-600">
           {user.name.charAt(0).toUpperCase()}
         </Avatar>
       </Badge>
-      <div className="min-w-0 flex-1 leading-tight">
-        <Text className="block truncate text-sm font-medium">{user.name}</Text>
-        <Text type="secondary" className="block truncate text-xs">
-          {user.role}
-        </Text>
-      </div>
+      {!collapsed && (
+        <div className="min-w-0 flex-1 leading-tight">
+          <span className="block truncate text-sm font-medium">{user.name}</span>
+          <span className="block truncate text-xs text-white/55">{user.role}</span>
+        </div>
+      )}
     </div>
+  );
+}
+
+function SidebarBrand({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      aria-expanded={!collapsed}
+      className="absolute -right-3.5 top-1/2 z-20 hidden size-7 -translate-y-1/2 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 lg:grid"
+    >
+      <LeftOutlined className={`text-xs transition-transform ${collapsed ? "rotate-180" : ""}`} />
+    </button>
+  );
+}
+
+function SidebarContent({
+  activeKey,
+  tenant,
+  user,
+  collapsed,
+  onToggle,
+  onNavigate,
+  onSwitchWorkspace,
+}: {
+  activeKey: NavKey;
+  tenant: Tenant;
+  user: CurrentUser;
+  collapsed: boolean;
+  onToggle: () => void;
+  onNavigate?: (key: NavKey) => void;
+  onSwitchWorkspace?: () => void;
+}) {
+  const renderNavButton = (item: (typeof NAV_GROUPS)[number]["items"][number]) => {
+    const isActive = activeKey === item.key;
+
+    return (
+      <button
+        key={item.key}
+        type="button"
+        title={collapsed ? item.label : undefined}
+        onClick={() => onNavigate?.(item.key)}
+        className={`flex w-full items-center rounded-xl py-2 text-sm outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-white/40 ${collapsed ? "justify-center px-0" : "gap-3 px-3"
+          } ${isActive
+            ? "border border-white/20 bg-white/15 font-semibold text-white shadow-sm hover:bg-white/20"
+            : "border border-transparent text-white/75 hover:bg-white/10 hover:text-white"
+          }`}
+      >
+        <span className="text-base">{item.icon}</span>
+        {!collapsed && <span className="truncate">{item.label}</span>}
+      </button>
+    );
+  };
+
+  return (
+    <>
+      <SidebarBrand collapsed={collapsed} onToggle={onToggle} />
+
+      <nav aria-label="Main navigation" className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-4">
+        <div className="mb-4">
+          <WorkspaceSwitcher
+            tenant={tenant}
+            collapsed={collapsed}
+            onClick={onSwitchWorkspace}
+          />
+        </div>
+
+        <div className="space-y-4">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.title}>
+              {!collapsed && (
+                <div className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-white/40">
+                  {group.title}
+                </div>
+              )}
+              <div className="space-y-1">{group.items.map(renderNavButton)}</div>
+            </div>
+          ))}
+        </div>
+      </nav>
+
+      <div className="border-t border-white/10 p-3">
+        {FOOTER_NAV.map((item) => {
+          const isActive = activeKey === item.key;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              title={collapsed ? item.label : undefined}
+              onClick={() => onNavigate?.(item.key)}
+              className={`mb-1 flex w-full items-center rounded-xl py-2 text-sm transition ${collapsed ? "justify-center px-0" : "gap-3 px-3"
+                } ${isActive ? "bg-white/15 font-semibold text-white" : "text-white/75 hover:bg-white/10 hover:text-white"}`}
+            >
+              <span className="text-base">{item.icon}</span>
+              {!collapsed && <span>{item.label}</span>}
+            </button>
+          );
+        })}
+        <UserRow user={user} collapsed={collapsed} />
+      </div>
+    </>
   );
 }
 
@@ -203,49 +299,75 @@ export function AppLayout({
   onSwitchWorkspace,
   children,
 }: AppLayoutProps) {
-  const handleClick: MenuProps["onClick"] = ({ key }) => onNavigate?.(key as NavKey);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const handleNavigate = (key: NavKey) => {
+    onNavigate?.(key);
+    setIsMobileSidebarOpen(false);
+  };
 
   return (
     <ConfigProvider theme={appTheme}>
-      <Layout className="h-screen">
-        <Sider
-          width={220}
-          className="app-sidebar hidden lg:block"
-          style={{ background: "#F8FAFC" }}
+      <Layout hasSider className="h-screen">
+        <aside
+          className={`relative hidden shrink-0 flex-col border-r border-white/10 bg-[#343A40] text-white transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? "w-20" : "w-72"
+            }`}
         >
-          <div className="flex h-full flex-col">
-            <Menu
-              mode="inline"
-              selectedKeys={[activeKey]}
-              items={mainMenuItems}
-              onClick={handleClick}
-              className="app-sidebar-menu flex-1 overflow-y-auto border-none"
+          <SidebarContent
+            activeKey={activeKey}
+            tenant={tenant}
+            user={user}
+            collapsed={isSidebarCollapsed}
+            onToggle={() => setIsSidebarCollapsed((current) => !current)}
+            onNavigate={handleNavigate}
+            onSwitchWorkspace={onSwitchWorkspace}
+          />
+        </aside>
+
+        {isMobileSidebarOpen && (
+          <>
+            <button
+              type="button"
+              className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+              aria-label="Close navigation"
+              onClick={() => setIsMobileSidebarOpen(false)}
             />
-
-            <div className="space-y-1 border-t border-slate-200 p-3">
-              <Menu
-                mode="inline"
-                selectedKeys={[activeKey]}
-                items={footerMenuItems}
-                onClick={handleClick}
-                className="app-sidebar-menu border-none"
+            <aside className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-white/10 bg-[#343A40] text-white shadow-xl lg:hidden">
+              <SidebarContent
+                activeKey={activeKey}
+                tenant={tenant}
+                user={user}
+                collapsed={false}
+                onToggle={() => setIsMobileSidebarOpen(false)}
+                onNavigate={handleNavigate}
+                onSwitchWorkspace={onSwitchWorkspace}
               />
-              <UserRow user={user} />
-            </div>
-          </div>
-        </Sider>
+            </aside>
+          </>
+        )}
 
-        <Layout>
+        <Layout className="min-w-0">
           <Header className="app-header-shadow flex items-center justify-between border-b border-slate-200 bg-white">
-            <div className="min-w-0 leading-tight">
-              <h1 className="m-0 truncate text-lg font-semibold tracking-tight text-slate-900">
-                {pageTitle}
-              </h1>
-              {pageDescription && (
-                <Text type="secondary" className="block truncate text-[13px]">
-                  {pageDescription}
-                </Text>
-              )}
+            <div className="flex min-w-0 items-center gap-3">
+              <Button
+                type="text"
+                shape="circle"
+                icon={<MenuOutlined />}
+                aria-label="Open navigation"
+                className="lg:hidden"
+                onClick={() => setIsMobileSidebarOpen(true)}
+              />
+              <div className="min-w-0 leading-tight">
+                <h1 className="m-0 truncate text-lg font-semibold tracking-tight text-slate-900">
+                  {pageTitle}
+                </h1>
+                {pageDescription && (
+                  <Text type="secondary" className="block truncate text-[13px]">
+                    {pageDescription}
+                  </Text>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-3">

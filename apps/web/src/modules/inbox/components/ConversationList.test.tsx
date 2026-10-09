@@ -33,7 +33,6 @@ describe("ConversationList", () => {
     render(
       <ConversationList
         conversations={[]}
-        selectedConversationId={null}
         onSelect={vi.fn()}
       />
     );
@@ -45,7 +44,6 @@ describe("ConversationList", () => {
     render(
       <ConversationList
         conversations={conversations}
-        selectedConversationId="conversation-1"
         onSelect={vi.fn()}
       />
     );
@@ -63,7 +61,6 @@ describe("ConversationList", () => {
     render(
       <ConversationList
         conversations={conversations}
-        selectedConversationId={null}
         onSelect={onSelect}
       />
     );

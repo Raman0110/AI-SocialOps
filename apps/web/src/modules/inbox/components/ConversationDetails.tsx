@@ -1,5 +1,11 @@
-import { Alert, Button, Card, Empty, Space, Statistic, Tag, Typography } from "antd";
-import { RobotOutlined } from "@ant-design/icons";
+import { Alert, Button, Card, Space, Spin, Tag, Typography } from "antd";
+import {
+  ArrowLeftOutlined,
+  BulbOutlined,
+  CloseOutlined,
+  RobotOutlined,
+} from "@ant-design/icons";
+import { useState } from "react";
 import type { ConversationDetails as ConversationDetailsType } from "../types/conversations";
 import { MessageDirection, MessageSenderTypeLabel } from "../types/conversations";
 import { AgentActionsPanel } from "./AgentActionPanel";
@@ -8,8 +14,11 @@ import { ReplyBox } from "./ReplyBox";
 
 const { Text, Title } = Typography;
 
+type AiPanel = "analysis" | "actions" | null;
+
 interface ConversationDetailsProps {
   conversation: ConversationDetailsType | null;
+  onBack: () => void;
   onSendMessage: (content: string) => Promise<void>;
   analysisState: AnalysisState;
   onAnalyze: () => Promise<void>;
@@ -22,6 +31,7 @@ interface ConversationDetailsProps {
 
 export function ConversationDetails({
   conversation,
+  onBack,
   onSendMessage,
   analysisState,
   onAnalyze,
@@ -31,17 +41,30 @@ export function ConversationDetails({
   onRejectAction,
   agentActionsState,
 }: ConversationDetailsProps) {
+  const [activeAiPanel, setActiveAiPanel] = useState<AiPanel>(null);
+
   if (!conversation) {
     return (
-      <div className="grid h-full min-h-screen place-items-center px-6">
-        <Empty description="Select a conversation." />
+      <div className="grid h-full place-items-center px-6">
+        <Spin description="Loading conversation..." />
       </div>
     );
   }
 
   return (
-    <div className="flex h-full min-h-screen flex-col">
-      <header className="app-panel-shadow border-b border-slate-200 bg-white px-6 py-4">
+    <div className="flex h-full flex-col bg-slate-50/60">
+      <div className="flex h-12 shrink-0 items-center border-b border-slate-200 bg-white px-3 sm:px-5">
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
+          onClick={onBack}
+          aria-label="Back to inbox"
+        >
+          <span className="hidden sm:inline">Back to inbox</span>
+        </Button>
+      </div>
+
+      <header className="border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
         <Space className="w-full justify-between" align="start">
           <div>
             <Title level={4} className="mb-1">
@@ -62,101 +85,278 @@ export function ConversationDetails({
         </Space>
       </header>
 
-      <section className="border-b border-slate-200 bg-slate-50 p-4">
-        <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
-          <Card
-            className="app-card-shadow"
-            size="small"
-            title="AI Analysis"
-            extra={
-              <Button
-                icon={<RobotOutlined />}
-                onClick={onAnalyze}
-                loading={analysisState.isLoading}
-              >
-                Analyze with AI
-              </Button>
-            }
-          >
-            {analysisState.error && (
-              <Alert showIcon type="error" message={analysisState.error} />
-            )}
+      <div className="relative flex min-h-0 flex-1">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-8 lg:px-12">
+            <div className="mx-auto max-w-5xl">
+              {conversation.messages.map((message) => {
+                const isCustomer = message.direction === MessageDirection.Inbound;
 
-            {!analysisState.data && !analysisState.error && (
-              <Empty description="Run analysis to classify the latest inbound message." />
-            )}
+                return (
+                  <div
+                    key={message.id}
+                    className={`mb-4 flex ${isCustomer ? "justify-start" : "justify-end"}`}
+                  >
+                    <div
+                      className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[70%] ${
+                        isCustomer
+                          ? "rounded-tl-md border border-slate-200 bg-white text-slate-900"
+                          : "rounded-tr-md bg-blue-600 text-white"
+                      }`}
+                    >
+                      <small
+                        className={`text-xs font-medium ${
+                          isCustomer ? "text-slate-500" : "text-sky-100"
+                        }`}
+                      >
+                        {MessageSenderTypeLabel[message.senderType]}
+                      </small>
 
-            {analysisState.data && (
-              <div className="grid gap-4 md:grid-cols-5">
-                <Statistic title="Intent" value={analysisState.data.intent} />
-                <Statistic title="Sentiment" value={analysisState.data.sentiment} />
-                <Statistic title="Priority" value={analysisState.data.priority} />
-                <Statistic title="Risk" value={analysisState.data.risk} />
-                <Statistic
-                  title="Confidence"
-                  value={Math.round(analysisState.data.confidence * 100)}
-                  suffix="%"
-                />
-              </div>
-            )}
-          </Card>
+                      <div className="mt-1 text-sm leading-6">
+                        {message.content}
+                      </div>
 
-          <AgentActionsPanel
-            actions={agentActionsState.data}
-            isLoading={agentActionsState.isLoading}
-            error={agentActionsState.error}
-            onApprove={onApproveAction}
-            onReject={onRejectAction}
+                      <small
+                        className={`mt-2 block text-xs ${
+                          isCustomer ? "text-slate-400" : "text-sky-100"
+                        }`}
+                      >
+                        {new Date(message.sentAt).toLocaleString()}
+                      </small>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <ReplyBox
+            key={conversation.id}
+            suggestedReply={agentReplyState.data?.reply ?? null}
+            isGeneratingReply={agentReplyState?.isLoading}
+            onGenerateReply={onSuggestReply}
+            onSend={onSendMessage}
           />
         </div>
-      </section>
 
-      <div className="flex-1 overflow-y-auto px-6 py-6">
-        {conversation.messages.map((message) => {
-          const isCustomer = message.direction === MessageDirection.Inbound;
+        <aside
+          className={`absolute inset-y-0 right-0 z-20 flex border-l border-slate-200 bg-white shadow-xl transition-[width] duration-200 lg:static lg:z-auto lg:shadow-none ${
+            activeAiPanel ? "w-[380px] max-w-[92vw]" : "w-14"
+          }`}
+        >
+          <div className="flex w-14 shrink-0 flex-col items-center gap-2 border-r border-slate-200 bg-slate-50 py-3">
+            <Button
+              type={activeAiPanel === "analysis" ? "primary" : "text"}
+              shape="circle"
+              icon={<RobotOutlined />}
+              aria-label="Open AI analysis"
+              title="AI analysis"
+              onClick={() => setActiveAiPanel((current) => current === "analysis" ? null : "analysis")}
+            />
 
-          return (
-            <div
-              key={message.id}
-              className={`mb-4 flex ${isCustomer ? "justify-start" : "justify-end"}`}
-            >
-              <div
-                className={`max-w-[70%] rounded-lg px-4 py-3 shadow-sm ${
-                  isCustomer ? "bg-white text-slate-900" : "bg-sky-600 text-white"
-                }`}
-              >
-                <small
-                  className={`text-xs font-medium ${
-                    isCustomer ? "text-slate-500" : "text-sky-100"
-                  }`}
-                >
-                  {MessageSenderTypeLabel[message.senderType]}
-                </small>
-
-                <div className="mt-1 text-sm leading-6">
-                  {message.content}
-                </div>
-
-                <small
-                  className={`mt-2 block text-xs ${
-                    isCustomer ? "text-slate-400" : "text-sky-100"
-                  }`}
-                >
-                  {new Date(message.sentAt).toLocaleString()}
-                </small>
-              </div>
+            <div className="relative">
+              <Button
+                type={activeAiPanel === "actions" ? "primary" : "text"}
+                shape="circle"
+                icon={<BulbOutlined />}
+                aria-label="Open AI suggested actions"
+                title="Suggested actions"
+                onClick={() => setActiveAiPanel((current) => current === "actions" ? null : "actions")}
+              />
+              {agentActionsState.data.length > 0 && (
+                <span className="pointer-events-none absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-red-500 text-[10px] font-semibold text-white">
+                  {agentActionsState.data.length}
+                </span>
+              )}
             </div>
-          );
-        })}
-      </div>
+          </div>
 
-      <ReplyBox
-        key={conversation.id}
-        suggestedReply={agentReplyState.data?.reply ?? null}
-        isGeneratingReply={agentReplyState?.isLoading}
-        onGenerateReply={onSuggestReply}
-        onSend={onSendMessage}
-      />
+          {activeAiPanel && (
+            <div className="min-w-0 flex-1 overflow-y-auto p-4">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <Title level={5} className="m-0">
+                  {activeAiPanel === "analysis" ? "AI Analysis" : "Suggested Actions"}
+                </Title>
+                <Button
+                  type="text"
+                  shape="circle"
+                  icon={<CloseOutlined />}
+                  aria-label="Close AI panel"
+                  onClick={() => setActiveAiPanel(null)}
+                />
+              </div>
+
+              {activeAiPanel === "analysis" ? (
+                <AiAnalysisPanel
+                  analysisState={analysisState}
+                  onAnalyze={onAnalyze}
+                />
+              ) : (
+                <AgentActionsPanel
+                  actions={agentActionsState.data}
+                  isLoading={agentActionsState.isLoading}
+                  error={agentActionsState.error}
+                  onApprove={onApproveAction}
+                  onReject={onRejectAction}
+                />
+              )}
+            </div>
+          )}
+        </aside>
+      </div>
     </div>
   );
+}
+
+function AiAnalysisPanel({
+  analysisState,
+  onAnalyze,
+}: {
+  analysisState: AnalysisState;
+  onAnalyze: () => Promise<void>;
+}) {
+  if (analysisState.error) {
+    return (
+      <div className="space-y-3">
+        <Alert showIcon type="error" message={analysisState.error} />
+        <Button block icon={<RobotOutlined />} onClick={onAnalyze}>
+          Try analysis again
+        </Button>
+      </div>
+    );
+  }
+
+  if (!analysisState.data) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+        <div className="mx-auto mb-4 grid size-12 place-items-center rounded-xl bg-slate-100 text-lg text-slate-700">
+          <RobotOutlined />
+        </div>
+        <Title level={5} className="mb-1">
+          Understand this conversation
+        </Title>
+        <Text type="secondary" className="block text-sm leading-6">
+          Detect customer intent, sentiment, urgency, and risk from the latest message.
+        </Text>
+        <Button
+          type="primary"
+          className="mt-5"
+          icon={<RobotOutlined />}
+          onClick={onAnalyze}
+          loading={analysisState.isLoading}
+        >
+          Analyze conversation
+        </Button>
+      </div>
+    );
+  }
+
+  const confidence = Math.round(analysisState.data.confidence * 100);
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <Text type="secondary" className="block text-xs font-semibold uppercase tracking-[0.12em]">
+              Analysis confidence
+            </Text>
+            <div className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">
+              {confidence}%
+            </div>
+            <Text type="secondary" className="mt-1 block text-xs">
+              Updated {formatAnalysisTime(analysisState.data.analyzedAt)}
+            </Text>
+          </div>
+          <Text className="text-sm font-medium text-blue-600">
+            {confidenceLabel(confidence)}
+          </Text>
+        </div>
+
+        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
+          <div
+            className="h-full rounded-full bg-blue-600 transition-[width] duration-500"
+            style={{ width: `${confidence}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <AnalysisMetric
+          label="Intent"
+          value={humanizeAnalysisValue(analysisState.data.intent)}
+        />
+        <AnalysisMetric
+          label="Sentiment"
+          value={humanizeAnalysisValue(analysisState.data.sentiment)}
+        />
+        <AnalysisMetric
+          label="Priority"
+          value={humanizeAnalysisValue(analysisState.data.priority)}
+        />
+        <AnalysisMetric
+          label="Risk"
+          value={humanizeAnalysisValue(analysisState.data.risk)}
+        />
+      </div>
+
+      <Card size="small" className="border-slate-200 bg-slate-50/80 shadow-none">
+        <Text strong className="block text-sm">About this analysis</Text>
+        <Text type="secondary" className="mt-1 block text-xs leading-5">
+          This classification is based on the latest inbound message. Review the full thread before taking action.
+        </Text>
+      </Card>
+
+      <div className="border-t border-slate-200 pt-4">
+        <Button
+          block
+          icon={<RobotOutlined />}
+          onClick={onAnalyze}
+          loading={analysisState.isLoading}
+        >
+          Analyze again
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function AnalysisMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+      <Text type="secondary" className="block text-[11px] font-semibold uppercase tracking-wide">
+        {label}
+      </Text>
+      <span className="mt-2 block truncate text-sm font-semibold text-slate-900">
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function humanizeAnalysisValue(value: string) {
+  return value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function formatAnalysisTime(value: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function confidenceLabel(confidence: number) {
+  if (confidence >= 80) return "High confidence";
+  if (confidence >= 60) return "Moderate confidence";
+  return "Low confidence";
 }

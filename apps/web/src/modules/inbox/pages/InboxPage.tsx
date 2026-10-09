@@ -111,14 +111,6 @@ export function InboxPage({ organizationId }: InboxPageProps) {
 
         setConversations(result);
 
-        if (result.length > 0) {
-          const firstConversationId = result[0].id;
-          const firstConversation = await getMockConversation(firstConversationId);
-
-          setSelectedConversationId(firstConversationId);
-          setSelectedConversation(firstConversation);
-          await loadPendingActions(firstConversationId);
-        }
       } catch {
         setError("Unable to load inbox.");
       } finally {
@@ -147,6 +139,14 @@ export function InboxPage({ organizationId }: InboxPageProps) {
     } catch {
       setError("Unable to load conversation.");
     }
+  }
+
+  function handleBackToInbox() {
+    setSelectedConversationId(null);
+    setSelectedConversation(null);
+    setAnalysisState({ data: null, isLoading: false, error: null });
+    setAgentReplyState({ data: null, isLoading: false, error: null });
+    setAgentActionsState({ data: [], isLoading: false, error: null });
   }
 
   async function handleSendMessage(content: string) {
@@ -289,32 +289,41 @@ export function InboxPage({ organizationId }: InboxPageProps) {
     );
   }
 
+  if (selectedConversationId) {
+    return (
+      <main className="h-[calc(100vh-112px)] min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white app-panel-shadow">
+        <ConversationDetailsView
+          conversation={selectedConversation}
+          onBack={handleBackToInbox}
+          onSendMessage={handleSendMessage}
+          analysisState={analysisState}
+          onAnalyze={handleAnalyzeMessage}
+          onSuggestReply={handleGenerateAgentReply}
+          agentReplyState={agentReplyState}
+          onApproveAction={handleApproveAction}
+          onRejectAction={handleRejectAction}
+          agentActionsState={agentActionsState}
+        />
+      </main>
+    );
+  }
+
   return (
-    <div className="flex h-[calc(100vh-64px)] gap-4 bg-slate-100 p-4">
-      <aside className="w-[360px] shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white app-panel-shadow">
-        <div className="border-b border-slate-200 bg-slate-50/80 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <Text strong>Conversations</Text>
-              <br />
-              <Text type="secondary">
-                {filteredConversations.length} of {conversations.length} conversations
-              </Text>
-            </div>
-
-            <Badge color="green" text="Mock mode" />
-          </div>
-
+    <main className="min-h-[calc(100vh-112px)] overflow-hidden rounded-xl border border-slate-200 bg-white app-panel-shadow">
+      <div className="border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
           <Input.Search
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search conversations"
-            className="mt-4"
+            className="max-w-2xl flex-1"
+            size="large"
             allowClear
           />
 
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex">
             <Select
+              className="min-w-40"
               value={platformFilter}
               onChange={(value) => setPlatformFilter(value)}
               options={[
@@ -328,6 +337,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
             />
 
             <Select
+              className="min-w-36"
               value={statusFilter}
               onChange={(value) => setStatusFilter(value)}
               options={[
@@ -340,27 +350,19 @@ export function InboxPage({ organizationId }: InboxPageProps) {
             />
           </div>
         </div>
+      </div>
 
-        <ConversationList
-          conversations={filteredConversations}
-          selectedConversationId={selectedConversationId}
-          onSelect={handleSelectConversation}
-        />
-      </aside>
+      <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/70 px-4 py-2.5 sm:px-6">
+        <Text type="secondary" className="text-sm">
+          {filteredConversations.length} of {conversations.length} conversations
+        </Text>
+        <Badge color="green" text="Mock mode" />
+      </div>
 
-      <main className="min-w-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white app-panel-shadow">
-        <ConversationDetailsView
-          conversation={selectedConversation}
-          onSendMessage={handleSendMessage}
-          analysisState={analysisState}
-          onAnalyze={handleAnalyzeMessage}
-          onSuggestReply={handleGenerateAgentReply}
-          agentReplyState={agentReplyState}
-          onApproveAction={handleApproveAction}
-          onRejectAction={handleRejectAction}
-          agentActionsState={agentActionsState}
-        />
-      </main>
-    </div>
+      <ConversationList
+        conversations={filteredConversations}
+        onSelect={handleSelectConversation}
+      />
+    </main>
   );
 }
