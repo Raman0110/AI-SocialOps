@@ -3,6 +3,7 @@ import { useState } from "react";
 import { CustomersPage } from "./modules/customers/pages/CustomersPage";
 import { DashboardPage } from "./modules/dashboard/pages/DashboardPage";
 import { InboxPage } from "./modules/inbox/pages/InboxPage";
+import { SocialAccountsPage } from "./modules/social-accounts/pages/SocialAccountsPage";
 import { AppLayout } from "./shared/layout";
 import type { NavKey } from "./shared/layout/AppLayout";
 
@@ -23,6 +24,10 @@ function App() {
     customers: {
       title: "Customers",
       description: "Customer profiles, social identities, and activity history",
+    },
+    "social-accounts": {
+      title: "Social Accounts",
+      description: "Connected organization accounts and webhook health",
     },
   };
   const currentPageMeta = pageMeta[activeKey] ?? pageMeta.dashboard;
@@ -46,7 +51,12 @@ function App() {
         pageDescription={currentPageMeta.description}
         isMockData
         onNavigate={(key) => {
-          if (key === "dashboard" || key === "inbox" || key === "customers") {
+          if (
+            key === "dashboard" ||
+            key === "inbox" ||
+            key === "customers" ||
+            key === "social-accounts"
+          ) {
             setActiveKey(key);
           }
         }}
@@ -58,6 +68,8 @@ function App() {
           />
         ) : activeKey === "customers" ? (
           <CustomersPage onOpenInbox={() => setActiveKey("inbox")} />
+        ) : activeKey === "social-accounts" ? (
+          <SocialAccountsPage />
         ) : (
           <InboxPage organizationId={organizationId} />
         )}
