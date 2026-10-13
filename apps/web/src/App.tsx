@@ -1,5 +1,6 @@
 import { ConfigProvider } from "antd";
 import { useState } from "react";
+import { AiActionsPage } from "./modules/ai-actions/pages/AiActionsPage";
 import { CustomersPage } from "./modules/customers/pages/CustomersPage";
 import { DashboardPage } from "./modules/dashboard/pages/DashboardPage";
 import { InboxPage } from "./modules/inbox/pages/InboxPage";
@@ -29,6 +30,10 @@ function App() {
       title: "Social Accounts",
       description: "Connected organization accounts and webhook health",
     },
+    "ai-actions": {
+      title: "AI Actions",
+      description: "Review generated actions before they touch customers or operations",
+    },
   };
   const currentPageMeta = pageMeta[activeKey] ?? pageMeta.dashboard;
 
@@ -55,6 +60,7 @@ function App() {
             key === "dashboard" ||
             key === "inbox" ||
             key === "customers" ||
+            key === "ai-actions" ||
             key === "social-accounts"
           ) {
             setActiveKey(key);
@@ -64,12 +70,14 @@ function App() {
         {activeKey === "dashboard" ? (
           <DashboardPage
             onOpenInbox={() => setActiveKey("inbox")}
-            onOpenAiActions={() => setActiveKey("inbox")}
+            onOpenAiActions={() => setActiveKey("ai-actions")}
           />
         ) : activeKey === "customers" ? (
           <CustomersPage onOpenInbox={() => setActiveKey("inbox")} />
         ) : activeKey === "social-accounts" ? (
           <SocialAccountsPage />
+        ) : activeKey === "ai-actions" ? (
+          <AiActionsPage />
         ) : (
           <InboxPage organizationId={organizationId} />
         )}

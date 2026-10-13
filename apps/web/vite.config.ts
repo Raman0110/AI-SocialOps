@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
     environment: 'jsdom',
+    fileParallelism: false,
     globals: true,
     setupFiles: './src/test/setup.ts',
     testTimeout: 15_000,
