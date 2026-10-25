@@ -1,5 +1,6 @@
 import { ConfigProvider } from "antd";
 import { useState } from "react";
+import { AgentRunsPage } from "./modules/agent-runs/pages/AgentRunsPage";
 import { AiActionsPage } from "./modules/ai-actions/pages/AiActionsPage";
 import { CustomersPage } from "./modules/customers/pages/CustomersPage";
 import { DashboardPage } from "./modules/dashboard/pages/DashboardPage";
@@ -34,6 +35,10 @@ function App() {
       title: "AI Actions",
       description: "Review generated actions before they touch customers or operations",
     },
+    "agent-runs": {
+      title: "Agent Runs",
+      description: "Inspect AI execution history, tool calls, latency, and failures",
+    },
   };
   const currentPageMeta = pageMeta[activeKey] ?? pageMeta.dashboard;
 
@@ -61,6 +66,7 @@ function App() {
             key === "inbox" ||
             key === "customers" ||
             key === "ai-actions" ||
+            key === "agent-runs" ||
             key === "social-accounts"
           ) {
             setActiveKey(key);
@@ -78,6 +84,8 @@ function App() {
           <SocialAccountsPage />
         ) : activeKey === "ai-actions" ? (
           <AiActionsPage />
+        ) : activeKey === "agent-runs" ? (
+          <AgentRunsPage />
         ) : (
           <InboxPage organizationId={organizationId} />
         )}
