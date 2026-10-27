@@ -8,6 +8,7 @@ import { InboxPage } from "./modules/inbox/pages/InboxPage";
 import { SocialAccountsPage } from "./modules/social-accounts/pages/SocialAccountsPage";
 import { AppLayout } from "./shared/layout";
 import type { NavKey } from "./shared/layout/AppLayout";
+import { runtimeConfig } from "./shared/config/runtime";
 
 function App() {
   const [activeKey, setActiveKey] = useState<NavKey>("dashboard");
@@ -55,11 +56,11 @@ function App() {
     >
       <AppLayout
         activeKey={activeKey}
-        tenant={{ name: "UrbanThreads", badge: "Mock" }}
+        tenant={{ name: "UrbanThreads", badge: runtimeConfig.useMocks ? "Mock" : "API" }}
         user={{ name: "Development Owner", role: "Owner access" }}
         pageTitle={currentPageMeta.title}
         pageDescription={currentPageMeta.description}
-        isMockData
+        isMockData={runtimeConfig.useMocks}
         onNavigate={(key) => {
           if (
             key === "dashboard" ||

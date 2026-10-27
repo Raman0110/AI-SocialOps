@@ -27,6 +27,7 @@ interface ConversationDetailsProps {
   onApproveAction: (actionId: string) => Promise<void>;
   onRejectAction: (actionId: string) => Promise<void>;
   agentActionsState: AgentActionsState;
+  mutationsEnabled?: boolean;
 }
 
 export function ConversationDetails({
@@ -40,6 +41,7 @@ export function ConversationDetails({
   onApproveAction,
   onRejectAction,
   agentActionsState,
+  mutationsEnabled = true,
 }: ConversationDetailsProps) {
   const [activeAiPanel, setActiveAiPanel] = useState<AiPanel>(null);
 
@@ -136,6 +138,8 @@ export function ConversationDetails({
             isGeneratingReply={agentReplyState?.isLoading}
             onGenerateReply={onSuggestReply}
             onSend={onSendMessage}
+            disabled={!mutationsEnabled}
+            disabledHint="Live inbox reads are enabled. Reply and AI actions will be connected next."
           />
         </div>
 
@@ -190,6 +194,7 @@ export function ConversationDetails({
                 <AiAnalysisPanel
                   analysisState={analysisState}
                   onAnalyze={onAnalyze}
+                  disabled={!mutationsEnabled}
                 />
               ) : (
                 <AgentActionsPanel
@@ -211,15 +216,17 @@ export function ConversationDetails({
 function AiAnalysisPanel({
   analysisState,
   onAnalyze,
+  disabled,
 }: {
   analysisState: AnalysisState;
   onAnalyze: () => Promise<void>;
+  disabled: boolean;
 }) {
   if (analysisState.error) {
     return (
       <div className="space-y-3">
-        <Alert showIcon type="error" message={analysisState.error} />
-        <Button block icon={<RobotOutlined />} onClick={onAnalyze}>
+        <Alert showIcon type="error" title={analysisState.error} />
+        <Button block icon={<RobotOutlined />} onClick={onAnalyze} disabled={disabled}>
           Try analysis again
         </Button>
       </div>
@@ -244,6 +251,7 @@ function AiAnalysisPanel({
           icon={<RobotOutlined />}
           onClick={onAnalyze}
           loading={analysisState.isLoading}
+          disabled={disabled}
         >
           Analyze conversation
         </Button>
@@ -313,6 +321,7 @@ function AiAnalysisPanel({
           icon={<RobotOutlined />}
           onClick={onAnalyze}
           loading={analysisState.isLoading}
+          disabled={disabled}
         >
           Analyze again
         </Button>

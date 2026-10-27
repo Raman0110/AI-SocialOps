@@ -2,11 +2,15 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { InboxPage } from "./InboxPage";
+import { mockInboxReadDataSource } from "../services/inboxReadDataSource";
 
 describe("InboxPage", () => {
   it("loads mock conversations and filters them by search", async () => {
     render(
-      <InboxPage organizationId="00000000-0000-0000-0000-000000000001" />
+      <InboxPage
+        organizationId="00000000-0000-0000-0000-000000000001"
+        dataSource={mockInboxReadDataSource}
+      />
     );
 
     expect(screen.getByText("Loading inbox...")).toBeInTheDocument();
@@ -25,7 +29,10 @@ describe("InboxPage", () => {
 
   it("opens a conversation in a full-page view and returns to the inbox", async () => {
     render(
-      <InboxPage organizationId="00000000-0000-0000-0000-000000000001" />
+      <InboxPage
+        organizationId="00000000-0000-0000-0000-000000000001"
+        dataSource={mockInboxReadDataSource}
+      />
     );
 
     const conversationRow = await screen.findByRole("button", { name: /maya sharma/i });

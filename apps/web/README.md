@@ -1,6 +1,25 @@
-# React + TypeScript + Vite
+# AI SocialOps Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React, TypeScript, Vite, Ant Design, and Tailwind frontend for AI SocialOps.
+
+## Inbox data mode
+
+Copy `.env.example` to `.env.local` and select the Inbox read source:
+
+```env
+VITE_API_URL=http://localhost:8080
+VITE_API_KEY=dev-api-key
+VITE_ORGANIZATION_ID=00000000-0000-0000-0000-000000000001
+VITE_USE_MOCKS=false
+```
+
+- `VITE_USE_MOCKS=false` loads the Inbox list and conversation details from the ASP.NET API.
+- `VITE_USE_MOCKS=true` uses the local Inbox mock data and enables the current mock mutations.
+- Restart the Vite development server after changing an environment value.
+
+In live API mode, reply sending and AI mutations are intentionally disabled until their API integration is completed.
+
+## Vite notes
 
 Currently, two official plugins are available:
 

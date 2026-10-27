@@ -6,13 +6,21 @@ const { Text } = Typography;
 
 interface ReplyBoxProps {
   disabled?: boolean;
+  disabledHint?: string;
   suggestedReply: string | null;
   isGeneratingReply: boolean;
   onGenerateReply: () => Promise<void>;
   onSend: (message: string) => Promise<void>;
 }
 
-export function ReplyBox({ disabled = false, onSend, suggestedReply, isGeneratingReply, onGenerateReply }: ReplyBoxProps) {
+export function ReplyBox({
+  disabled = false,
+  disabledHint,
+  onSend,
+  suggestedReply,
+  isGeneratingReply,
+  onGenerateReply,
+}: ReplyBoxProps) {
   const [draftMessage, setDraftMessage] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +63,7 @@ export function ReplyBox({ disabled = false, onSend, suggestedReply, isGeneratin
 
         <Space className="w-full justify-between" align="center">
           <Text type={error ? "danger" : "secondary"}>
-            {error ?? "Use AI to draft, then review before sending."}
+            {error ?? (disabled && disabledHint ? disabledHint : "Use AI to draft, then review before sending.")}
           </Text>
 
           <Space>

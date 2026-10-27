@@ -5,7 +5,6 @@ import {
   addMockMessage,
   analyzeMockConversation,
   generateMockAgentReply,
-  getMockConversation,
   getMockInbox,
   getMockPendingActions,
   resolveMockPendingAction,
@@ -22,12 +21,18 @@ import type {
 import { ConversationList } from "../components/ConversationList";
 import { ConversationDetails as ConversationDetailsView } from "../components/ConversationDetails";
 import type { AgentReplyResult } from "../../../api/ai";
+import { ApiError } from "../../../api/client/utils/api-client.utils";
 import type { PendingAgentAction } from "../types/agentActions";
+import {
+  defaultInboxReadDataSource,
+  type InboxReadDataSource,
+} from "../services/inboxReadDataSource";
 
 const { Text } = Typography;
 
 interface InboxPageProps {
   organizationId: string;
+  dataSource?: InboxReadDataSource;
 }
 
 export type AnalysisState = {
@@ -54,7 +59,10 @@ export type AgentReplyState = {
   error: string | null;
 };
 
-export function InboxPage({ organizationId }: InboxPageProps) {
+export function InboxPage({
+  organizationId,
+  dataSource = defaultInboxReadDataSource,
+}: InboxPageProps) {
   const [conversations, setConversations] = useState<InboxConversation[]>([]);
 
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
@@ -86,6 +94,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [platformFilter, setPlatformFilter] = useState<SocialPlatform | "All">("All");
   const [statusFilter, setStatusFilter] = useState<ConversationStatus | "All">("All");
+  const isMockMode = dataSource.mode === "mock";
 
   const filteredConversations = conversations.filter((conversation) => {
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
@@ -107,19 +116,20 @@ export function InboxPage({ organizationId }: InboxPageProps) {
       try {
         setLoading(true);
 
-        const result = await getMockInbox();
+        setError(null);
+        const result = await dataSource.getInbox(organizationId);
 
         setConversations(result);
 
-      } catch {
-        setError("Unable to load inbox.");
+      } catch (loadError) {
+        setError(getInboxErrorMessage(loadError));
       } finally {
         setLoading(false);
       }
     }
 
     loadInbox();
-  }, [organizationId]);
+  }, [dataSource, organizationId]);
 
   async function handleSelectConversation(conversationId: string) {
     try {
@@ -131,13 +141,16 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         error: null,
       });
 
-      const result = await getMockConversation(conversationId);
+      const result = await dataSource.getConversation(conversationId);
 
       setSelectedConversation(result);
 
-      await loadPendingActions(conversationId);
-    } catch {
-      setError("Unable to load conversation.");
+      if (isMockMode) {
+        await loadPendingActions(conversationId);
+      }
+    } catch (loadError) {
+      setSelectedConversationId(null);
+      setError(getConversationErrorMessage(loadError));
     }
   }
 
@@ -154,6 +167,10 @@ export function InboxPage({ organizationId }: InboxPageProps) {
       return;
     }
 
+    if (!isMockMode) {
+      throw new Error("Inbox mutations are not connected yet.");
+    }
+
     const updatedConversation = await addMockMessage(selectedConversationId, content);
 
     setSelectedConversation(updatedConversation);
@@ -165,6 +182,15 @@ export function InboxPage({ organizationId }: InboxPageProps) {
 
   async function handleAnalyzeMessage() {
     if (!selectedConversationId) return;
+
+    if (!isMockMode) {
+      setAnalysisState({
+        data: null,
+        isLoading: false,
+        error: "AI mutations will be connected in the next integration step.",
+      });
+      return;
+    }
 
     try {
       setAnalysisState((current) => ({
@@ -191,6 +217,15 @@ export function InboxPage({ organizationId }: InboxPageProps) {
 
   async function handleGenerateAgentReply() {
     if (!selectedConversationId) {
+      return;
+    }
+
+    if (!isMockMode) {
+      setAgentReplyState({
+        data: null,
+        isLoading: false,
+        error: "AI reply generation is not connected yet.",
+      });
       return;
     }
 
@@ -284,7 +319,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
   if (error) {
     return (
       <div className="grid min-h-screen place-items-center bg-slate-50 px-6">
-        <Alert showIcon type="error" message={error} />
+        <Alert showIcon type="error" title={error} />
       </div>
     );
   }
@@ -303,6 +338,7 @@ export function InboxPage({ organizationId }: InboxPageProps) {
           onApproveAction={handleApproveAction}
           onRejectAction={handleRejectAction}
           agentActionsState={agentActionsState}
+          mutationsEnabled={isMockMode}
         />
       </main>
     );
@@ -356,7 +392,10 @@ export function InboxPage({ organizationId }: InboxPageProps) {
         <Text type="secondary" className="text-sm">
           {filteredConversations.length} of {conversations.length} conversations
         </Text>
-        <Badge color="green" text="Mock mode" />
+        <Badge
+          color={isMockMode ? "green" : "blue"}
+          text={isMockMode ? "Mock mode" : "Live API reads"}
+        />
       </div>
 
       <ConversationList
@@ -365,4 +404,26 @@ export function InboxPage({ organizationId }: InboxPageProps) {
       />
     </main>
   );
+}
+
+function getInboxErrorMessage(error: unknown) {
+  if (error instanceof ApiError) {
+    if (error.status === 401) return "Authentication failed. Check the frontend API key.";
+    if (error.status === 403) return "You do not have access to this organization inbox.";
+    if (error.status && error.status >= 500) return "The inbox service is temporarily unavailable.";
+    return error.message;
+  }
+
+  return "Unable to load inbox.";
+}
+
+function getConversationErrorMessage(error: unknown) {
+  if (error instanceof ApiError) {
+    if (error.status === 404) return "The selected conversation no longer exists.";
+    if (error.status === 403) return "You do not have access to this conversation.";
+    if (error.status && error.status >= 500) return "The conversation service is temporarily unavailable.";
+    return error.message;
+  }
+
+  return "Unable to load conversation.";
 }
