@@ -100,16 +100,14 @@ export function ConversationDetails({
                     className={`mb-4 flex ${isCustomer ? "justify-start" : "justify-end"}`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[70%] ${
-                        isCustomer
-                          ? "rounded-tl-md border border-slate-200 bg-white text-slate-900"
-                          : "rounded-tr-md bg-blue-600 text-white"
-                      }`}
+                      className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[70%] ${isCustomer
+                        ? "rounded-tl-md border border-slate-200 bg-white text-slate-900"
+                        : "rounded-tr-md bg-blue-600 text-white"
+                        }`}
                     >
                       <small
-                        className={`text-xs font-medium ${
-                          isCustomer ? "text-slate-500" : "text-sky-100"
-                        }`}
+                        className={`text-xs font-medium ${isCustomer ? "text-slate-500" : "text-sky-100"
+                          }`}
                       >
                         {MessageSenderTypeLabel[message.senderType]}
                       </small>
@@ -119,9 +117,8 @@ export function ConversationDetails({
                       </div>
 
                       <small
-                        className={`mt-2 block text-xs ${
-                          isCustomer ? "text-slate-400" : "text-sky-100"
-                        }`}
+                        className={`mt-2 block text-xs ${isCustomer ? "text-slate-400" : "text-sky-100"
+                          }`}
                       >
                         {new Date(message.sentAt).toLocaleString()}
                       </small>
@@ -144,9 +141,8 @@ export function ConversationDetails({
         </div>
 
         <aside
-          className={`absolute inset-y-0 right-0 z-20 flex border-l border-slate-200 bg-white shadow-xl transition-[width] duration-200 lg:static lg:z-auto lg:shadow-none ${
-            activeAiPanel ? "w-[380px] max-w-[92vw]" : "w-14"
-          }`}
+          className={`absolute inset-y-0 right-0 z-20 flex border-l border-slate-200 bg-white shadow-xl transition-[width] duration-200 lg:static lg:z-auto lg:shadow-none ${activeAiPanel ? "w-95 max-w-[92vw]" : "w-14"
+            }`}
         >
           <div className="flex w-14 shrink-0 flex-col items-center gap-2 border-r border-slate-200 bg-slate-50 py-3">
             <Button

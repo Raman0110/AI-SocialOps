@@ -12,8 +12,8 @@ export type ConversationStatus =
   | "Escalated";
 
 export const MessageDirection = {
-  Inbound: 1,
-  Outbound: 2,
+  Inbound: "Inbound",
+  Outbound: "Outbound",
 } as const;
 
 export type MessageDirection =
