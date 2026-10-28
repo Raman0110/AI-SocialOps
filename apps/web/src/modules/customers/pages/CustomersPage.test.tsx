@@ -3,10 +3,11 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { CustomersPage } from "./CustomersPage";
+import { mockCustomerDataSource } from "../services/customerDataSource";
 
 describe("CustomersPage", () => {
   it("loads customers and shows the selected customer profile", async () => {
-    render(<CustomersPage onOpenInbox={vi.fn()} />);
+    render(<CustomersPage onOpenInbox={vi.fn()} dataSource={mockCustomerDataSource} />);
 
     expect(await screen.findAllByText("Maya Sharma")).toHaveLength(2);
     expect(screen.getByText("Social identities")).toBeInTheDocument();
@@ -17,7 +18,7 @@ describe("CustomersPage", () => {
   it("filters customers by search term", async () => {
     const user = userEvent.setup();
 
-    render(<CustomersPage onOpenInbox={vi.fn()} />);
+    render(<CustomersPage onOpenInbox={vi.fn()} dataSource={mockCustomerDataSource} />);
 
     await screen.findAllByText("Maya Sharma");
 
@@ -33,7 +34,7 @@ describe("CustomersPage", () => {
     const user = userEvent.setup();
     const onOpenInbox = vi.fn();
 
-    render(<CustomersPage onOpenInbox={onOpenInbox} />);
+    render(<CustomersPage onOpenInbox={onOpenInbox} dataSource={mockCustomerDataSource} />);
 
     await screen.findAllByText("Maya Sharma");
     await user.click(screen.getByRole("button", { name: /open conversations/i }));

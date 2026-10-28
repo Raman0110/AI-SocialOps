@@ -2,9 +2,9 @@
 
 React, TypeScript, Vite, Ant Design, and Tailwind frontend for AI SocialOps.
 
-## Inbox data mode
+## Data mode
 
-Copy `.env.example` to `.env.local` and select the Inbox read source:
+Copy `.env.example` to `.env.local` and select the application data source:
 
 ```env
 VITE_API_URL=http://localhost:8080
@@ -13,11 +13,9 @@ VITE_ORGANIZATION_ID=00000000-0000-0000-0000-000000000001
 VITE_USE_MOCKS=false
 ```
 
-- `VITE_USE_MOCKS=false` loads the Inbox list and conversation details from the ASP.NET API.
-- `VITE_USE_MOCKS=true` uses the local Inbox mock data and enables the current mock mutations.
+- `VITE_USE_MOCKS=false` loads conversations, customers, social accounts, AI actions, and agent runs from the ASP.NET API. Inbox mutations also use the API.
+- `VITE_USE_MOCKS=true` uses the local frontend mock data where a mock data source is available.
 - Restart the Vite development server after changing an environment value.
-
-In live API mode, reply sending and AI mutations are intentionally disabled until their API integration is completed.
 
 ## Vite notes
 

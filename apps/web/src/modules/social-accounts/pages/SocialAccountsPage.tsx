@@ -3,7 +3,10 @@ import { Alert, Button, Input, Select, Space, Spin, Typography, message } from "
 import { LinkOutlined } from "@ant-design/icons";
 import { SocialAccountDetails } from "../components/SocialAccountDetails";
 import { SocialAccountsTable } from "../components/SocialAccountsTable";
-import { getMockSocialAccounts } from "../mocks/socialAccountsMock";
+import {
+  defaultSocialAccountDataSource,
+  type SocialAccountDataSource,
+} from "../services/socialAccountDataSource";
 import type {
   SocialAccount,
   SocialAccountStatus,
@@ -13,7 +16,13 @@ import type { SocialPlatform } from "../../inbox/types/conversations";
 
 const { Text, Title } = Typography;
 
-export function SocialAccountsPage() {
+interface SocialAccountsPageProps {
+  dataSource?: SocialAccountDataSource;
+}
+
+export function SocialAccountsPage({
+  dataSource = defaultSocialAccountDataSource,
+}: SocialAccountsPageProps) {
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,7 +73,7 @@ export function SocialAccountsPage() {
     async function loadSocialAccounts() {
       try {
         setLoading(true);
-        const result = await getMockSocialAccounts();
+        const result = await dataSource.getSocialAccounts();
         setAccounts(result);
         setSelectedAccountId(result[0]?.id ?? null);
       } catch {
@@ -75,14 +84,14 @@ export function SocialAccountsPage() {
     }
 
     loadSocialAccounts();
-  }, []);
+  }, [dataSource]);
 
   function handleConnectAccount() {
-    messageApi.info("Mock action: account connection flow will be added later.");
+    messageApi.info("Account connection is not available in the API yet.");
   }
 
   function handleReauthorize() {
-    messageApi.success("Mock action: reauthorization requested.");
+    messageApi.info("Account reauthorization is not available in the API yet.");
   }
 
   if (loading) {

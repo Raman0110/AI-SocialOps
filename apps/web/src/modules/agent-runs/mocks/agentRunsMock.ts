@@ -8,6 +8,7 @@ const delay = (duration = 180) =>
 const runs: AgentRun[] = [
   {
     id: "run-maya-reply",
+    conversationId: "conv-maya",
     agentName: "Reply Assistant",
     status: "Completed",
     trigger: "Webhook",
@@ -32,6 +33,7 @@ const runs: AgentRun[] = [
   },
   {
     id: "run-sophia-escalation",
+    conversationId: "conv-sophia",
     agentName: "Risk & Escalation Agent",
     status: "Completed",
     trigger: "Webhook",
@@ -56,6 +58,7 @@ const runs: AgentRun[] = [
   },
   {
     id: "run-facebook-sync-failed",
+    conversationId: "conv-facebook-sync",
     agentName: "Conversation Sync Agent",
     status: "Failed",
     trigger: "Scheduled",
@@ -80,6 +83,7 @@ const runs: AgentRun[] = [
   },
   {
     id: "run-ravi-ticket",
+    conversationId: "conv-ravi",
     agentName: "Support Workflow Agent",
     status: "Running",
     trigger: "Manual",
@@ -103,6 +107,7 @@ const runs: AgentRun[] = [
   },
   {
     id: "run-nima-summary",
+    conversationId: "conv-nima",
     agentName: "Customer Summary Agent",
     status: "Completed",
     trigger: "Manual",

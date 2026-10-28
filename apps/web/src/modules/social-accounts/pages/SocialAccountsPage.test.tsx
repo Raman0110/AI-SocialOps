@@ -1,12 +1,13 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
 import { SocialAccountsPage } from "./SocialAccountsPage";
+import { mockSocialAccountDataSource } from "../services/socialAccountDataSource";
 
 describe("SocialAccountsPage", () => {
   it("loads social accounts and shows webhook details", async () => {
-    render(<SocialAccountsPage />);
+    render(<SocialAccountsPage dataSource={mockSocialAccountDataSource} />);
 
     expect(await screen.findAllByText("UrbanThreads Instagram")).toHaveLength(2);
     expect(screen.getByText("Webhook health")).toBeInTheDocument();
@@ -14,12 +15,12 @@ describe("SocialAccountsPage", () => {
   });
 
   it("filters accounts by search term", async () => {
-    const user = userEvent.setup();
-
-    render(<SocialAccountsPage />);
+    render(<SocialAccountsPage dataSource={mockSocialAccountDataSource} />);
 
     await screen.findAllByText("UrbanThreads Instagram");
-    await user.type(screen.getByPlaceholderText(/search account/i), "facebook");
+    fireEvent.change(screen.getByPlaceholderText(/search account/i), {
+      target: { value: "facebook" },
+    });
 
     await waitFor(() => {
       expect(screen.getAllByText("UrbanThreads Facebook")).toHaveLength(2);
@@ -30,7 +31,7 @@ describe("SocialAccountsPage", () => {
   it("selects an account from the table", async () => {
     const user = userEvent.setup();
 
-    render(<SocialAccountsPage />);
+    render(<SocialAccountsPage dataSource={mockSocialAccountDataSource} />);
 
     await screen.findAllByText("UrbanThreads Instagram");
     await user.click(screen.getByText("UrbanThreads WhatsApp"));

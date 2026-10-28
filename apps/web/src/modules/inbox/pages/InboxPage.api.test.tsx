@@ -43,26 +43,27 @@ describe("InboxPage API integration", () => {
           messages: [
             {
               id: "20000000-0000-0000-0000-000000000001",
-              direction: 1,
-              senderType: 1,
+              direction: "Inbound",
+              senderType: "Customer",
               content: "API inbound message",
               sentAt: "2026-10-27T08:30:00Z",
             },
           ],
         }),
       ),
+      http.get(`${apiUrl}/api/agent-actions`, () => HttpResponse.json([])),
     );
 
     renderInbox();
 
     expect(await screen.findByText("API Customer")).toBeInTheDocument();
-    expect(screen.getByText("Live API reads")).toBeInTheDocument();
+    expect(screen.getByText("Live API")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /api customer/i }));
 
     expect(await screen.findByText("API inbound message")).toBeInTheDocument();
-    expect(screen.getByText(/reply and ai actions will be connected next/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Send" })).toBeDisabled();
+    expect(screen.getByText("Customer")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /generate ai reply/i })).toBeEnabled();
   });
 
   it("renders the empty state for an empty API inbox", async () => {

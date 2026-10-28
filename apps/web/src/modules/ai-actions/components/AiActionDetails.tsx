@@ -77,7 +77,9 @@ export function AiActionDetails({
               Confidence
             </Text>
             <div className="mt-1 text-2xl font-extrabold text-slate-900">
-              {Math.round(action.confidence * 100)}%
+              {action.confidence === null
+                ? "Not provided"
+                : `${Math.round(action.confidence * 100)}%`}
             </div>
           </Card>
           <Card size="small" className="app-card-shadow">

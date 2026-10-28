@@ -69,13 +69,16 @@ const columns: ColumnsType<AiAction> = [
     title: "Confidence",
     dataIndex: "confidence",
     width: 140,
-    render: (confidence: number) => (
-      <Progress
-        percent={Math.round(confidence * 100)}
-        size="small"
-        status={confidence >= 0.85 ? "success" : "normal"}
-      />
-    ),
+    render: (confidence: number | null) =>
+      confidence === null ? (
+        <Text type="secondary">Not provided</Text>
+      ) : (
+        <Progress
+          percent={Math.round(confidence * 100)}
+          size="small"
+          status={confidence >= 0.85 ? "success" : "normal"}
+        />
+      ),
   },
 ];
 

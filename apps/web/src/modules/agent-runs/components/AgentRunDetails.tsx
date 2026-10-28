@@ -65,10 +65,10 @@ export function AgentRunDetails({ run, isRetrying, onRetry }: AgentRunDetailsPro
             <Statistic title="Duration" value={formatDuration(run.durationMs)} />
           </Card>
           <Card size="small" className="app-card-shadow">
-            <Statistic title="Prompt tokens" value={run.promptTokens} />
+            <Statistic title="Prompt tokens" value={run.promptTokens ?? "Not provided"} />
           </Card>
           <Card size="small" className="app-card-shadow">
-            <Statistic title="Output tokens" value={run.completionTokens} />
+            <Statistic title="Output tokens" value={run.completionTokens ?? "Not provided"} />
           </Card>
           <Card size="small" className="app-card-shadow">
             <Statistic title="Tools called" value={run.toolsUsed.length} />

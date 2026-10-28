@@ -20,7 +20,16 @@ import type {
 
 import { ConversationList } from "../components/ConversationList";
 import { ConversationDetails as ConversationDetailsView } from "../components/ConversationDetails";
-import type { AgentReplyResult } from "../../../api/ai";
+import { generateAgentReply, type AgentReplyResult } from "../../../api/ai";
+import {
+  addMessage,
+  analyzeConversation,
+} from "../../../api/conversations";
+import {
+  approveAgentAction,
+  getPendingAgentActions,
+  rejectAgentAction,
+} from "../../../api/agentActions";
 import { ApiError } from "../../../api/client/utils/api-client.utils";
 import type { PendingAgentAction } from "../types/agentActions";
 import {
@@ -145,9 +154,7 @@ export function InboxPage({
 
       setSelectedConversation(result);
 
-      if (isMockMode) {
-        await loadPendingActions(conversationId);
-      }
+      await loadPendingActions(conversationId);
     } catch (loadError) {
       setSelectedConversationId(null);
       setError(getConversationErrorMessage(loadError));
@@ -167,30 +174,31 @@ export function InboxPage({
       return;
     }
 
-    if (!isMockMode) {
-      throw new Error("Inbox mutations are not connected yet.");
+    if (isMockMode) {
+      const updatedConversation = await addMockMessage(selectedConversationId, content);
+      setSelectedConversation(updatedConversation);
+      setConversations(await getMockInbox());
+      return;
     }
 
-    const updatedConversation = await addMockMessage(selectedConversationId, content);
+    await addMessage(selectedConversationId, {
+      direction: "Outbound",
+      senderType: "HumanAgent",
+      content,
+      externalMessageId: null,
+    });
+
+    const [updatedConversation, updatedInbox] = await Promise.all([
+      dataSource.getConversation(selectedConversationId),
+      dataSource.getInbox(organizationId),
+    ]);
 
     setSelectedConversation(updatedConversation);
-
-    const updatedInbox = await getMockInbox();
-
     setConversations(updatedInbox);
   }
 
   async function handleAnalyzeMessage() {
     if (!selectedConversationId) return;
-
-    if (!isMockMode) {
-      setAnalysisState({
-        data: null,
-        isLoading: false,
-        error: "AI mutations will be connected in the next integration step.",
-      });
-      return;
-    }
 
     try {
       setAnalysisState((current) => ({
@@ -199,7 +207,9 @@ export function InboxPage({
         error: null,
       }));
 
-      const result = await analyzeMockConversation(selectedConversationId);
+      const result = isMockMode
+        ? await analyzeMockConversation(selectedConversationId)
+        : await analyzeConversation(selectedConversationId);
 
       setAnalysisState({
         data: result,
@@ -220,15 +230,6 @@ export function InboxPage({
       return;
     }
 
-    if (!isMockMode) {
-      setAgentReplyState({
-        data: null,
-        isLoading: false,
-        error: "AI reply generation is not connected yet.",
-      });
-      return;
-    }
-
     try {
       setAgentReplyState({
         data: null,
@@ -236,7 +237,9 @@ export function InboxPage({
         error: null,
       });
 
-      const result = await generateMockAgentReply(selectedConversationId);
+      const result = isMockMode
+        ? await generateMockAgentReply(selectedConversationId)
+        : await generateAgentReply(selectedConversationId);
 
       setAgentReplyState({
         data: result,
@@ -262,7 +265,9 @@ export function InboxPage({
         error: null,
       });
 
-      const actions = await getMockPendingActions(conversationId);
+      const actions = isMockMode
+        ? await getMockPendingActions(conversationId)
+        : await getPendingAgentActions(conversationId);
 
       setAgentActionsState({
         data: actions,
@@ -282,7 +287,11 @@ export function InboxPage({
     if (!selectedConversationId) return;
 
     try {
-      await resolveMockPendingAction(actionId);
+      if (isMockMode) {
+        await resolveMockPendingAction(actionId);
+      } else {
+        await approveAgentAction(actionId);
+      }
 
       await loadPendingActions(selectedConversationId);
     } catch {
@@ -297,7 +306,11 @@ export function InboxPage({
     if (!selectedConversationId) return;
 
     try {
-      await resolveMockPendingAction(actionId);
+      if (isMockMode) {
+        await resolveMockPendingAction(actionId);
+      } else {
+        await rejectAgentAction(actionId);
+      }
 
       await loadPendingActions(selectedConversationId);
     } catch {
@@ -338,7 +351,6 @@ export function InboxPage({
           onApproveAction={handleApproveAction}
           onRejectAction={handleRejectAction}
           agentActionsState={agentActionsState}
-          mutationsEnabled={isMockMode}
         />
       </main>
     );
@@ -394,7 +406,7 @@ export function InboxPage({
         </Text>
         <Badge
           color={isMockMode ? "green" : "blue"}
-          text={isMockMode ? "Mock mode" : "Live API reads"}
+          text={isMockMode ? "Mock mode" : "Live API"}
         />
       </div>
 

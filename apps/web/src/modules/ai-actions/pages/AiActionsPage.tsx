@@ -1,11 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Input, Select, Spin, Typography, message } from "antd";
+import {
+  approveAgentAction,
+  getPendingAgentActions,
+  rejectAgentAction,
+} from "../../../api/agentActions";
+import { getInbox } from "../../../api/conversations";
+import type { PendingAgentAction } from "../../inbox/types/agentActions";
+import type { InboxConversation } from "../../inbox/types/conversations";
 import { AiActionDetails } from "../components/AiActionDetails";
 import { AiActionsTable } from "../components/AiActionsTable";
-import { getMockAiActions, resolveMockAiAction } from "../mocks/aiActionsMock";
 import type { AiAction, AiActionRisk, AiActionStatus, AiActionType } from "../types/aiActions";
 
 const { Text, Title } = Typography;
+const organizationId =
+  import.meta.env.VITE_ORGANIZATION_ID ?? "00000000-0000-0000-0000-000000000001";
 
 export function AiActionsPage() {
   const [actions, setActions] = useState<AiAction[]>([]);
@@ -56,7 +65,7 @@ export function AiActionsPage() {
     async function loadAiActions() {
       try {
         setLoading(true);
-        const result = await getMockAiActions();
+        const result = await fetchAiActions();
         setActions(result);
         setSelectedActionId(result.find((action) => action.status === "Pending")?.id ?? result[0]?.id ?? null);
       } catch {
@@ -75,9 +84,16 @@ export function AiActionsPage() {
   ) {
     try {
       setIsResolving(true);
-      const updatedAction = await resolveMockAiAction(actionId, status);
+      if (status === "Approved") {
+        await approveAgentAction(actionId);
+      } else {
+        await rejectAgentAction(actionId);
+      }
+
       setActions((current) =>
-        current.map((action) => (action.id === actionId ? updatedAction : action)),
+        current.map((action) =>
+          action.id === actionId ? { ...action, status } : action,
+        ),
       );
       setStatusFilter("All");
       setSelectedActionId(actionId);
@@ -183,4 +199,76 @@ export function AiActionsPage() {
       </div>
     </div>
   );
+}
+
+async function fetchAiActions(): Promise<AiAction[]> {
+  const conversations = await getInbox(organizationId);
+  const actionsByConversation = await Promise.all(
+    conversations.map(async (conversation) => {
+      const actions = await getPendingAgentActions(conversation.id);
+      return actions.map((action) => mapAiAction(action, conversation));
+    }),
+  );
+
+  return actionsByConversation
+    .flat()
+    .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt));
+}
+
+function mapAiAction(
+  action: PendingAgentAction,
+  conversation: InboxConversation,
+): AiAction {
+  const payload = parsePayload(action.payloadJson);
+
+  return {
+    id: action.id,
+    type: mapActionType(action.type),
+    status: "Pending",
+    risk: riskFromPriority(payload.priority),
+    confidence: null,
+    customerName: conversation.customerName,
+    conversationTopic: conversation.lastMessage ?? "Conversation follow-up",
+    platform: conversation.platform,
+    createdAt: action.createdAt,
+    reasoning: "This action was proposed by the conversation agent and requires human approval.",
+    payload,
+    toolsUsed: [],
+  };
+}
+
+function parsePayload(payloadJson: string): Record<string, string | string[]> {
+  try {
+    const parsed: unknown = JSON.parse(payloadJson);
+
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return { value: String(parsed) };
+    }
+
+    return Object.fromEntries(
+      Object.entries(parsed).map(([key, value]) => [
+        key,
+        Array.isArray(value) ? value.map(String) : String(value ?? ""),
+      ]),
+    );
+  } catch {
+    return { rawPayload: payloadJson };
+  }
+}
+
+function mapActionType(type: string): AiActionType {
+  switch (type) {
+    case "CreateSupportTicket":
+      return "Create support ticket";
+    default:
+      return "Create support ticket";
+  }
+}
+
+function riskFromPriority(priority: string | string[] | undefined): AiActionRisk {
+  const normalized = Array.isArray(priority) ? priority[0]?.toLowerCase() : priority?.toLowerCase();
+
+  if (normalized === "urgent" || normalized === "high") return "High";
+  if (normalized === "normal") return "Medium";
+  return "Low";
 }

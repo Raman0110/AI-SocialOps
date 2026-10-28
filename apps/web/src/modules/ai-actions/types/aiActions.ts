@@ -14,7 +14,7 @@ export interface AiAction {
   type: AiActionType;
   status: AiActionStatus;
   risk: AiActionRisk;
-  confidence: number;
+  confidence: number | null;
   customerName: string;
   conversationTopic: string;
   platform: SocialPlatform;

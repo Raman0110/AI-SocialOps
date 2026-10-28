@@ -1,38 +1,123 @@
+import { useEffect, useMemo, useState } from "react";
 import { Button, Typography } from "antd";
 import {
   ArrowRightOutlined,
   MessageOutlined,
   RobotOutlined,
 } from "@ant-design/icons";
+import { getInbox } from "../../../api/conversations";
+import type { InboxConversation } from "../../inbox/types/conversations";
 
 const { Text, Title } = Typography;
 
 interface DashboardPageProps {
+  organizationId?: string;
   onOpenInbox: () => void;
   onOpenAiActions: () => void;
 }
 
-const stats = [
+const fallbackStats = [
   { label: "Total conversations", value: "1,284", hint: "+12% this month" },
   { label: "Open conversations", value: "28", hint: "4 need attention" },
   { label: "Resolved", value: "1,156", hint: "90% resolution rate" },
   { label: "Average response", value: "4.2 min", hint: "1.1 min faster" },
 ];
 
-const channels = [
+const fallbackChannels = [
   { label: "Instagram", value: 486 },
   { label: "WhatsApp", value: 372 },
   { label: "Facebook", value: 248 },
   { label: "Other", value: 178 },
 ];
 
-const recentActivity = [
+const fallbackRecentActivity = [
   { customer: "Maya Sharma", detail: "Delivery question", time: "2 min ago", status: "Open" },
   { customer: "Ravi Thapa", detail: "Exchange request", time: "18 min ago", status: "Pending" },
   { customer: "Sophia Lee", detail: "Support escalation", time: "1 hr ago", status: "Escalated" },
 ];
 
-export function DashboardPage({ onOpenInbox, onOpenAiActions }: DashboardPageProps) {
+export function DashboardPage({
+  organizationId,
+  onOpenInbox,
+  onOpenAiActions,
+}: DashboardPageProps) {
+  const [conversations, setConversations] = useState<InboxConversation[] | null>(null);
+
+  useEffect(() => {
+    if (!organizationId) {
+      return;
+    }
+
+    let active = true;
+
+    getInbox(organizationId)
+      .then((result) => {
+        if (active) {
+          setConversations(result);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setConversations([]);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [organizationId]);
+
+  const stats = useMemo(() => {
+    if (conversations === null) {
+      return fallbackStats;
+    }
+
+    const open = conversations.filter(({ status }) =>
+      status === "Open" || status === "Pending" || status === "Escalated").length;
+    const resolved = conversations.filter(({ status }) => status === "Resolved").length;
+    const escalated = conversations.filter(({ status }) => status === "Escalated").length;
+
+    return [
+      { label: "Total conversations", value: String(conversations.length), hint: "Across connected channels" },
+      { label: "Open conversations", value: String(open), hint: "Open, pending, or escalated" },
+      { label: "Resolved", value: String(resolved), hint: "Completed conversations" },
+      { label: "Escalated", value: String(escalated), hint: "Needs human attention" },
+    ];
+  }, [conversations]);
+
+  const channels = useMemo(() => {
+    if (conversations === null) {
+      return fallbackChannels;
+    }
+
+    return Object.entries(
+      conversations.reduce<Record<string, number>>((counts, conversation) => {
+        counts[conversation.platform] = (counts[conversation.platform] ?? 0) + 1;
+        return counts;
+      }, {}),
+    ).map(([label, value]) => ({ label, value }));
+  }, [conversations]);
+
+  const recentActivity = useMemo(() => {
+    if (conversations === null) {
+      return fallbackRecentActivity;
+    }
+
+    return conversations.slice(0, 3).map((conversation) => ({
+      customer: conversation.customerName,
+      detail: conversation.lastMessage ?? "No messages yet",
+      time: conversation.lastMessageAt
+        ? new Date(conversation.lastMessageAt).toLocaleString()
+        : "—",
+      status: conversation.status,
+    }));
+  }, [conversations]);
+
+  const activeCount = conversations?.filter(({ status }) => status !== "Resolved").length;
+  const pendingCount = conversations?.filter(({ status }) => status === "Pending").length;
+  const escalatedCount = conversations?.filter(({ status }) => status === "Escalated").length;
+  const totalConversations = conversations?.length ?? 1284;
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -63,22 +148,9 @@ export function DashboardPage({ onOpenInbox, onOpenAiActions }: DashboardPagePro
           </div>
 
           <div className="mt-6 grid grid-cols-3 gap-2">
-            <SummaryTile value="24" label="Active" />
-            <SummaryTile value="8" label="AI assisted" />
-            <SummaryTile value="3" label="Escalated" />
-          </div>
-
-          <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <Text strong className="block">Team response rate</Text>
-                <Text type="secondary" className="text-xs">Within the 10-minute target</Text>
-              </div>
-              <Text strong className="text-lg text-blue-700">92%</Text>
-            </div>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200">
-              <div className="h-full w-[92%] rounded-full bg-blue-600" />
-            </div>
+            <SummaryTile value={String(activeCount ?? 24)} label="Active" />
+            <SummaryTile value={String(pendingCount ?? 8)} label="Pending" />
+            <SummaryTile value={String(escalatedCount ?? 3)} label="Escalated" />
           </div>
 
           <div className="mt-auto flex flex-wrap gap-2 pt-6">
@@ -103,7 +175,7 @@ export function DashboardPage({ onOpenInbox, onOpenAiActions }: DashboardPagePro
             <div className="relative grid size-40 shrink-0 place-items-center rounded-full border-[18px] border-blue-100">
               <div className="absolute -inset-[18px] rounded-full border-[18px] border-blue-600 [clip-path:polygon(50%_0,100%_0,100%_100%,50%_100%)]" />
               <div className="text-center">
-                <div className="text-2xl font-extrabold tracking-tight text-slate-900">1,284</div>
+                <div className="text-2xl font-extrabold tracking-tight text-slate-900">{totalConversations.toLocaleString()}</div>
                 <Text type="secondary" className="text-[11px] font-medium">conversations</Text>
               </div>
             </div>

@@ -50,42 +50,11 @@ public sealed class GenerateAgentReplyService
 
     await _agentRunRepository.SaveChangesAsync(cancellationToken);
 
+    RunAgentResponse result;
+
     try
     {
-      var result = await _agentClient.RunAgentAsync(
-              new RunAgentRequest(conversationId.ToString(), latestMessage.Content), cancellationToken);
-
-      agentRun.Model = result.Model;
-
-      agentRun.Status = AgentRunStatus.Completed;
-
-      agentRun.FinalReply = result.Reply;
-
-      agentRun.CompletedAt = DateTime.UtcNow;
-
-      foreach (var execution in result.ToolExecutions)
-      {
-        agentRun.ToolExecutions.Add(
-            new AgentToolExecution
-            {
-              Id = Guid.NewGuid(),
-              AgentRunId = agentRun.Id,
-              ToolName = execution.ToolName,
-              ArgumentsJson = execution.ArgumentsJson,
-              ResultJson = execution.ResultJson,
-              Success = execution.Success,
-              Error = execution.Error,
-              StartedAt = execution.StartedAt,
-              CompletedAt = execution.CompletedAt
-            });
-      }
-
-      await _agentRunRepository.SaveChangesAsync(cancellationToken);
-
-      return new GenerateAgentReplyResponse(
-          result.Reply,
-          result.ToolsUsed,
-          result.PendingActionIds);
+      result = await _agentClient.RunAgentAsync(new RunAgentRequest(conversationId.ToString(), latestMessage.Content), cancellationToken);
     }
     catch (Exception ex)
     {
@@ -99,5 +68,35 @@ public sealed class GenerateAgentReplyService
 
       throw;
     }
+
+    agentRun.Model = result.Model;
+    agentRun.Status = AgentRunStatus.Completed;
+    agentRun.FinalReply = result.Reply;
+    agentRun.CompletedAt = DateTime.UtcNow;
+
+    foreach (var execution in result.ToolExecutions)
+    {
+      await _agentRunRepository.AddToolExecutionAsync(
+          new AgentToolExecution
+          {
+            Id = Guid.NewGuid(),
+            AgentRunId = agentRun.Id,
+            ToolName = execution.ToolName,
+            ArgumentsJson = execution.ArgumentsJson,
+            ResultJson = execution.ResultJson,
+            Success = execution.Success,
+            Error = execution.Error,
+            StartedAt = execution.StartedAt,
+            CompletedAt = execution.CompletedAt
+          },
+          cancellationToken);
+    }
+
+    await _agentRunRepository.SaveChangesAsync(cancellationToken);
+
+    return new GenerateAgentReplyResponse(
+        result.Reply,
+        result.ToolsUsed,
+        result.PendingActionIds);
   }
 }

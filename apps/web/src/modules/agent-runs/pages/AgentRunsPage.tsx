@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Input, Select, Spin, Typography, message } from "antd";
+import { getAgentRun, getAgentRuns } from "../../../api/agentRuns";
+import { generateAgentReply } from "../../../api/ai";
+import { getInbox } from "../../../api/conversations";
+import type { InboxConversation } from "../../inbox/types/conversations";
 import { AgentRunDetails } from "../components/AgentRunDetails";
 import { AgentRunsTable } from "../components/AgentRunsTable";
-import { getMockAgentRuns, retryMockAgentRun } from "../mocks/agentRunsMock";
 import type { AgentRun, AgentRunStatus, AgentRunTrigger } from "../types/agentRuns";
 
 const { Text, Title } = Typography;
+const organizationId =
+  import.meta.env.VITE_ORGANIZATION_ID ?? "00000000-0000-0000-0000-000000000001";
 
 export function AgentRunsPage() {
   const [runs, setRuns] = useState<AgentRun[]>([]);
@@ -56,7 +61,7 @@ export function AgentRunsPage() {
     async function loadRuns() {
       try {
         setLoading(true);
-        const result = await getMockAgentRuns();
+        const result = await loadAgentRuns();
         setRuns(result);
         setSelectedRunId(result[0]?.id ?? null);
       } catch {
@@ -72,12 +77,21 @@ export function AgentRunsPage() {
   async function handleRetry(runId: string) {
     try {
       setIsRetrying(true);
-      const retry = await retryMockAgentRun(runId);
-      setRuns((current) => [retry, ...current]);
-      setSelectedRunId(retry.id);
+      const run = runs.find((item) => item.id === runId);
+
+      if (!run) {
+        throw new Error("Agent run not found.");
+      }
+
+      await generateAgentReply(run.conversationId);
+      const refreshedRuns = await loadAgentRuns();
+      setRuns(refreshedRuns);
+      setSelectedRunId(
+        refreshedRuns.find((item) => item.conversationId === run.conversationId)?.id ?? null,
+      );
       setStatusFilter("All");
       setTriggerFilter("All");
-      messageApi.success("Mock retry started.");
+      messageApi.success("Agent run completed and history refreshed.");
     } catch {
       messageApi.error("Unable to retry agent run.");
     } finally {
@@ -143,4 +157,60 @@ export function AgentRunsPage() {
       </div>
     </div>
   );
+}
+
+async function loadAgentRuns(): Promise<AgentRun[]> {
+  const conversations = await getInbox(organizationId);
+  const runsByConversation = await Promise.all(
+    conversations.map(async (conversation) => {
+      const summaries = await getAgentRuns(conversation.id, organizationId);
+
+      return Promise.all(
+        summaries.map(async (summary) => {
+          const detail = await getAgentRun(summary.id, organizationId);
+          return mapAgentRun(conversation, detail);
+        }),
+      );
+    }),
+  );
+
+  return runsByConversation
+    .flat()
+    .sort((left, right) => Date.parse(right.startedAt) - Date.parse(left.startedAt));
+}
+
+function mapAgentRun(
+  conversation: InboxConversation,
+  detail: Awaited<ReturnType<typeof getAgentRun>>,
+): AgentRun {
+  return {
+    id: detail.id,
+    conversationId: detail.conversationId,
+    agentName: "Conversation Agent",
+    status: detail.status,
+    trigger: "Manual",
+    platform: conversation.platform,
+    customerName: conversation.customerName,
+    conversationTopic: conversation.lastMessage ?? "Conversation agent request",
+    startedAt: detail.startedAt,
+    completedAt: detail.completedAt,
+    durationMs: detail.durationMilliseconds,
+    inputSummary: conversation.lastMessage ?? `Input message ${detail.inputMessageId}`,
+    outputSummary: detail.finalReply,
+    model: detail.model ?? "Not provided",
+    toolsUsed: [...new Set(detail.toolExecutions.map((execution) => execution.toolName))],
+    promptTokens: null,
+    completionTokens: null,
+    errorMessage: detail.error,
+    steps: detail.toolExecutions.map((execution) => ({
+      id: execution.id,
+      name: execution.toolName,
+      status: execution.success ? "Completed" : "Failed",
+      durationMs: execution.durationMilliseconds ?? 0,
+      detail:
+        execution.error ??
+        execution.resultJson ??
+        `Arguments: ${execution.argumentsJson}`,
+    })),
+  };
 }

@@ -2,16 +2,23 @@ import { useEffect, useMemo, useState } from "react";
 import { Alert, Input, Select, Spin, Typography } from "antd";
 import { CustomerList } from "../components/CustomerList";
 import { CustomerProfile } from "../components/CustomerProfile";
-import { getMockCustomers } from "../mocks/customersMock";
+import {
+  defaultCustomerDataSource,
+  type CustomerDataSource,
+} from "../services/customerDataSource";
 import type { Customer, CustomerSegment } from "../types/customers";
 
 const { Text, Title } = Typography;
 
 interface CustomersPageProps {
   onOpenInbox: () => void;
+  dataSource?: CustomerDataSource;
 }
 
-export function CustomersPage({ onOpenInbox }: CustomersPageProps) {
+export function CustomersPage({
+  onOpenInbox,
+  dataSource = defaultCustomerDataSource,
+}: CustomersPageProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,7 +63,7 @@ export function CustomersPage({ onOpenInbox }: CustomersPageProps) {
     async function loadCustomers() {
       try {
         setLoading(true);
-        const result = await getMockCustomers();
+        const result = await dataSource.getCustomers();
         setCustomers(result);
 
         if (result.length > 0) {
@@ -70,7 +77,7 @@ export function CustomersPage({ onOpenInbox }: CustomersPageProps) {
     }
 
     loadCustomers();
-  }, []);
+  }, [dataSource]);
 
   function handleSelectCustomer(customerId: string) {
     setSelectedCustomerId(customerId);

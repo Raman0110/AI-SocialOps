@@ -19,6 +19,13 @@ public sealed class AgentRunRepository : IAgentRunRepository
     await _dbContext.AgentRuns.AddAsync(run, cancellationToken);
   }
 
+  public async Task AddToolExecutionAsync(
+      AgentToolExecution execution,
+      CancellationToken cancellationToken = default)
+  {
+    await _dbContext.AgentToolExecutions.AddAsync(execution, cancellationToken);
+  }
+
   public Task<AgentRun?> GetByIdAsync(
       Guid id,
       Guid organizationId,

@@ -76,6 +76,7 @@ function App() {
       >
         {activeKey === "dashboard" ? (
           <DashboardPage
+            organizationId={organizationId}
             onOpenInbox={() => setActiveKey("inbox")}
             onOpenAiActions={() => setActiveKey("ai-actions")}
           />

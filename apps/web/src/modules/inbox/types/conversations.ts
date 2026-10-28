@@ -20,9 +20,9 @@ export type MessageDirection =
   (typeof MessageDirection)[keyof typeof MessageDirection];
 
 export const MessageSenderType = {
-  Customer: 1,
-  HumanAgent: 2,
-  AiAgent: 3,
+  Customer: "Customer",
+  HumanAgent: "HumanAgent",
+  AiAgent: "AiAgent",
 } as const;
 
 export type MessageSenderType =

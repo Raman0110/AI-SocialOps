@@ -14,6 +14,7 @@ export interface AgentRunStep {
 
 export interface AgentRun {
   id: string;
+  conversationId: string;
   agentName: string;
   status: AgentRunStatus;
   trigger: AgentRunTrigger;
@@ -27,8 +28,8 @@ export interface AgentRun {
   outputSummary: string | null;
   model: string;
   toolsUsed: string[];
-  promptTokens: number;
-  completionTokens: number;
+  promptTokens: number | null;
+  completionTokens: number | null;
   errorMessage: string | null;
   steps: AgentRunStep[];
 }
