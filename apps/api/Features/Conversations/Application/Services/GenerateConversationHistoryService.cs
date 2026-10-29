@@ -12,11 +12,11 @@ public sealed class GetConversationHistoryService
     _conversationRepository = conversationRepository;
   }
 
-  public async Task<GetConversationHistoryResponse?> GetAsync(Guid conversationId, int limit = 20, CancellationToken cancellationToken = default)
+  public async Task<GetConversationHistoryResponse?> GetAsync(Guid conversationId, Guid organizationId, int limit = 20, CancellationToken cancellationToken = default)
   {
     var conversation = await _conversationRepository.GetByIdAsync(conversationId, cancellationToken);
 
-    if (conversation is null) return null;
+    if (conversation is null || conversation.OrganizationId != organizationId) return null;
 
     var messages = conversation.Messages
         .OrderByDescending(x => x.SentAt)

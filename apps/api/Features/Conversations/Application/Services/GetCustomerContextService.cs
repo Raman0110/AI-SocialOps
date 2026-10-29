@@ -12,11 +12,11 @@ public sealed class GetCustomerContextService
     _conversationRepository = conversationRepository;
   }
 
-  public async Task<GetCustomerContextResponse?> GetAsync(Guid conversationId, CancellationToken cancellationToken = default)
+  public async Task<GetCustomerContextResponse?> GetAsync(Guid conversationId, Guid organizationId, CancellationToken cancellationToken = default)
   {
     var conversation = await _conversationRepository.GetByIdAsync(conversationId, cancellationToken);
 
-    if (conversation is null) return null;
+    if (conversation is null || conversation.OrganizationId != organizationId) return null;
 
     return new GetCustomerContextResponse(
         conversation.Customer.Id,

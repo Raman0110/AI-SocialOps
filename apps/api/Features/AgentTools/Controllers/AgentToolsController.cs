@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialOps.Api.Shared.Auth;
+using SocialOps.Api.Shared.Tenancy;
 using SocialOps.Api.Features.AgentActions.Application.CreateTicketProposal;
 using SocialOps.Api.Features.AgentActions.Application.Services.CreateTicketProposal;
 using SocialOps.Api.Features.Conversations.Application.Dtos;
@@ -19,19 +20,21 @@ public sealed class AgentToolsController : ControllerBase
   private readonly GetCustomerContextService _customerContextService;
   private readonly GetConversationHistoryService _conversationHistoryService;
   private readonly CreateTicketProposalService _createTicketProposalService;
+  private readonly ITenantContext _tenantContext;
 
-  public AgentToolsController(GetCustomerContextService customerContextService, GetConversationHistoryService conversationHistoryService, CreateTicketProposalService createTicketProposalService)
+  public AgentToolsController(GetCustomerContextService customerContextService, GetConversationHistoryService conversationHistoryService, CreateTicketProposalService createTicketProposalService, ITenantContext tenantContext)
   {
     _customerContextService = customerContextService;
     _conversationHistoryService = conversationHistoryService;
     _createTicketProposalService = createTicketProposalService;
+    _tenantContext = tenantContext;
   }
 
   [HttpGet("conversations/{conversationId:guid}/customer-context")]
   public async Task<ActionResult<GetCustomerContextResponse>>
   GetCustomerContext(Guid conversationId, CancellationToken cancellationToken)
   {
-    var response = await _customerContextService.GetAsync(conversationId, cancellationToken);
+    var response = await _customerContextService.GetAsync(conversationId, _tenantContext.RequireOrganizationId(), cancellationToken);
 
     if (response is null) return NotFound();
 
@@ -46,7 +49,7 @@ public sealed class AgentToolsController : ControllerBase
   {
     if (limit is < 1 or > 50) return BadRequest("Limit must be between 1 and 50.");
 
-    var response = await _conversationHistoryService.GetAsync(conversationId, limit, cancellationToken);
+    var response = await _conversationHistoryService.GetAsync(conversationId, _tenantContext.RequireOrganizationId(), limit, cancellationToken);
 
     if (response is null) return NotFound();
 
@@ -64,7 +67,7 @@ public sealed class AgentToolsController : ControllerBase
   {
     var ticketPorposalPayload = new CreateTicketProposalPayload(request.Title, request.Description, request.Priority);
 
-    var actionId = await _createTicketProposalService.CreateAsync(conversationId, ticketPorposalPayload, cancellationToken);
+    var actionId = await _createTicketProposalService.CreateAsync(conversationId, _tenantContext.RequireOrganizationId(), ticketPorposalPayload, cancellationToken);
 
     if (actionId is null) return NotFound();
 

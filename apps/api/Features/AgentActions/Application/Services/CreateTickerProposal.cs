@@ -19,11 +19,11 @@ public sealed class CreateTicketProposalService
     _actionRepository = actionRepository;
   }
 
-  public async Task<Guid?> CreateAsync(Guid conversationId, CreateTicketProposalPayload payload, CancellationToken cancellationToken = default)
+  public async Task<Guid?> CreateAsync(Guid conversationId, Guid organizationId, CreateTicketProposalPayload payload, CancellationToken cancellationToken = default)
   {
     var conversation = await _conversationRepository.GetByIdAsync(conversationId, cancellationToken);
 
-    if (conversation is null) return null;
+    if (conversation is null || conversation.OrganizationId != organizationId) return null;
 
     var action = new PendingAgentAction
     {
