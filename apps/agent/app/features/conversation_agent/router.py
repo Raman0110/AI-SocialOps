@@ -1,7 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app.features.conversation_agent.models import (RunConversationAgentRequest, RunConversationAgentResponse)
-from app.features.conversation_agent.service import (run_conversation_agent)
+from app.features.conversation_agent.service import (AgentRunError, run_conversation_agent)
 
 
 router = APIRouter(
@@ -13,4 +13,7 @@ router = APIRouter(
 @router.post("/run", response_model= RunConversationAgentResponse)
 async def run_agent_endpoint(request: RunConversationAgentRequest) -> RunConversationAgentResponse:
 
-    return await run_conversation_agent(request)
+    try:
+        return await run_conversation_agent(request)
+    except AgentRunError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc

@@ -17,12 +17,8 @@ CUSTOMER_CONTEXT_TOOL: ChatCompletionToolParam = {
         "parameters": {
             "type": "object",
             "properties": {
-                "conversation_id": {
-                    "type": "string",
-                    "description": ("The conversation identifier."),
-                }
             },
-            "required": ["conversation_id"],
+            "required": [],
             "additionalProperties": False,
         },
     },
@@ -42,10 +38,6 @@ CONVERSATION_HISTORY_TOOL = {
         "parameters": {
             "type": "object",
             "properties": {
-                "conversation_id": {
-                    "type": "string",
-                    "description": ("The current conversation identifier."),
-                },
                 "limit": {
                     "type": "integer",
                     "minimum": 1,
@@ -55,9 +47,7 @@ CONVERSATION_HISTORY_TOOL = {
                     ),
                 },
             },
-            "required": [
-                "conversation_id",
-            ],
+            "required": [],
             "additionalProperties": False,
         },
     },
@@ -77,9 +67,6 @@ SUPPORT_TICKET_TOOL = {
         "parameters": {
             "type": "object",
             "properties": {
-                "conversation_id": {
-                    "type": "string",
-                },
                 "title": {
                     "type": "string",
                 },
@@ -97,7 +84,6 @@ SUPPORT_TICKET_TOOL = {
                 },
             },
             "required": [
-                "conversation_id",
                 "title",
                 "description",
                 "priority",
@@ -111,26 +97,46 @@ SUPPORT_TICKET_TOOL = {
 TOOLS = [CUSTOMER_CONTEXT_TOOL, CONVERSATION_HISTORY_TOOL, SUPPORT_TICKET_TOOL]
 
 
-async def execute_tool(tool_name: str, arguments: str):
-    parsed_arguments = json.loads(arguments)
+VALID_PRIORITIES = {"Low", "Normal", "High", "Urgent"}
+
+
+async def execute_tool(tool_name: str, arguments: str, conversation_id: str):
+    """Run a tool for the given conversation.
+
+    The conversation id is supplied by the server, never by the model, so a
+    prompt-injected customer message cannot point the tools at another
+    conversation.
+    """
+    parsed_arguments = json.loads(arguments or "{}")
+
+    if not isinstance(parsed_arguments, dict):
+        raise ValueError("Tool arguments must be a JSON object.")
 
     if tool_name == "get_customer_context":
-        return await get_customer_context(
-            conversation_id=parsed_arguments["conversation_id"]
-        )
+        return await get_customer_context(conversation_id=conversation_id)
 
     if tool_name == "get_conversation_history":
+        limit = parsed_arguments.get("limit", 20)
+
+        if not isinstance(limit, int) or not 1 <= limit <= 50:
+            limit = 20
+
         return await get_conversation_history(
-            conversation_id=parsed_arguments["conversation_id"],
-            limit=parsed_arguments.get("limit", 20),
+            conversation_id=conversation_id,
+            limit=limit,
         )
 
     if tool_name == "propose_support_ticket":
+        priority = parsed_arguments.get("priority")
+
+        if priority not in VALID_PRIORITIES:
+            raise ValueError(f"priority must be one of {sorted(VALID_PRIORITIES)}.")
+
         return await propose_support_ticket(
-            conversation_id=parsed_arguments["conversation_id"],
-            title=parsed_arguments["title"],
-            description=parsed_arguments["description"],
-            priority=parsed_arguments["priority"],
+            conversation_id=conversation_id,
+            title=str(parsed_arguments["title"])[:200],
+            description=str(parsed_arguments["description"])[:4000],
+            priority=priority,
         )
 
     raise ValueError(f"Unknown tool: {tool_name}")
