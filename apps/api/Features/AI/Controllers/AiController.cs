@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SocialOps.Api.Shared.Auth;
 using SocialOps.Api.Features.AI.Application.AnalyzeMessage;
 using SocialOps.Api.Features.AI.Application.AnalyzeMessage.Dtos;
 using SocialOps.Api.Features.AI.Application.AnalyzeMessage.Services;
@@ -6,6 +8,7 @@ using SocialOps.Api.Features.AI.Application.AnalyzeMessage.Services;
 namespace SocialOps.Api.Features.AI.Controllers;
 
 [ApiController]
+[Authorize(Policy = SocialOpsPolicies.TenantOperator)]
 [Route("api/ai")]
 public sealed class AiController : ControllerBase
 {

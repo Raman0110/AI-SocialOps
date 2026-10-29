@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
@@ -10,10 +12,8 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAu
     public ApiKeyAuthenticationHandler(
         IOptionsMonitor<ApiKeyAuthenticationOptions> options,
         ILoggerFactory logger,
-        UrlEncoder encoder)
-        : base(options, logger, encoder)
-    {
-    }
+        UrlEncoder encoder
+        ) : base(options, logger, encoder) { }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
@@ -29,7 +29,7 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAu
             return Task.FromResult(AuthenticateResult.Fail("API key is required."));
         }
 
-        var credential = Options.Keys.FirstOrDefault(x => x.Key == apiKey);
+        var credential = FindCredential(apiKey);
 
         if (credential is null)
         {
@@ -59,5 +59,27 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAu
         var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
         return Task.FromResult(AuthenticateResult.Success(ticket));
+    }
+
+    // Compare against every configured key without short-circuiting so timing
+    // does not reveal which key (or how much of it) matched.
+    private ApiKeyCredential? FindCredential(string apiKey)
+    {
+        var candidate = Encoding.UTF8.GetBytes(apiKey);
+        ApiKeyCredential? match = null;
+
+        foreach (var credential in Options.Keys)
+        {
+            var expected = Encoding.UTF8.GetBytes(credential.Key);
+
+            if (CryptographicOperations.FixedTimeEquals(
+                    SHA256.HashData(candidate),
+                    SHA256.HashData(expected)))
+            {
+                match = credential;
+            }
+        }
+
+        return match;
     }
 }

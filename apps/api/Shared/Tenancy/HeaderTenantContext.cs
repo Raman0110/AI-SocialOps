@@ -5,8 +5,6 @@ namespace SocialOps.Api.Shared.Tenancy;
 
 public sealed class HeaderTenantContext : ITenantContext
 {
-    public const string OrganizationHeaderName = "X-Organization-Id";
-
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public HeaderTenantContext(IHttpContextAccessor httpContextAccessor)
@@ -26,14 +24,7 @@ public sealed class HeaderTenantContext : ITenantContext
             return claimOrganizationId;
         }
 
-        if (!httpContext.Request.Headers.TryGetValue(OrganizationHeaderName, out var values) ||
-            !Guid.TryParse(values.FirstOrDefault(), out var organizationId) ||
-            organizationId == Guid.Empty)
-        {
-            throw new TenantContextRequiredException($"A valid {OrganizationHeaderName} header is required.");
-        }
-
-        return organizationId;
+        throw new TenantContextRequiredException("An authenticated organization is required.");
     }
 
     public void EnsureOrganization(Guid organizationId)

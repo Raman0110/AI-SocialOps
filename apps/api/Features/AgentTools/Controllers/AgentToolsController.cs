@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialOps.Api.Shared.Auth;
 using SocialOps.Api.Features.AgentActions.Application.CreateTicketProposal;
 using SocialOps.Api.Features.AgentActions.Application.Services.CreateTicketProposal;
 using SocialOps.Api.Features.Conversations.Application.Dtos;
@@ -10,6 +12,7 @@ using SocialOps.Api.Features.Tickets.Domain;
 namespace SocialOps.Api.Features.AgentTools.Controllers;
 
 [ApiController]
+[Authorize(Policy = SocialOpsPolicies.TenantOperator)]
 [Route("internal/agent-tools")]
 public sealed class AgentToolsController : ControllerBase
 {

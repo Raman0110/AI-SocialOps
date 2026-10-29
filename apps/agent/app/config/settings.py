@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     groq_model: str = "openai/gpt-oss-20b"
 
     socialops_api_url: str = "http://localhost:8080"
+    socialops_api_key: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",

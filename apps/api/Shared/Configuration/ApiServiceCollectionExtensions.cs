@@ -62,15 +62,12 @@ public static class ApiServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddApiAuthentication(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddApiAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         services
             .AddAuthentication(ApiKeyAuthenticationOptions.Scheme)
-            .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
-                ApiKeyAuthenticationOptions.Scheme,
-                options => configuration.GetSection("Authentication:ApiKey").Bind(options));
+            .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>
+            (ApiKeyAuthenticationOptions.Scheme, options => configuration.GetSection("Authentication:ApiKey").Bind(options));
 
         services.AddAuthorization(options =>
         {
