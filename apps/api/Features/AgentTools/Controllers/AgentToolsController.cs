@@ -8,6 +8,8 @@ using SocialOps.Api.Features.Conversations.Application.Dtos;
 using SocialOps.Api.Features.Conversations.Application.Dtos.GetCustomerContext;
 using SocialOps.Api.Features.Conversations.Application.Services;
 using SocialOps.Api.Features.Conversations.Application.Services.GetCustomerContext;
+using SocialOps.Api.Features.Knowledge.Application.Dtos;
+using SocialOps.Api.Features.Knowledge.Application.Services;
 using SocialOps.Api.Features.Tickets.Domain;
 
 namespace SocialOps.Api.Features.AgentTools.Controllers;
@@ -20,13 +22,15 @@ public sealed class AgentToolsController : ControllerBase
   private readonly GetCustomerContextService _customerContextService;
   private readonly GetConversationHistoryService _conversationHistoryService;
   private readonly CreateTicketProposalService _createTicketProposalService;
+  private readonly KnowledgeService _knowledgeService;
   private readonly ITenantContext _tenantContext;
 
-  public AgentToolsController(GetCustomerContextService customerContextService, GetConversationHistoryService conversationHistoryService, CreateTicketProposalService createTicketProposalService, ITenantContext tenantContext)
+  public AgentToolsController(GetCustomerContextService customerContextService, GetConversationHistoryService conversationHistoryService, CreateTicketProposalService createTicketProposalService, KnowledgeService knowledgeService, ITenantContext tenantContext)
   {
     _customerContextService = customerContextService;
     _conversationHistoryService = conversationHistoryService;
     _createTicketProposalService = createTicketProposalService;
+    _knowledgeService = knowledgeService;
     _tenantContext = tenantContext;
   }
 
@@ -52,6 +56,18 @@ public sealed class AgentToolsController : ControllerBase
     var response = await _conversationHistoryService.GetAsync(conversationId, _tenantContext.RequireOrganizationId(), limit, cancellationToken);
 
     if (response is null) return NotFound();
+
+    return Ok(response);
+  }
+
+  [HttpGet("knowledge/search")]
+  public async Task<ActionResult<SearchKnowledgeResponse>> SearchKnowledge(
+        [FromQuery] string? query,
+        CancellationToken cancellationToken = default)
+  {
+    if (string.IsNullOrWhiteSpace(query) || query.Length > 500) return BadRequest("Query is required and must be at most 500 characters.");
+
+    var response = await _knowledgeService.SearchAsync(_tenantContext.RequireOrganizationId(), query, cancellationToken);
 
     return Ok(response);
   }

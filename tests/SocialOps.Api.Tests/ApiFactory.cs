@@ -18,6 +18,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     public const string KeyA = "key-org-a";
     public const string KeyB = "key-org-b";
     public const string ViewerKeyA = "key-org-a-viewer";
+    public const string AdminKeyA = "key-org-a-admin";
+    public const string AdminKeyB = "key-org-b-admin";
 
     public Guid ConversationA { get; } = Guid.NewGuid();
     public Guid ConversationB { get; } = Guid.NewGuid();
@@ -44,6 +46,12 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
                 ["Authentication:ApiKey:Keys:2:Key"] = ViewerKeyA,
                 ["Authentication:ApiKey:Keys:2:OrganizationId"] = OrgA.ToString(),
                 ["Authentication:ApiKey:Keys:2:Role"] = "Viewer",
+                ["Authentication:ApiKey:Keys:3:Key"] = AdminKeyA,
+                ["Authentication:ApiKey:Keys:3:OrganizationId"] = OrgA.ToString(),
+                ["Authentication:ApiKey:Keys:3:Role"] = "Admin",
+                ["Authentication:ApiKey:Keys:4:Key"] = AdminKeyB,
+                ["Authentication:ApiKey:Keys:4:OrganizationId"] = OrgB.ToString(),
+                ["Authentication:ApiKey:Keys:4:Role"] = "Admin",
             })
         {
             builder.UseSetting(key, value);

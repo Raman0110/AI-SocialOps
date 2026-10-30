@@ -71,6 +71,11 @@ def api_calls(monkeypatch):
         calls.append(("propose", conversation_id))
         return {"actionId": "action-1", "status": "Pending"}
 
+    async def knowledge(query: str):
+        calls.append(("knowledge", query))
+        return {"results": [{"title": "Refund policy", "content": "7 days"}]}
+
+    monkeypatch.setattr(tools, "search_knowledge", knowledge)
     monkeypatch.setattr(tools, "get_customer_context", customer_context)
     monkeypatch.setattr(tools, "get_conversation_history", history)
     monkeypatch.setattr(tools, "propose_support_ticket", propose)
@@ -202,3 +207,42 @@ def test_endpoint_returns_502_when_the_agent_fails(fake_model):
     )
 
     assert response.status_code == 502
+
+
+async def test_agent_can_search_the_knowledge_base(fake_model, api_calls):
+    completions = fake_model(
+        [
+            completion(tool_calls=[tool_call("search_knowledge", {"query": "  refund policy "})]),
+            completion("Refunds are issued within 7 days."),
+        ]
+    )
+
+    response = await service.run_conversation_agent(request("Can I get a refund?"))
+
+    assert api_calls == [("knowledge", "refund policy")]
+    assert response.toolsUsed == ["search_knowledge"]
+    assert "Refund policy" in completions.requests[1]["messages"][-1]["content"]
+
+
+async def test_knowledge_search_rejects_an_empty_query(fake_model, api_calls):
+    fake_model(
+        [
+            completion(tool_calls=[tool_call("search_knowledge", {"query": "   "})]),
+            completion("Let me check with the team."),
+        ]
+    )
+
+    response = await service.run_conversation_agent(request())
+
+    assert response.toolExecutions[0].success is False
+    assert api_calls == []
+
+
+async def test_system_prompt_tells_the_model_to_use_the_knowledge_base(fake_model, api_calls):
+    completions = fake_model([completion("ok")])
+
+    await service.run_conversation_agent(request())
+
+    system_prompt = completions.requests[0]["messages"][0]["content"]
+    assert "search_knowledge" in system_prompt
+    assert "guessing" in system_prompt

@@ -62,3 +62,14 @@ class SocialOpsApiClient:
             response.raise_for_status()
 
             return response.json()
+
+    async def search_knowledge(self, query: str) -> dict:
+
+        url = f"{self.base_url}/internal/agent-tools/knowledge/search"
+
+        async with httpx.AsyncClient(headers=self._headers) as client:
+            response = await client.get(url, params={"query": query})
+
+            response.raise_for_status()
+
+            return response.json()

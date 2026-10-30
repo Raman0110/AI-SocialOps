@@ -2,6 +2,7 @@ import json
 from groq.types.chat import ChatCompletionToolParam
 from app.tools.customer_tools import get_customer_context
 from app.tools.conversation_tools import get_conversation_history
+from app.tools.knowledge_tools import search_knowledge
 from app.tools.ticket_tools import propose_support_ticket
 
 CUSTOMER_CONTEXT_TOOL: ChatCompletionToolParam = {
@@ -94,7 +95,39 @@ SUPPORT_TICKET_TOOL = {
 }
 
 
-TOOLS = [CUSTOMER_CONTEXT_TOOL, CONVERSATION_HISTORY_TOOL, SUPPORT_TICKET_TOOL]
+SEARCH_KNOWLEDGE_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "search_knowledge",
+        "description": (
+            "Search the business's own knowledge base "
+            "(FAQs, policies, shipping, pricing, opening hours) "
+            "for information relevant to the customer's question. "
+            "Use this before answering any question about how the "
+            "business works. Answer only from the results; if nothing "
+            "relevant is returned, say you will check with the team."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Short search phrase, e.g. 'refund policy'.",
+                },
+            },
+            "required": ["query"],
+            "additionalProperties": False,
+        },
+    },
+}
+
+
+TOOLS = [
+    CUSTOMER_CONTEXT_TOOL,
+    CONVERSATION_HISTORY_TOOL,
+    SEARCH_KNOWLEDGE_TOOL,
+    SUPPORT_TICKET_TOOL,
+]
 
 
 VALID_PRIORITIES = {"Low", "Normal", "High", "Urgent"}
@@ -125,6 +158,14 @@ async def execute_tool(tool_name: str, arguments: str, conversation_id: str):
             conversation_id=conversation_id,
             limit=limit,
         )
+
+    if tool_name == "search_knowledge":
+        query = parsed_arguments.get("query")
+
+        if not isinstance(query, str) or not query.strip():
+            raise ValueError("query must be a non-empty string.")
+
+        return await search_knowledge(query=query.strip()[:500])
 
     if tool_name == "propose_support_ticket":
         priority = parsed_arguments.get("priority")

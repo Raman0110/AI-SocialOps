@@ -26,6 +26,9 @@ using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.Customers.Application.Services;
 using SocialOps.Api.Features.Customers.Infrastructure;
 using SocialOps.Api.Features.InboundWebhooks.Application.Abstractions;
+using SocialOps.Api.Features.Knowledge.Application.Abstractions;
+using SocialOps.Api.Features.Knowledge.Application.Services;
+using SocialOps.Api.Features.Knowledge.Infrastructure;
 using SocialOps.Api.Features.InboundWebhooks.Application.Dtos;
 using SocialOps.Api.Features.InboundWebhooks.Application.Services;
 using SocialOps.Api.Features.InboundWebhooks.Infrastructure;
@@ -107,6 +110,7 @@ public static class ApiServiceCollectionExtensions
         services.AddScoped<IOrganizationRepository, OrganizationRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<ISocialAccountRepository, SocialAccountRepository>();
+        services.AddScoped<IKnowledgeEntryRepository, KnowledgeEntryRepository>();
         services.AddScoped<ISocialIdentityRepository, SocialIdentityRepository>();
         services.AddScoped<IConversationRepository, ConversationRepository>();
         services.AddScoped<IMessageRepository, MessageRepository>();
@@ -125,6 +129,7 @@ public static class ApiServiceCollectionExtensions
         services.AddScoped<OrganizationService>();
         services.AddScoped<CustomerService>();
         services.AddScoped<SocialAccountService>();
+        services.AddScoped<KnowledgeService>();
         services.AddScoped<SocialIdentityService>();
         services.AddScoped<SuggestReplyService>();
         services.AddScoped<GetCustomerContextService>();

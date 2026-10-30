@@ -311,6 +311,35 @@ namespace SocialOps.Api.Migrations
                     b.ToTable("social_identities", (string)null);
                 });
 
+            modelBuilder.Entity("SocialOps.Api.Features.Knowledge.Domain.KnowledgeEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("knowledge_entries", (string)null);
+                });
+
             modelBuilder.Entity("SocialOps.Api.Features.Organizations.Domain.Organization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -537,6 +566,17 @@ namespace SocialOps.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("SocialOps.Api.Features.Knowledge.Domain.KnowledgeEntry", b =>
+                {
+                    b.HasOne("SocialOps.Api.Features.Organizations.Domain.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
                 });
 
             modelBuilder.Entity("SocialOps.Api.Features.SocialAccounts.Domain.SocialAccount", b =>
