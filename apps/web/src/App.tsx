@@ -4,6 +4,7 @@ import { AgentRunsPage } from "./modules/agent-runs/pages/AgentRunsPage";
 import { AiActionsPage } from "./modules/ai-actions/pages/AiActionsPage";
 import { CustomersPage } from "./modules/customers/pages/CustomersPage";
 import { DashboardPage } from "./modules/dashboard/pages/DashboardPage";
+import { KnowledgePage } from "./modules/knowledge/pages/KnowledgePage";
 import { InboxPage } from "./modules/inbox/pages/InboxPage";
 import { SocialAccountsPage } from "./modules/social-accounts/pages/SocialAccountsPage";
 import { AppLayout } from "./shared/layout";
@@ -40,6 +41,10 @@ function App() {
       title: "Agent Runs",
       description: "Inspect AI execution history, tool calls, latency, and failures",
     },
+    knowledge: {
+      title: "Knowledge",
+      description: "FAQs and policies the AI agent answers customers from",
+    },
   };
   const currentPageMeta = pageMeta[activeKey] ?? pageMeta.dashboard;
 
@@ -68,6 +73,7 @@ function App() {
             key === "customers" ||
             key === "ai-actions" ||
             key === "agent-runs" ||
+            key === "knowledge" ||
             key === "social-accounts"
           ) {
             setActiveKey(key);
@@ -88,6 +94,8 @@ function App() {
           <AiActionsPage />
         ) : activeKey === "agent-runs" ? (
           <AgentRunsPage />
+        ) : activeKey === "knowledge" ? (
+          <KnowledgePage />
         ) : (
           <InboxPage organizationId={organizationId} />
         )}

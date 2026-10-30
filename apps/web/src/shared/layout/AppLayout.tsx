@@ -2,6 +2,7 @@ import {
   AppstoreOutlined,
   AuditOutlined,
   BellOutlined,
+  BookOutlined,
   DashboardOutlined,
   DownOutlined,
   LeftOutlined,
@@ -83,6 +84,7 @@ const NAV_GROUPS = [
     items: [
       { key: "ai-actions", label: "AI Actions", icon: <RobotOutlined /> },
       { key: "agent-runs", label: "Agent Runs", icon: <AuditOutlined /> },
+      { key: "knowledge", label: "Knowledge", icon: <BookOutlined /> },
     ],
   },
   {
