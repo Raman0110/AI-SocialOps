@@ -24,6 +24,7 @@ import { generateAgentReply, type AgentReplyResult } from "../../../api/ai";
 import {
   addMessage,
   analyzeConversation,
+  retryMessage,
 } from "../../../api/conversations";
 import {
   approveAgentAction,
@@ -188,8 +189,22 @@ export function InboxPage({
       externalMessageId: null,
     });
 
+    await refreshConversation(selectedConversationId);
+  }
+
+  async function handleRetryMessage(messageId: string) {
+    if (!selectedConversationId || isMockMode) {
+      return;
+    }
+
+    await retryMessage(selectedConversationId, messageId);
+
+    await refreshConversation(selectedConversationId);
+  }
+
+  async function refreshConversation(conversationId: string) {
     const [updatedConversation, updatedInbox] = await Promise.all([
-      dataSource.getConversation(selectedConversationId),
+      dataSource.getConversation(conversationId),
       dataSource.getInbox(organizationId),
     ]);
 
@@ -344,6 +359,7 @@ export function InboxPage({
           conversation={selectedConversation}
           onBack={handleBackToInbox}
           onSendMessage={handleSendMessage}
+          onRetryMessage={handleRetryMessage}
           analysisState={analysisState}
           onAnalyze={handleAnalyzeMessage}
           onSuggestReply={handleGenerateAgentReply}

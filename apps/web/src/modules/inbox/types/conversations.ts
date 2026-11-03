@@ -28,6 +28,16 @@ export const MessageSenderType = {
 export type MessageSenderType =
   (typeof MessageSenderType)[keyof typeof MessageSenderType];
 
+export const MessageDeliveryStatus = {
+  None: "None",
+  Pending: "Pending",
+  Sent: "Sent",
+  Failed: "Failed",
+} as const;
+
+export type MessageDeliveryStatus =
+  (typeof MessageDeliveryStatus)[keyof typeof MessageDeliveryStatus];
+
 export const MessageSenderTypeLabel: Record<MessageSenderType, string> = {
   [MessageSenderType.Customer]: "Customer",
   [MessageSenderType.HumanAgent]: "Human Agent",
@@ -51,6 +61,9 @@ export interface ConversationMessage {
   senderType: MessageSenderType;
   content: string;
   sentAt: string;
+  // Absent for mock data and older API responses; treated as "None".
+  deliveryStatus?: MessageDeliveryStatus;
+  deliveryError?: string | null;
 }
 
 export interface ConversationDetails {

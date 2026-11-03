@@ -38,6 +38,13 @@ export async function addMessage(conversationId: string, message: AddMessageRequ
   });
 }
 
+export async function retryMessage(conversationId: string, messageId: string): Promise<ConversationMessage> {
+  return request<ConversationMessage>({
+    method: "POST",
+    url: `/api/conversations/${conversationId}/messages/${messageId}/retry`,
+  });
+}
+
 export async function analyzeConversation(conversationId: string): Promise<MessageAnalysis> {
   return request<MessageAnalysis>({
     method: "POST",

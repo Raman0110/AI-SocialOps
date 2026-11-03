@@ -7,7 +7,12 @@ import {
 } from "@ant-design/icons";
 import { useState } from "react";
 import type { ConversationDetails as ConversationDetailsType } from "../types/conversations";
-import { MessageDirection, MessageSenderTypeLabel } from "../types/conversations";
+import type { ConversationMessage } from "../types/conversations";
+import {
+  MessageDeliveryStatus,
+  MessageDirection,
+  MessageSenderTypeLabel,
+} from "../types/conversations";
 import { AgentActionsPanel } from "./AgentActionPanel";
 import type { AgentActionsState, AgentReplyState, AnalysisState } from "../pages/InboxPage";
 import { ReplyBox } from "./ReplyBox";
@@ -20,6 +25,7 @@ interface ConversationDetailsProps {
   conversation: ConversationDetailsType | null;
   onBack: () => void;
   onSendMessage: (content: string) => Promise<void>;
+  onRetryMessage?: (messageId: string) => Promise<void>;
   analysisState: AnalysisState;
   onAnalyze: () => Promise<void>;
   agentReplyState: AgentReplyState;
@@ -34,6 +40,7 @@ export function ConversationDetails({
   conversation,
   onBack,
   onSendMessage,
+  onRetryMessage,
   analysisState,
   onAnalyze,
   agentReplyState,
@@ -44,6 +51,25 @@ export function ConversationDetails({
   mutationsEnabled = true,
 }: ConversationDetailsProps) {
   const [activeAiPanel, setActiveAiPanel] = useState<AiPanel>(null);
+  const [retryingMessageId, setRetryingMessageId] = useState<string | null>(null);
+  const [retryError, setRetryError] = useState<{ messageId: string; text: string } | null>(null);
+
+  async function handleRetry(messageId: string) {
+    if (!onRetryMessage || retryingMessageId) {
+      return;
+    }
+
+    try {
+      setRetryingMessageId(messageId);
+      setRetryError(null);
+
+      await onRetryMessage(messageId);
+    } catch {
+      setRetryError({ messageId, text: "Unable to retry sending. Try again." });
+    } finally {
+      setRetryingMessageId(null);
+    }
+  }
 
   if (!conversation) {
     return (
@@ -93,6 +119,8 @@ export function ConversationDetails({
             <div className="mx-auto max-w-5xl">
               {conversation.messages.map((message) => {
                 const isCustomer = message.direction === MessageDirection.Inbound;
+                const isFailed =
+                  !isCustomer && message.deliveryStatus === MessageDeliveryStatus.Failed;
 
                 return (
                   <div
@@ -102,11 +130,13 @@ export function ConversationDetails({
                     <div
                       className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[70%] ${isCustomer
                         ? "rounded-tl-md border border-slate-200 bg-white text-slate-900"
-                        : "rounded-tr-md bg-blue-600 text-white"
+                        : isFailed
+                          ? "rounded-tr-md border border-red-200 bg-red-50 text-slate-900"
+                          : "rounded-tr-md bg-blue-600 text-white"
                         }`}
                     >
                       <small
-                        className={`text-xs font-medium ${isCustomer ? "text-slate-500" : "text-sky-100"
+                        className={`text-xs font-medium ${isCustomer || isFailed ? "text-slate-500" : "text-sky-100"
                           }`}
                       >
                         {MessageSenderTypeLabel[message.senderType]}
@@ -117,11 +147,21 @@ export function ConversationDetails({
                       </div>
 
                       <small
-                        className={`mt-2 block text-xs ${isCustomer ? "text-slate-400" : "text-sky-100"
+                        className={`mt-2 block text-xs ${isCustomer || isFailed ? "text-slate-400" : "text-sky-100"
                           }`}
                       >
                         {new Date(message.sentAt).toLocaleString()}
                       </small>
+
+                      {!isCustomer && (
+                        <DeliveryStatusLine
+                          message={message}
+                          isRetrying={retryingMessageId === message.id}
+                          canRetry={Boolean(onRetryMessage) && !retryingMessageId}
+                          retryError={retryError?.messageId === message.id ? retryError.text : null}
+                          onRetry={() => handleRetry(message.id)}
+                        />
+                      )}
                     </div>
                   </div>
                 );
@@ -204,6 +244,52 @@ export function ConversationDetails({
             </div>
           )}
         </aside>
+      </div>
+    </div>
+  );
+}
+
+function DeliveryStatusLine({
+  message,
+  isRetrying,
+  canRetry,
+  retryError,
+  onRetry,
+}: {
+  message: ConversationMessage;
+  isRetrying: boolean;
+  canRetry: boolean;
+  retryError: string | null;
+  onRetry: () => void;
+}) {
+  if (message.deliveryStatus === MessageDeliveryStatus.Pending) {
+    return <small className="mt-1 block text-xs text-sky-100">Sending...</small>;
+  }
+
+  if (message.deliveryStatus === MessageDeliveryStatus.Sent) {
+    return <small className="mt-1 block text-xs text-sky-100">Sent</small>;
+  }
+
+  if (message.deliveryStatus !== MessageDeliveryStatus.Failed) {
+    return null;
+  }
+
+  return (
+    <div role="alert" className="mt-2 border-t border-red-200 pt-2 text-xs text-red-700">
+      <span className="font-semibold">Failed to send</span>
+      {message.deliveryError ? <span>: {message.deliveryError}</span> : null}
+
+      <div className="mt-2">
+        <Button
+          size="small"
+          danger
+          loading={isRetrying}
+          disabled={!canRetry && !isRetrying}
+          onClick={onRetry}
+        >
+          Retry sending
+        </Button>
+        {retryError ? <span className="ml-2">{retryError}</span> : null}
       </div>
     </div>
   );
