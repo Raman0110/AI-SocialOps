@@ -16,6 +16,10 @@ public class Message
 
     public DateTime SentAt { get; set; } = DateTime.UtcNow;
 
+    public MessageDeliveryStatus DeliveryStatus { get; set; } = MessageDeliveryStatus.None;
+
+    public string? DeliveryError { get; set; }
+
     public Conversation Conversation { get; set; } = null!;
 
     public MessageAnalysis? Analysis { get; set; }

@@ -27,6 +27,9 @@ using SocialOps.Api.Features.Customers.Application.Services;
 using SocialOps.Api.Features.Customers.Infrastructure;
 using SocialOps.Api.Features.InboundWebhooks.Application.Abstractions;
 using SocialOps.Api.Features.Knowledge.Application.Abstractions;
+using SocialOps.Api.Features.OutboundMessages.Application.Abstractions;
+using SocialOps.Api.Features.OutboundMessages.Application.Services;
+using SocialOps.Api.Features.OutboundMessages.Infrastructure;
 using SocialOps.Api.Features.Knowledge.Application.Services;
 using SocialOps.Api.Features.Knowledge.Infrastructure;
 using SocialOps.Api.Features.InboundWebhooks.Application.Dtos;
@@ -187,6 +190,20 @@ public static class ApiServiceCollectionExtensions
         services.AddHttpClient(AgentClient.SingleAttemptClientName, ConfigureClient);
         services.AddScoped<AgentClient>();
         services.AddScoped<AnalyzeMessageService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddOutboundMessaging(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<OutboundMessageDispatcher>();
+
+        // Off unless explicitly enabled, so an unconfigured deployment records replies as Failed
+        // instead of reporting messages as sent that were never delivered.
+        if (configuration.GetValue<bool>("Outbound:UseSandbox"))
+        {
+            services.AddSingleton<IOutboundMessageSender, SandboxInstagramOutboundSender>();
+        }
 
         return services;
     }

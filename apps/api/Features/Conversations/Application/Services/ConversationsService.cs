@@ -151,7 +151,9 @@ namespace SocialOps.Api.Features.Conversations.Application.Services
                     x.Direction,
                     x.SenderType,
                     x.Content,
-                    x.SentAt))
+                    x.SentAt,
+                    x.DeliveryStatus,
+                    x.DeliveryError))
                 .ToList();
 
             return new GetConversationResponse(

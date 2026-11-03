@@ -12,6 +12,8 @@ public interface IMessageRepository
 
     Task<bool> ExistsByExternalMessageIdAsync(string externalMessageId, CancellationToken cancellationToken = default);
 
+    Task<Message?> GetTrackedAsync(Guid conversationId, Guid messageId, CancellationToken cancellationToken = default);
+
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 
     Task<Message?> GetLatestInboundAsync(Guid conversationId, CancellationToken cancellationToken = default);

@@ -30,5 +30,7 @@ public sealed record GetConversationMessageResponse(
     MessageDirection Direction,
     MessageSenderType SenderType,
     string Content,
-    DateTime SentAt
+    DateTime SentAt,
+    MessageDeliveryStatus DeliveryStatus,
+    string? DeliveryError
 );

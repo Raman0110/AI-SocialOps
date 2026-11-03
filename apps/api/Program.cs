@@ -7,6 +7,7 @@ builder.Services.AddApiAuthentication(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddAgentIntegration(builder.Configuration);
+builder.Services.AddOutboundMessaging(builder.Configuration);
 builder.Services.AddFrontendCors();
 
 var app = builder.Build();

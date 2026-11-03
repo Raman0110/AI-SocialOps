@@ -86,6 +86,22 @@ public sealed class ConversationsController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPost("{conversationId:guid}/messages/{messageId:guid}/retry")]
+    [Authorize(Policy = SocialOpsPolicies.TenantOperator)]
+    public async Task<ActionResult<MessageResponse>> RetryMessage(
+        Guid conversationId,
+        Guid messageId,
+        CancellationToken cancellationToken)
+    {
+        var conversation = await RequireConversationAccess(conversationId, cancellationToken);
+
+        if (conversation is null) return NotFound();
+
+        var response = await _messageService.RetryDeliveryAsync(conversationId, messageId, cancellationToken);
+
+        return Ok(response);
+    }
+
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<GetInboxResponse>>> GetInbox([FromQuery] Guid? organizationId, CancellationToken cancellationToken)
     {

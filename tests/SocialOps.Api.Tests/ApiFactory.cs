@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SocialOps.Api.Features.Conversations.Domain;
 using SocialOps.Api.Features.Customers.Domain;
+using SocialOps.Api.Features.OutboundMessages.Application.Abstractions;
 using SocialOps.Api.Features.Organizations.Domain;
 using SocialOps.Api.Features.SocialAccounts.Domain;
 using SocialOps.Api.Shared.Data;
@@ -23,6 +24,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     public Guid ConversationA { get; } = Guid.NewGuid();
     public Guid ConversationB { get; } = Guid.NewGuid();
+
+    public FakeOutboundSender Sender { get; } = new();
 
     private readonly string _databaseName = Guid.NewGuid().ToString();
     private bool _seeded;
@@ -68,6 +71,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             {
                 services.Remove(descriptor);
             }
+
+            services.AddSingleton<IOutboundMessageSender>(Sender);
 
             services.AddDbContext<SocialOpsDbContext>(options =>
                 options.UseInMemoryDatabase(_databaseName));

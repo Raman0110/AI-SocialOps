@@ -20,6 +20,15 @@ public sealed class MessageConfiguration: IEntityTypeConfiguration<Message>
             .HasMaxLength(50)
             .IsRequired();
 
+        builder.Property(x => x.DeliveryStatus)
+            .HasConversion<string>()
+            .HasMaxLength(50)
+            .HasDefaultValue(MessageDeliveryStatus.None)
+            .IsRequired();
+
+        builder.Property(x => x.DeliveryError)
+            .HasMaxLength(500);
+
         builder.Property(x => x.Content)
             .IsRequired();
 

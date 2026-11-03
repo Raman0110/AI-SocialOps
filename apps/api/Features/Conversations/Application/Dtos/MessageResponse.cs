@@ -9,5 +9,7 @@ public sealed record MessageResponse(
     MessageSenderType SenderType,
     string Content,
     string? ExternalMessageId,
-    DateTime SentAt
+    DateTime SentAt,
+    MessageDeliveryStatus DeliveryStatus,
+    string? DeliveryError
 );

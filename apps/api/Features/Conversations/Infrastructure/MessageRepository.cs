@@ -58,6 +58,16 @@ public sealed class MessageRepository: IMessageRepository
                 cancellationToken);
     }
 
+    public Task<Message?> GetTrackedAsync(
+        Guid conversationId,
+        Guid messageId,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbSet.FirstOrDefaultAsync(
+            x => x.Id == messageId && x.ConversationId == conversationId,
+            cancellationToken);
+    }
+
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return _dbContext.SaveChangesAsync(cancellationToken);
