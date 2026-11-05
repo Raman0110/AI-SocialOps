@@ -9,7 +9,11 @@ public static class DatabaseInitializationExtensions
         this WebApplication app,
         CancellationToken cancellationToken = default)
     {
-        if (!app.Environment.IsDevelopment())
+        // Development always migrates. Elsewhere it is opt-in (Database:MigrateOnStartup) so a
+        // single-instance deployment can migrate itself; demo data is only ever seeded in Development.
+        var isDevelopment = app.Environment.IsDevelopment();
+
+        if (!isDevelopment && !app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
         {
             return;
         }
@@ -19,7 +23,7 @@ public static class DatabaseInitializationExtensions
 
         await dbContext.Database.MigrateAsync(cancellationToken);
 
-        if (app.Configuration.GetValue<bool>("Database:SeedDevelopmentData"))
+        if (isDevelopment && app.Configuration.GetValue<bool>("Database:SeedDevelopmentData"))
         {
             await DevelopmentDataSeeder.SeedAsync(dbContext, cancellationToken);
         }

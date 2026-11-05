@@ -8,7 +8,7 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddAgentIntegration(builder.Configuration);
 builder.Services.AddOutboundMessaging(builder.Configuration);
-builder.Services.AddFrontendCors();
+builder.Services.AddFrontendCors(builder.Configuration);
 
 var app = builder.Build();
 

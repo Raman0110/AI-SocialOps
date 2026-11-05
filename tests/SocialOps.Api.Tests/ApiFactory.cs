@@ -19,6 +19,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     public const string KeyA = "key-org-a";
     public const string KeyB = "key-org-b";
     public const string ViewerKeyA = "key-org-a-viewer";
+    public const string InstagramAppSecret = "test-app-secret";
+    public const string InstagramVerifyToken = "test-verify-token";
     public const string AdminKeyA = "key-org-a-admin";
     public const string AdminKeyB = "key-org-b-admin";
 
@@ -40,6 +42,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             {
                 ["ConnectionStrings:DefaultConnection"] = "Host=unused",
                 ["Agent:BaseUrl"] = "http://localhost:1",
+                ["Instagram:AppSecret"] = InstagramAppSecret,
+                ["Instagram:VerifyToken"] = InstagramVerifyToken,
                 ["Authentication:ApiKey:Keys:0:Key"] = KeyA,
                 ["Authentication:ApiKey:Keys:0:OrganizationId"] = OrgA.ToString(),
                 ["Authentication:ApiKey:Keys:0:Role"] = "Agent",

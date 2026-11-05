@@ -30,6 +30,7 @@ using SocialOps.Api.Features.Knowledge.Application.Abstractions;
 using SocialOps.Api.Features.OutboundMessages.Application.Abstractions;
 using SocialOps.Api.Features.OutboundMessages.Application.Services;
 using SocialOps.Api.Features.OutboundMessages.Infrastructure;
+using SocialOps.Api.Shared.Integrations;
 using SocialOps.Api.Features.Knowledge.Application.Services;
 using SocialOps.Api.Features.Knowledge.Infrastructure;
 using SocialOps.Api.Features.InboundWebhooks.Application.Dtos;
@@ -197,10 +198,19 @@ public static class ApiServiceCollectionExtensions
     public static IServiceCollection AddOutboundMessaging(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<OutboundMessageDispatcher>();
+        services.Configure<InstagramOptions>(configuration.GetSection(InstagramOptions.SectionName));
 
-        // Off unless explicitly enabled, so an unconfigured deployment records replies as Failed
-        // instead of reporting messages as sent that were never delivered.
-        if (configuration.GetValue<bool>("Outbound:UseSandbox"))
+        var instagram = configuration.GetSection(InstagramOptions.SectionName).Get<InstagramOptions>() ?? new InstagramOptions();
+
+        if (instagram.SendingConfigured)
+        {
+            services.AddHttpClient(InstagramOutboundSender.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(15));
+            services.AddSingleton<IOutboundMessageSender, InstagramOutboundSender>();
+        }
+        // The sandbox sender is off unless explicitly enabled, and never used alongside a real
+        // sender, so an unconfigured deployment records replies as Failed instead of reporting
+        // messages as sent that were never delivered.
+        else if (configuration.GetValue<bool>("Outbound:UseSandbox"))
         {
             services.AddSingleton<IOutboundMessageSender, SandboxInstagramOutboundSender>();
         }
@@ -208,14 +218,18 @@ public static class ApiServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddFrontendCors(this IServiceCollection services)
+    public static IServiceCollection AddFrontendCors(this IServiceCollection services, IConfiguration configuration)
     {
+        // Comma-separated list in Cors:AllowedOrigins; defaults to the Vite dev server.
+        var origins = (configuration["Cors:AllowedOrigins"] ?? "http://localhost:5173")
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
         services.AddCors(options =>
         {
             options.AddPolicy(FrontendCorsPolicy, policy =>
             {
                 policy
-                    .WithOrigins("http://localhost:5173")
+                    .WithOrigins(origins)
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             });
