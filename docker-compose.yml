@@ -1,3 +1,6 @@
+# Local full stack: docker compose up --build
+# Runs in Development mode (demo data, sandbox webhook and sender). Copy .env.example to .env
+# and set GROQ_API_KEY first. For a real deployment see docs/DEPLOYMENT.md.
 services:
 
   postgres:
@@ -7,7 +10,7 @@ services:
     environment:
       POSTGRES_DB: socialops
       POSTGRES_USER: socialops
-      POSTGRES_PASSWORD: socialops
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-socialops}
 
     ports:
       - "5432:5432"
@@ -31,9 +34,14 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
 
-      ConnectionStrings__DefaultConnection: Host=postgres; Port=5432; Database=socialops; Username=socialops; Password=socialops
+      ConnectionStrings__DefaultConnection: Host=postgres; Port=5432; Database=socialops; Username=socialops; Password=${POSTGRES_PASSWORD:-socialops}
 
       Agent__BaseUrl: http://agent:8000
+
+      # Real Instagram (leave blank to stay on the sandbox). See docs/INSTAGRAM_SETUP.md.
+      Instagram__AppSecret: ${INSTAGRAM_APP_SECRET:-}
+      Instagram__VerifyToken: ${INSTAGRAM_VERIFY_TOKEN:-}
+      Instagram__AccessTokens__${INSTAGRAM_ACCOUNT_ID:-unset}: ${INSTAGRAM_ACCESS_TOKEN:-}
 
     ports:
       - "8080:8080"
@@ -50,6 +58,9 @@ services:
 
     environment:
       SOCIALOPS_API_URL: http://api:8080
+      # Must match a key in the API's Authentication:ApiKey:Keys (dev-api-key in Development).
+      SOCIALOPS_API_KEY: ${SOCIALOPS_API_KEY:-dev-api-key}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
 
     ports:
       - "8000:8000"
@@ -57,14 +68,15 @@ services:
   web:
     build:
       context: ./apps/web
+      args:
+        VITE_API_URL: ${PUBLIC_API_URL:-http://localhost:8080}
+        VITE_API_KEY: ${WEB_API_KEY:-dev-api-key}
+        VITE_ORGANIZATION_ID: ${ORGANIZATION_ID:-00000000-0000-0000-0000-000000000001}
 
     container_name: socialops-web
 
-    environment:
-      VITE_API_URL: http://localhost:8080
-
     ports:
-      - "5173:5173"
+      - "5173:80"
 
     depends_on:
       - api
