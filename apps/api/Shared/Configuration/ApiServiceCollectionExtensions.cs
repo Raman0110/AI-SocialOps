@@ -25,6 +25,7 @@ using SocialOps.Api.Features.Customers.Application.Abstraction;
 using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.Customers.Application.Services;
 using SocialOps.Api.Features.Customers.Infrastructure;
+using SocialOps.Api.Features.Demo.Application.Services;
 using SocialOps.Api.Features.InboundWebhooks.Application.Abstractions;
 using SocialOps.Api.Features.Knowledge.Application.Abstractions;
 using SocialOps.Api.Features.OutboundMessages.Application.Abstractions;
@@ -132,6 +133,7 @@ public static class ApiServiceCollectionExtensions
         services.AddScoped<MessageService>();
         services.AddScoped<OrganizationService>();
         services.AddScoped<CustomerService>();
+        services.AddScoped<DemoResetService>();
         services.AddScoped<SocialAccountService>();
         services.AddScoped<KnowledgeService>();
         services.AddScoped<SocialIdentityService>();

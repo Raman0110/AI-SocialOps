@@ -63,6 +63,18 @@ It adds a sample refund-policy knowledge entry, posts a customer message through
 sandbox webhook, asks the agent for a draft, sends it, and prints each step. Then open the
 inbox and look at the conversation with `smoke.customer`.
 
+## Reset the interview demo
+
+Before a presentation, restore the UrbanThreads data to the same known state:
+
+```powershell
+./scripts/reset-demo.ps1
+```
+
+This restores four customers and conversations, three business knowledge entries, pending
+AI actions and an audited agent run. The endpoint is protected by the development Owner key,
+is restricted to the demo organization, and returns 404 outside the Development environment.
+
 ## What to look for
 
 | Check | Good | Bad |

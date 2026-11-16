@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SocialOps.Api.Features.AgentRuns.Domain;
 using SocialOps.Api.Features.Conversations.Domain;
 using SocialOps.Api.Features.Customers.Domain;
+using SocialOps.Api.Features.Knowledge.Domain;
 using SocialOps.Api.Features.Organizations.Domain;
 using SocialOps.Api.Features.SocialAccounts.Domain;
 using SocialOps.Api.Features.Tickets.Domain;
@@ -17,6 +18,7 @@ public static class DevelopmentDataSeeder
         if (await dbContext.Organizations.AnyAsync(organization => organization.Id == OrganizationId, cancellationToken))
         {
             await SeedConversationMessagesAsync(dbContext, cancellationToken);
+            await SeedKnowledgeEntriesAsync(dbContext, cancellationToken);
             return;
         }
 
@@ -257,6 +259,7 @@ public static class DevelopmentDataSeeder
 
         await dbContext.SaveChangesAsync(cancellationToken);
         await SeedConversationMessagesAsync(dbContext, cancellationToken);
+        await SeedKnowledgeEntriesAsync(dbContext, cancellationToken);
     }
 
     private static SocialAccount CreateAccount(
@@ -502,6 +505,55 @@ public static class DevelopmentDataSeeder
         }
 
         dbContext.Messages.AddRange(missingMessages);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private static async Task SeedKnowledgeEntriesAsync(
+        SocialOpsDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var entries = new[]
+        {
+            new KnowledgeEntry
+            {
+                Id = Guid.Parse("a0000000-0000-0000-0000-000000000001"),
+                OrganizationId = OrganizationId,
+                Title = "Shipping and express delivery",
+                Content = "UrbanThreads ships across Nepal. Standard delivery takes 2 to 4 business days. Express delivery is available inside Kathmandu Valley and usually arrives within 1 business day when an order is placed before 2 PM.",
+                CreatedAt = Utc(2026, 10, 1, 8, 0)
+            },
+            new KnowledgeEntry
+            {
+                Id = Guid.Parse("a0000000-0000-0000-0000-000000000002"),
+                OrganizationId = OrganizationId,
+                Title = "Returns and exchanges",
+                Content = "Unused items can be returned or exchanged within 7 days of delivery when they are in their original condition with tags attached. Refunds are returned to the original payment method within 5 business days after the item is received.",
+                CreatedAt = Utc(2026, 10, 1, 8, 5)
+            },
+            new KnowledgeEntry
+            {
+                Id = Guid.Parse("a0000000-0000-0000-0000-000000000003"),
+                OrganizationId = OrganizationId,
+                Title = "Incorrect or damaged orders",
+                Content = "If an item arrives damaged or does not match the order, apologize and ask for the order number plus a photo of the item. Escalate the conversation by proposing a high-priority support ticket. Do not promise a refund or replacement before a human reviews the case.",
+                CreatedAt = Utc(2026, 10, 1, 8, 10)
+            }
+        };
+
+        var entryIds = entries.Select(entry => entry.Id).ToArray();
+        var existingIds = await dbContext.KnowledgeEntries
+            .Where(entry => entryIds.Contains(entry.Id))
+            .Select(entry => entry.Id)
+            .ToHashSetAsync(cancellationToken);
+
+        var missingEntries = entries.Where(entry => !existingIds.Contains(entry.Id)).ToArray();
+
+        if (missingEntries.Length == 0)
+        {
+            return;
+        }
+
+        dbContext.KnowledgeEntries.AddRange(missingEntries);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 

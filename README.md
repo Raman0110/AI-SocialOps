@@ -33,6 +33,9 @@ Web app: http://localhost:5173 - API docs: http://localhost:8080/swagger - Agent
 Then run `./scripts/smoke-test.ps1` to push a message through the whole loop. To run the pieces
 without Docker (faster for development) see [docs/LOCAL_RUN.md](docs/LOCAL_RUN.md).
 
+Before an interview demo, run `./scripts/reset-demo.ps1` to restore the seeded UrbanThreads
+customers, conversations, knowledge, pending actions and agent audit data.
+
 ## Tests
 
 ```powershell
