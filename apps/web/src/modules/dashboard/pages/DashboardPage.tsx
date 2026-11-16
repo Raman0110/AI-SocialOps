@@ -1,77 +1,117 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Typography } from "antd";
+import { Alert, Button, Empty, Skeleton, Typography } from "antd";
 import {
   ArrowRightOutlined,
   MessageOutlined,
   RobotOutlined,
 } from "@ant-design/icons";
-import { getInbox } from "../../../api/conversations";
+import { SandboxScenarioLauncher } from "../components/SandboxScenarioLauncher";
+import {
+  defaultDashboardDataSource,
+  type DashboardDataSource,
+} from "../services/dashboardDataSource";
+import {
+  sandboxScenarios,
+  type SandboxScenario,
+  type SandboxScenarioId,
+} from "../types/sandboxScenarios";
 import type { InboxConversation } from "../../inbox/types/conversations";
 
 const { Text, Title } = Typography;
 
 interface DashboardPageProps {
-  organizationId?: string;
+  organizationId: string;
   onOpenInbox: () => void;
   onOpenAiActions: () => void;
+  dataSource?: DashboardDataSource;
 }
-
-const fallbackStats = [
-  { label: "Total conversations", value: "1,284", hint: "+12% this month" },
-  { label: "Open conversations", value: "28", hint: "4 need attention" },
-  { label: "Resolved", value: "1,156", hint: "90% resolution rate" },
-  { label: "Average response", value: "4.2 min", hint: "1.1 min faster" },
-];
-
-const fallbackChannels = [
-  { label: "Instagram", value: 486 },
-  { label: "WhatsApp", value: 372 },
-  { label: "Facebook", value: 248 },
-  { label: "Other", value: 178 },
-];
-
-const fallbackRecentActivity = [
-  { customer: "Maya Sharma", detail: "Delivery question", time: "2 min ago", status: "Open" },
-  { customer: "Ravi Thapa", detail: "Exchange request", time: "18 min ago", status: "Pending" },
-  { customer: "Sophia Lee", detail: "Support escalation", time: "1 hr ago", status: "Escalated" },
-];
 
 export function DashboardPage({
   organizationId,
   onOpenInbox,
   onOpenAiActions,
+  dataSource = defaultDashboardDataSource,
 }: DashboardPageProps) {
-  const [conversations, setConversations] = useState<InboxConversation[] | null>(null);
+  const [conversations, setConversations] = useState<InboxConversation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [launchingScenarioId, setLaunchingScenarioId] = useState<SandboxScenarioId | null>(null);
+  const [createdScenario, setCreatedScenario] = useState<SandboxScenario | null>(null);
+  const [scenarioError, setScenarioError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!organizationId) {
-      return;
+  const refreshDashboard = async (showLoading = true) => {
+    if (showLoading) {
+      setIsLoading(true);
     }
 
+    setLoadError(null);
+
+    try {
+      setConversations(await dataSource.getInbox(organizationId));
+    } catch {
+      setLoadError("Unable to load dashboard data. Confirm the API is running and your API key is valid.");
+    } finally {
+      if (showLoading) {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
     let active = true;
 
-    getInbox(organizationId)
-      .then((result) => {
+    async function loadDashboard() {
+      try {
+        const result = await dataSource.getInbox(organizationId);
+
         if (active) {
           setConversations(result);
+          setLoadError(null);
         }
-      })
-      .catch(() => {
+      } catch {
         if (active) {
-          setConversations([]);
+          setLoadError("Unable to load dashboard data. Confirm the API is running and your API key is valid.");
         }
-      });
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadDashboard();
 
     return () => {
       active = false;
     };
-  }, [organizationId]);
+  }, [dataSource, organizationId]);
+
+  const handleLaunchScenario = async (scenario: SandboxScenario) => {
+    setLaunchingScenarioId(scenario.id);
+    setCreatedScenario(null);
+    setScenarioError(null);
+
+    try {
+      const result = await dataSource.launchScenario(scenario);
+
+      if (!result.accepted || !result.conversationId) {
+        throw new Error("The webhook did not accept the scenario.");
+      }
+
+      setCreatedScenario(scenario);
+      await refreshDashboard(false);
+    } catch {
+      setScenarioError(
+        dataSource.mode === "api"
+          ? "Confirm the API is running in Development with the sandbox webhook enabled."
+          : "The mock scenario could not be created.",
+      );
+    } finally {
+      setLaunchingScenarioId(null);
+    }
+  };
 
   const stats = useMemo(() => {
-    if (conversations === null) {
-      return fallbackStats;
-    }
-
     const open = conversations.filter(({ status }) =>
       status === "Open" || status === "Pending" || status === "Escalated").length;
     const resolved = conversations.filter(({ status }) => status === "Resolved").length;
@@ -86,10 +126,6 @@ export function DashboardPage({
   }, [conversations]);
 
   const channels = useMemo(() => {
-    if (conversations === null) {
-      return fallbackChannels;
-    }
-
     return Object.entries(
       conversations.reduce<Record<string, number>>((counts, conversation) => {
         counts[conversation.platform] = (counts[conversation.platform] ?? 0) + 1;
@@ -99,10 +135,6 @@ export function DashboardPage({
   }, [conversations]);
 
   const recentActivity = useMemo(() => {
-    if (conversations === null) {
-      return fallbackRecentActivity;
-    }
-
     return conversations.slice(0, 3).map((conversation) => ({
       customer: conversation.customerName,
       detail: conversation.lastMessage ?? "No messages yet",
@@ -113,13 +145,23 @@ export function DashboardPage({
     }));
   }, [conversations]);
 
-  const activeCount = conversations?.filter(({ status }) => status !== "Resolved").length;
-  const pendingCount = conversations?.filter(({ status }) => status === "Pending").length;
-  const escalatedCount = conversations?.filter(({ status }) => status === "Escalated").length;
-  const totalConversations = conversations?.length ?? 1284;
+  const activeCount = conversations.filter(({ status }) => status !== "Resolved").length;
+  const pendingCount = conversations.filter(({ status }) => status === "Pending").length;
+  const escalatedCount = conversations.filter(({ status }) => status === "Escalated").length;
+  const totalConversations = conversations.length;
 
   return (
     <div className="space-y-6">
+      {loadError && (
+        <Alert
+          type="error"
+          showIcon
+          message="Dashboard data is unavailable"
+          description={loadError}
+          action={<Button onClick={() => void refreshDashboard()}>Retry</Button>}
+        />
+      )}
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <article
@@ -128,15 +170,28 @@ export function DashboardPage({
           >
             <span className="absolute inset-x-0 top-0 h-1 bg-blue-100" />
             <Text className="font-semibold text-slate-700">{stat.label}</Text>
-            <div className="mt-3 text-[30px] font-extrabold leading-none tracking-tight text-slate-900">
-              {stat.value}
-            </div>
+            {isLoading ? (
+              <Skeleton.Input active size="small" className="mt-3" />
+            ) : (
+              <div className="mt-3 text-[30px] font-extrabold leading-none tracking-tight text-slate-900">
+                {stat.value}
+              </div>
+            )}
             <Text type="secondary" className="mt-2 block text-xs font-medium">
               {stat.hint}
             </Text>
           </article>
         ))}
       </div>
+
+      <SandboxScenarioLauncher
+        scenarios={sandboxScenarios}
+        launchingScenarioId={launchingScenarioId}
+        createdScenario={createdScenario}
+        error={scenarioError}
+        onLaunch={(scenario) => void handleLaunchScenario(scenario)}
+        onOpenInbox={onOpenInbox}
+      />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <section className="flex min-h-80 flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_6px_18px_rgba(15,23,42,0.06)]">
@@ -148,9 +203,9 @@ export function DashboardPage({
           </div>
 
           <div className="mt-6 grid grid-cols-3 gap-2">
-            <SummaryTile value={String(activeCount ?? 24)} label="Active" />
-            <SummaryTile value={String(pendingCount ?? 8)} label="Pending" />
-            <SummaryTile value={String(escalatedCount ?? 3)} label="Escalated" />
+            <SummaryTile value={isLoading ? "—" : String(activeCount)} label="Active" />
+            <SummaryTile value={isLoading ? "—" : String(pendingCount)} label="Pending" />
+            <SummaryTile value={isLoading ? "—" : String(escalatedCount)} label="Escalated" />
           </div>
 
           <div className="mt-auto flex flex-wrap gap-2 pt-6">
@@ -180,17 +235,21 @@ export function DashboardPage({
               </div>
             </div>
 
-            <ul className="min-w-48 flex-1 space-y-3">
-              {channels.map((channel) => (
-                <li key={channel.label} className="flex items-center gap-3 text-sm">
-                  <span className="size-2 shrink-0 rounded-full bg-blue-600" />
-                  <span className="font-medium text-slate-700">{channel.label}</span>
-                  <span className="ml-auto font-semibold tabular-nums text-slate-500">
-                    {channel.value}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {channels.length > 0 ? (
+              <ul className="min-w-48 flex-1 space-y-3">
+                {channels.map((channel) => (
+                  <li key={channel.label} className="flex items-center gap-3 text-sm">
+                    <span className="size-2 shrink-0 rounded-full bg-blue-600" />
+                    <span className="font-medium text-slate-700">{channel.label}</span>
+                    <span className="ml-auto font-semibold tabular-nums text-slate-500">
+                      {channel.value}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Empty className="flex-1" image={Empty.PRESENTED_IMAGE_SIMPLE} description="No conversations yet" />
+            )}
           </div>
         </section>
       </div>
@@ -207,7 +266,7 @@ export function DashboardPage({
         </div>
 
         <div className="divide-y divide-slate-100">
-          {recentActivity.map((activity) => (
+          {recentActivity.length > 0 ? recentActivity.map((activity) => (
             <div key={activity.customer} className="grid grid-cols-[1fr_auto] gap-3 px-5 py-3.5 sm:grid-cols-[180px_1fr_auto_auto] sm:items-center">
               <Text strong>{activity.customer}</Text>
               <Text type="secondary" className="truncate">{activity.detail}</Text>
@@ -216,9 +275,12 @@ export function DashboardPage({
               </span>
               <Text type="secondary" className="text-xs sm:min-w-16 sm:text-right">{activity.time}</Text>
             </div>
-          ))}
+          )) : (
+            <Empty className="py-8" image={Empty.PRESENTED_IMAGE_SIMPLE} description="No recent conversations" />
+          )}
         </div>
       </section>
+
     </div>
   );
 }

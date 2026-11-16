@@ -1,19 +1,19 @@
 using Microsoft.EntityFrameworkCore;
-using SocialOps.Api.Features.Demo.Application.Dtos;
+using SocialOps.Api.Features.DevelopmentData.Application.Dtos;
 using SocialOps.Api.Shared.Data;
 
-namespace SocialOps.Api.Features.Demo.Application.Services;
+namespace SocialOps.Api.Features.DevelopmentData.Application.Services;
 
-public sealed class DemoResetService
+public sealed class DevelopmentDataResetService
 {
     private readonly SocialOpsDbContext _dbContext;
 
-    public DemoResetService(SocialOpsDbContext dbContext)
+    public DevelopmentDataResetService(SocialOpsDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task<ResetDemoResponse> ResetAsync(CancellationToken cancellationToken)
+    public async Task<ResetDevelopmentDataResponse> ResetAsync(CancellationToken cancellationToken)
     {
         var organizationId = DevelopmentDataSeeder.OrganizationId;
         var conversationIds = _dbContext.Conversations
@@ -71,7 +71,7 @@ public sealed class DemoResetService
         await DevelopmentDataSeeder.SeedAsync(_dbContext, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return new ResetDemoResponse(
+        return new ResetDevelopmentDataResponse(
             organizationId,
             "UrbanThreads",
             await _dbContext.Customers.CountAsync(customer => customer.OrganizationId == organizationId, cancellationToken),

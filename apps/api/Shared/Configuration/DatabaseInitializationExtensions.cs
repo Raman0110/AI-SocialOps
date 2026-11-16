@@ -10,7 +10,7 @@ public static class DatabaseInitializationExtensions
         CancellationToken cancellationToken = default)
     {
         // Development always migrates. Elsewhere it is opt-in (Database:MigrateOnStartup) so a
-        // single-instance deployment can migrate itself; demo data is only ever seeded in Development.
+        // single-instance deployment can migrate itself; sample data is only ever seeded in Development.
         var isDevelopment = app.Environment.IsDevelopment();
 
         if (!isDevelopment && !app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))

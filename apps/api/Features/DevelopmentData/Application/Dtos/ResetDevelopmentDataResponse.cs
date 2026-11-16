@@ -1,6 +1,6 @@
-namespace SocialOps.Api.Features.Demo.Application.Dtos;
+namespace SocialOps.Api.Features.DevelopmentData.Application.Dtos;
 
-public sealed record ResetDemoResponse(
+public sealed record ResetDevelopmentDataResponse(
     Guid OrganizationId,
     string OrganizationName,
     int Customers,

@@ -2,11 +2,11 @@ using System.Net;
 
 namespace SocialOps.Api.Tests;
 
-public sealed class DemoResetTests : IClassFixture<ApiFactory>
+public sealed class DevelopmentDataResetTests : IClassFixture<ApiFactory>
 {
     private readonly ApiFactory _factory;
 
-    public DemoResetTests(ApiFactory factory)
+    public DevelopmentDataResetTests(ApiFactory factory)
     {
         _factory = factory;
     }
@@ -16,7 +16,7 @@ public sealed class DemoResetTests : IClassFixture<ApiFactory>
     {
         using var client = await _factory.CreateClientWithKeyAsync(ApiFactory.AdminKeyA);
 
-        var response = await client.PostAsync("/api/demo/reset", content: null);
+        var response = await client.PostAsync("/api/development-data/reset", content: null);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }

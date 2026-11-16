@@ -27,7 +27,7 @@ $env:ConnectionStrings__DefaultConnection = "Host=localhost;Port=5432;Database=s
 dotnet run
 ```
 
-In Development it applies migrations and seeds the UrbanThreads demo organization on startup.
+In Development it applies migrations and seeds the UrbanThreads sample organization on startup.
 The outbound sandbox sender is on (`Outbound:UseSandbox`), so replies are marked `Sent`
 without reaching Instagram.
 
@@ -63,17 +63,26 @@ It adds a sample refund-policy knowledge entry, posts a customer message through
 sandbox webhook, asks the agent for a draft, sends it, and prints each step. Then open the
 inbox and look at the conversation with `smoke.customer`.
 
-## Reset the interview demo
+## Reset development data
 
-Before a presentation, restore the UrbanThreads data to the same known state:
+Restore the UrbanThreads data to its original state:
 
 ```powershell
-./scripts/reset-demo.ps1
+./scripts/reset-development-data.ps1
 ```
 
 This restores four customers and conversations, three business knowledge entries, pending
 AI actions and an audited agent run. The endpoint is protected by the development Owner key,
-is restricted to the demo organization, and returns 404 outside the Development environment.
+is restricted to the seeded organization, and returns 404 outside the Development environment.
+
+The dashboard also provides three one-click sandbox scenarios:
+
+- **Knowledge-grounded FAQ** exercises policy retrieval for an express-delivery question.
+- **Damaged order complaint** exercises safe handling without an unsupported refund promise.
+- **Human escalation** exercises an AI-proposed support ticket and approval workflow.
+
+Launching a scenario stores a real inbound message through the sandbox webhook and refreshes
+the live dashboard. Open the new conversation in the inbox to analyze it or generate an agent reply.
 
 ## What to look for
 

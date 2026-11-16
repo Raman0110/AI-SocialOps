@@ -9,6 +9,8 @@ import {
   MessageSenderType,
 } from "../types/conversations";
 import type { AgentReplyResult } from "../../../api/ai";
+import type { InboundWebhookResult } from "../../../api/webhooks";
+import type { SandboxScenario } from "../../dashboard/types/sandboxScenarios";
 
 const delay = (duration = 250) =>
   import.meta.env.MODE === "test"
@@ -205,6 +207,62 @@ let actions: Record<string, PendingAgentAction[]> = {
 export async function getMockInbox(): Promise<InboxConversation[]> {
   await delay();
   return [...conversations];
+}
+
+export async function launchMockSandboxScenario(
+  scenario: SandboxScenario,
+): Promise<InboundWebhookResult> {
+  await delay(180);
+
+  const conversationId = `scenario-${scenario.id}`;
+  const messageId = `scenario-message-${scenario.id}-${Date.now()}`;
+  const sentAt = new Date().toISOString();
+  const existingConversation = conversations.find(({ id }) => id === conversationId);
+
+  if (existingConversation) {
+    existingConversation.lastMessage = scenario.message;
+    existingConversation.lastMessageAt = sentAt;
+  } else {
+    conversations.unshift({
+      id: conversationId,
+      customerName: scenario.senderUsername
+        .split(".")
+        .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+        .join(" "),
+      platform: "Instagram",
+      username: scenario.senderUsername,
+      socialAccountName: "UrbanThreads Instagram",
+      status: "Open",
+      lastMessage: scenario.message,
+      lastMessageAt: sentAt,
+    });
+  }
+
+  details[conversationId] = {
+    id: conversationId,
+    customerName: conversations.find(({ id }) => id === conversationId)?.customerName ?? scenario.senderUsername,
+    platform: "Instagram",
+    username: scenario.senderUsername,
+    socialAccountName: "UrbanThreads Instagram",
+    status: "Open",
+    messages: [
+      {
+        id: messageId,
+        direction: MessageDirection.Inbound,
+        senderType: MessageSenderType.Customer,
+        content: scenario.message,
+        sentAt,
+      },
+    ],
+  };
+
+  return {
+    accepted: true,
+    duplicate: false,
+    organizationId: "mock-organization",
+    conversationId,
+    messageId,
+  };
 }
 
 export async function getMockConversation(conversationId: string): Promise<ConversationDetails> {

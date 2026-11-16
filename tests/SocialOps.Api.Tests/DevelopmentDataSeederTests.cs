@@ -6,7 +6,7 @@ namespace SocialOps.Api.Tests;
 public sealed class DevelopmentDataSeederTests
 {
     [Fact]
-    public async Task SeedAsync_CreatesCompleteDemoAndIsIdempotent()
+    public async Task SeedAsync_CreatesCompleteDevelopmentDatasetAndIsIdempotent()
     {
         var options = new DbContextOptionsBuilder<SocialOpsDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
