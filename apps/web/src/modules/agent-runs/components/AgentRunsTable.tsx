@@ -1,9 +1,15 @@
-import { ClockCircleOutlined } from "@ant-design/icons";
-import { Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import {
+  Badge,
+  CopyableId,
+  DataTable,
+  EmptyState,
+  NotAvailable,
+  StatusBadge,
+  TruncatedText,
+} from "../../../shared/ui";
+import { AuditOutlined } from "../../../shared/icons";
 import type { AgentRun } from "../types/agentRuns";
-
-const { Text } = Typography;
 
 interface AgentRunsTableProps {
   runs: AgentRun[];
@@ -13,17 +19,13 @@ interface AgentRunsTableProps {
 
 export function AgentRunsTable({ runs, selectedRunId, onSelect }: AgentRunsTableProps) {
   return (
-    <Table
-      rowKey="id"
-      size="middle"
-      pagination={false}
-      dataSource={runs}
+    <DataTable<AgentRun>
+      rows={runs}
+      rowId={(run) => run.id}
+      selectedId={selectedRunId}
+      onSelect={(run) => onSelect(run.id)}
       columns={columns}
-      rowClassName={(run) =>
-        run.id === selectedRunId ? "cursor-pointer bg-blue-50" : "cursor-pointer"
-      }
-      onRow={(run) => ({ onClick: () => onSelect(run.id) })}
-      locale={{ emptyText: "No agent runs match your filters." }}
+      empty={<EmptyState icon={<AuditOutlined />} title="No agent runs match your filters." description="Clear a filter to see more." />}
     />
   );
 }
@@ -32,40 +34,53 @@ const columns: ColumnsType<AgentRun> = [
   {
     title: "Run",
     dataIndex: "agentName",
+    width: 260,
     render: (_value, run) => (
-      <div>
-        <Text strong>{run.agentName}</Text>
-        <Text type="secondary" className="block max-w-64 truncate text-xs">
-          {run.customerName} · {run.conversationTopic}
-        </Text>
+      <div className="max-w-60">
+        <span className="block truncate text-[13px] font-medium text-fg">{run.agentName}</span>
+        <TruncatedText
+          className="text-xs text-fg-muted"
+          text={`${run.customerName} · ${run.conversationTopic}`}
+        />
       </div>
     ),
   },
   {
+    title: "ID",
+    dataIndex: "id",
+    width: 120,
+    render: (id: string) => <CopyableId value={id} />,
+  },
+  {
     title: "Status",
     dataIndex: "status",
-    render: (status: AgentRun["status"]) => (
-      <Tag color={statusColors[status]}>{status}</Tag>
-    ),
+    render: (status: AgentRun["status"]) => <StatusBadge status={status} />,
   },
   {
     title: "Trigger",
     dataIndex: "trigger",
-    render: (trigger: AgentRun["trigger"]) => <Tag>{trigger}</Tag>,
+    render: (trigger: AgentRun["trigger"]) => <Badge>{trigger}</Badge>,
   },
   {
     title: "Duration",
     dataIndex: "durationMs",
-    render: (durationMs: number | null) => (
-      <Text type="secondary">
-        <ClockCircleOutlined /> {durationMs === null ? "In progress" : formatDuration(durationMs)}
-      </Text>
-    ),
+    align: "right",
+    width: 100,
+    render: (durationMs: number | null) =>
+      durationMs === null ? (
+        <NotAvailable label="In progress" />
+      ) : (
+        <span className="tnum text-[13px] text-fg-secondary">{formatDuration(durationMs)}</span>
+      ),
   },
   {
     title: "Started",
     dataIndex: "startedAt",
-    render: (value: string) => <Text type="secondary">{formatDateTime(value)}</Text>,
+    align: "right",
+    width: 130,
+    render: (value: string) => (
+      <span className="tnum whitespace-nowrap text-xs text-fg-muted">{formatDateTime(value)}</span>
+    ),
   },
 ];
 
@@ -81,9 +96,3 @@ function formatDateTime(value: string) {
     minute: "2-digit",
   }).format(new Date(value));
 }
-
-const statusColors: Record<AgentRun["status"], string> = {
-  Running: "processing",
-  Completed: "success",
-  Failed: "error",
-};

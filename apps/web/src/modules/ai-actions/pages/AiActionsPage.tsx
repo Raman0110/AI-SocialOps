@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Input, Select, Spin, Typography, message } from "antd";
+import { Alert, Input, Select, message } from "antd";
+import { SkeletonRows } from "../../../shared/ui";
 import {
   approveAgentAction,
   getPendingAgentActions,
@@ -12,8 +13,6 @@ import { AiActionDetails } from "../components/AiActionDetails";
 import { AiActionsTable } from "../components/AiActionsTable";
 import type { AiAction, AiActionRisk, AiActionStatus, AiActionType } from "../types/aiActions";
 
-const { Text, Title } = Typography;
-
 export function AiActionsPage({ organizationId }: { organizationId: string }) {
   const [actions, setActions] = useState<AiAction[]>([]);
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
@@ -23,6 +22,8 @@ export function AiActionsPage({ organizationId }: { organizationId: string }) {
   const [statusFilter, setStatusFilter] = useState<AiActionStatus | "All">("Pending");
   const [loading, setLoading] = useState(true);
   const [isResolving, setIsResolving] = useState(false);
+  // Below xl the detail pane is a slide-over; this only controls its visibility.
+  const [detailOpen, setDetailOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -105,93 +106,106 @@ export function AiActionsPage({ organizationId }: { organizationId: string }) {
 
   if (loading) {
     return (
-      <div className="grid min-h-[60vh] place-items-center">
-        <Spin description="Loading AI actions..." />
+      <div className="overflow-hidden rounded-lg border border-line bg-surface" aria-busy="true">
+        <span className="sr-only">Loading AI actions...</span>
+        <SkeletonRows rows={6} columns={5} />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="grid min-h-[60vh] place-items-center">
+      <div className="mx-auto max-w-xl pt-10">
         <Alert showIcon type="error" message={error} />
       </div>
     );
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col gap-4 bg-slate-100 p-4">
+    <div className="flex h-[calc(100vh-88px)] flex-col gap-4 sm:h-[calc(100vh-104px)]">
       {contextHolder}
 
-      <section className="rounded-md border border-slate-200 bg-white p-4">
-        <div>
-          <Title level={4} className="mb-1">
-            AI approval queue
-          </Title>
-          <Text type="secondary">
-            {filteredActions.length} of {actions.length} generated actions
-          </Text>
-        </div>
+      <section className="shrink-0 rounded-lg border border-line bg-surface px-4 py-3 sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div>
+            <h2 className="m-0 text-sm font-semibold text-fg">AI approval queue</h2>
+            <p className="tnum m-0 text-xs text-fg-muted">
+              {filteredActions.length} of {actions.length} generated actions
+            </p>
+          </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_200px_160px_160px]">
-          <Input.Search
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Search customer, topic, or action"
-            allowClear
-          />
-
-          <Select
-            value={typeFilter}
-            onChange={(value) => setTypeFilter(value)}
-            options={[
-              { value: "All", label: "All action types" },
-              { value: "Suggested reply", label: "Suggested reply" },
-              { value: "Create support ticket", label: "Create support ticket" },
-              { value: "Escalate conversation", label: "Escalate conversation" },
-              { value: "Add customer tag", label: "Add customer tag" },
-            ]}
-          />
-
-          <Select
-            value={riskFilter}
-            onChange={(value) => setRiskFilter(value)}
-            options={[
-              { value: "All", label: "All risks" },
-              { value: "Low", label: "Low" },
-              { value: "Medium", label: "Medium" },
-              { value: "High", label: "High" },
-            ]}
-          />
-
-          <Select
-            value={statusFilter}
-            onChange={(value) => setStatusFilter(value)}
-            options={[
-              { value: "All", label: "All statuses" },
-              { value: "Pending", label: "Pending" },
-              { value: "Approved", label: "Approved" },
-              { value: "Rejected", label: "Rejected" },
-            ]}
-          />
+          <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
+            <Input.Search
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Search customer, topic, or action"
+              allowClear
+              className="sm:w-72"
+            />
+            <Select
+              aria-label="Filter by action type"
+              className="sm:w-44"
+              value={typeFilter}
+              onChange={(value) => setTypeFilter(value)}
+              options={[
+                { value: "All", label: "All action types" },
+                { value: "Suggested reply", label: "Suggested reply" },
+                { value: "Create support ticket", label: "Create support ticket" },
+                { value: "Escalate conversation", label: "Escalate conversation" },
+                { value: "Add customer tag", label: "Add customer tag" },
+              ]}
+            />
+            <Select
+              aria-label="Filter by risk"
+              className="sm:w-32"
+              value={riskFilter}
+              onChange={(value) => setRiskFilter(value)}
+              options={[
+                { value: "All", label: "All risks" },
+                { value: "Low", label: "Low" },
+                { value: "Medium", label: "Medium" },
+                { value: "High", label: "High" },
+              ]}
+            />
+            <Select
+              aria-label="Filter by status"
+              className="sm:w-32"
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value)}
+              options={[
+                { value: "All", label: "All statuses" },
+                { value: "Pending", label: "Pending" },
+                { value: "Approved", label: "Approved" },
+                { value: "Rejected", label: "Rejected" },
+              ]}
+            />
+          </div>
         </div>
       </section>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-        <section className="min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <section className="min-h-0 min-w-0 overflow-hidden rounded-lg border border-line bg-surface">
           <AiActionsTable
             actions={filteredActions}
             selectedActionId={visibleSelectedActionId}
-            onSelect={setSelectedActionId}
+            onSelect={(actionId) => {
+              setSelectedActionId(actionId);
+              setDetailOpen(true);
+            }}
           />
         </section>
 
-        <main className="min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
+        <main
+          className={`min-h-0 min-w-0 overflow-hidden bg-surface xl:static xl:z-auto xl:block xl:rounded-lg xl:border xl:border-line ${
+            detailOpen ? "fixed inset-0 z-40 block" : "hidden"
+          }`}
+        >
           <AiActionDetails
             action={selectedAction}
             isResolving={isResolving}
             onApprove={(actionId) => handleResolveAction(actionId, "Approved")}
             onReject={(actionId) => handleResolveAction(actionId, "Rejected")}
+            onClose={() => setDetailOpen(false)}
           />
         </main>
       </div>

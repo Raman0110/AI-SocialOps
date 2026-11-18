@@ -1,143 +1,153 @@
-import {
-  ApiOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  ExclamationCircleOutlined,
-  LinkOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
-import { Button, Card, Descriptions, Empty, Space, Statistic, Tag, Typography } from "antd";
-import type { SocialAccount, SocialAccountStatus, WebhookHealth } from "../types/socialAccounts";
-
-const { Paragraph, Text, Title } = Typography;
+import { Alert, Button, Tabs } from "antd";
+import { ApiOutlined, ArrowLeftOutlined, LinkOutlined, ReloadOutlined } from "../../../shared/icons";
+import { Badge, CopyableId, EmptyState, KeyValue, PlatformBadge, StatusBadge } from "../../../shared/ui";
+import type { SocialAccount } from "../types/socialAccounts";
 
 interface SocialAccountDetailsProps {
   account: SocialAccount | null;
   onConnectAccount: () => void;
   onReauthorize: () => void;
+  /** Closes the slide-over on small screens. */
+  onClose?: () => void;
 }
 
+/** Inspector: sticky header with state and actions, key facts, then tabs. */
 export function SocialAccountDetails({
   account,
   onConnectAccount,
   onReauthorize,
+  onClose,
 }: SocialAccountDetailsProps) {
   if (!account) {
     return (
-      <div className="grid h-full place-items-center p-8">
-        <Empty description="Select a social account to inspect connection health." />
+      <div className="grid h-full place-items-center">
+        <EmptyState icon={<LinkOutlined />} title="Select a social account to inspect connection health." />
       </div>
     );
   }
 
   return (
-    <div className="h-full overflow-y-auto p-5">
-      <section className="rounded-md border border-slate-200 bg-white p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <Space wrap className="mb-2">
-              <Title level={3} className="mb-0">
-                {account.displayName}
-              </Title>
-              <Tag color={platformColors[account.platform]}>{account.platform}</Tag>
-              <Tag color={statusColors[account.status]}>{account.status}</Tag>
-            </Space>
-            <Text type="secondary" className="block">
+    <div className="flex h-full flex-col">
+      <header className="shrink-0 border-b border-line bg-surface px-4 py-3 sm:px-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            {onClose && (
+              <Button
+                type="text"
+                size="small"
+                icon={<ArrowLeftOutlined />}
+                onClick={onClose}
+                className="-ml-2 mb-1 xl:!hidden"
+              >
+                Back to list
+              </Button>
+            )}
+            <h2 className="m-0 truncate text-base font-semibold leading-6 text-fg">{account.displayName}</h2>
+            <p className="m-0 truncate text-xs text-fg-muted">
               {account.handle} · {account.organizationName}
-            </Text>
+            </p>
           </div>
 
-          <Space wrap>
-            <Button icon={<LinkOutlined />} onClick={onConnectAccount}>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button size="small" icon={<LinkOutlined />} onClick={onConnectAccount}>
               Connect account
             </Button>
             <Button
+              size="small"
               type={account.status === "Needs reauth" ? "primary" : "default"}
               icon={<ReloadOutlined />}
               onClick={onReauthorize}
             >
               Reauthorize
             </Button>
-          </Space>
-        </div>
-
-        <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <Card size="small" className="">
-            <Statistic title="Conversations today" value={account.conversationsToday} />
-          </Card>
-          <Card size="small" className="">
-            <Statistic title="Open conversations" value={account.openConversations} />
-          </Card>
-          <Card size="small" className="">
-            <Statistic title="Webhook failures" value={account.webhook.failureCount} />
-          </Card>
-        </div>
-      </section>
-
-      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.9fr]">
-        <Card title="Connection details" className="">
-          <Descriptions column={1} size="small">
-            <Descriptions.Item label="External account id">
-              <Text code>{account.externalAccountId}</Text>
-            </Descriptions.Item>
-            <Descriptions.Item label="Connected by">{account.connectedBy}</Descriptions.Item>
-            <Descriptions.Item label="Connected at">
-              {formatDateTime(account.connectedAt)}
-            </Descriptions.Item>
-            <Descriptions.Item label="Last synced">
-              {formatDateTime(account.lastSyncedAt)}
-            </Descriptions.Item>
-          </Descriptions>
-
-          <Paragraph className="mt-4 rounded-md bg-slate-50 p-3 text-sm text-slate-600">
-            This account represents the organization-owned channel that receives inbound
-            customer messages. Incoming webhook payloads use the external account id to
-            resolve which company account should receive the message.
-          </Paragraph>
-        </Card>
-
-        <Card title="Webhook health" className="">
-          <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-            <Space align="start">
-              <span className={`mt-1 text-lg ${healthTextColors[account.webhook.health]}`}>
-                {healthIcons[account.webhook.health]}
-              </span>
-              <div>
-                <Text strong>{account.webhook.health}</Text>
-                <Text type="secondary" className="block text-xs">
-                  Last event:{" "}
-                  {account.webhook.lastReceivedAt
-                    ? formatDateTime(account.webhook.lastReceivedAt)
-                    : "No webhook received yet"}
-                </Text>
-              </div>
-            </Space>
           </div>
+        </div>
 
-          <Descriptions column={1} size="small" className="mt-4">
-            <Descriptions.Item label="Webhook id">
-              <Text code>{account.webhook.id}</Text>
-            </Descriptions.Item>
-            <Descriptions.Item label="Endpoint">
-              <Text copyable className="break-all">
-                {account.webhook.url}
-              </Text>
-            </Descriptions.Item>
-            <Descriptions.Item label="Subscribed events">
-              <Space wrap>
-                {account.webhook.subscribedEvents.length > 0 ? (
-                  account.webhook.subscribedEvents.map((event) => (
-                    <Tag key={event} icon={<ApiOutlined />}>
-                      {event}
-                    </Tag>
-                  ))
-                ) : (
-                  <Tag>None</Tag>
-                )}
-              </Space>
-            </Descriptions.Item>
-          </Descriptions>
-        </Card>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <PlatformBadge platform={account.platform} />
+          <StatusBadge status={account.status} />
+        </div>
+      </header>
+
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
+        <KeyValue
+          items={[
+            { label: "Conversations today", value: <span className="tnum">{account.conversationsToday}</span> },
+            { label: "Open conversations", value: <span className="tnum">{account.openConversations}</span> },
+            { label: "Webhook failures", value: <span className="tnum">{account.webhook.failureCount}</span> },
+            { label: "External account id", value: <CopyableId value={account.externalAccountId} visible={24} /> },
+            { label: "Connected by", value: account.connectedBy },
+            { label: "Connected at", value: <span className="tnum">{formatDateTime(account.connectedAt)}</span> },
+            { label: "Last synced", value: <span className="tnum">{formatDateTime(account.lastSyncedAt)}</span> },
+          ]}
+        />
+
+        <Tabs
+          className="mt-3"
+          size="small"
+          items={[
+            {
+              key: "webhook",
+              label: "Webhook health",
+              children: (
+                <div className="space-y-4">
+                  {account.webhook.health === "Failing" && (
+                    <Alert
+                      type="error"
+                      showIcon
+                      title="Webhook is failing"
+                      description={`${account.webhook.failureCount} recent delivery failures. Last event: ${
+                        account.webhook.lastReceivedAt ? formatDateTime(account.webhook.lastReceivedAt) : "none received"
+                      }.`}
+                    />
+                  )}
+
+                  <KeyValue
+                    items={[
+                      { label: "State", value: <StatusBadge status={account.webhook.health} /> },
+                      {
+                        label: "Last event",
+                        value: account.webhook.lastReceivedAt ? (
+                          <span className="tnum">{formatDateTime(account.webhook.lastReceivedAt)}</span>
+                        ) : (
+                          "No webhook received yet"
+                        ),
+                      },
+                      { label: "Webhook id", value: <CopyableId value={account.webhook.id} visible={24} /> },
+                      { label: "Endpoint", value: <CopyableId value={account.webhook.url} visible={40} /> },
+                      {
+                        label: "Subscribed events",
+                        value:
+                          account.webhook.subscribedEvents.length > 0 ? (
+                            <div className="flex flex-wrap gap-1.5">
+                              {account.webhook.subscribedEvents.map((event) => (
+                                <Badge key={event} icon={<ApiOutlined />}>
+                                  {event}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <Badge>None</Badge>
+                          ),
+                      },
+                    ]}
+                  />
+                </div>
+              ),
+            },
+            {
+              key: "about",
+              label: "About",
+              children: (
+                <p className="m-0 text-[13px] leading-5 text-fg-secondary">
+                  This account represents the organization-owned channel that receives inbound
+                  customer messages. Incoming webhook payloads use the external account id to
+                  resolve which company account should receive the message.
+                </p>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );
@@ -151,29 +161,3 @@ function formatDateTime(value: string) {
     minute: "2-digit",
   }).format(new Date(value));
 }
-
-const platformColors: Record<SocialAccount["platform"], string> = {
-  Instagram: "magenta",
-  Facebook: "blue",
-  X: "default",
-  TikTok: "purple",
-  WhatsApp: "green",
-};
-
-const statusColors: Record<SocialAccountStatus, string> = {
-  Connected: "success",
-  "Needs reauth": "warning",
-  Disabled: "default",
-};
-
-const healthTextColors: Record<WebhookHealth, string> = {
-  Healthy: "text-emerald-600",
-  Failing: "text-red-600",
-  "Not configured": "text-slate-500",
-};
-
-const healthIcons: Record<WebhookHealth, React.ReactNode> = {
-  Healthy: <CheckCircleOutlined />,
-  Failing: <ExclamationCircleOutlined />,
-  "Not configured": <ClockCircleOutlined />,
-};

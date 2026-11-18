@@ -1,8 +1,7 @@
-import { Progress, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { DataTable, EmptyState, NotAvailable, PlatformBadge, RiskBadge, StatusBadge, TruncatedText } from "../../../shared/ui";
+import { RobotOutlined } from "../../../shared/icons";
 import type { AiAction } from "../types/aiActions";
-
-const { Text } = Typography;
 
 interface AiActionsTableProps {
   actions: AiAction[];
@@ -16,19 +15,13 @@ export function AiActionsTable({
   onSelect,
 }: AiActionsTableProps) {
   return (
-    <Table
-      rowKey="id"
-      size="middle"
-      pagination={false}
-      dataSource={actions}
+    <DataTable<AiAction>
+      rows={actions}
+      rowId={(action) => action.id}
+      selectedId={selectedActionId}
+      onSelect={(action) => onSelect(action.id)}
       columns={columns}
-      rowClassName={(action) =>
-        action.id === selectedActionId ? "cursor-pointer bg-blue-50" : "cursor-pointer"
-      }
-      onRow={(action) => ({
-        onClick: () => onSelect(action.id),
-      })}
-      locale={{ emptyText: "No AI actions match your filters." }}
+      empty={<EmptyState icon={<RobotOutlined />} title="No AI actions match your filters." description="Clear a filter to see more." />}
     />
   );
 }
@@ -37,67 +30,42 @@ const columns: ColumnsType<AiAction> = [
   {
     title: "Action",
     dataIndex: "type",
+    width: 280,
     render: (_value, action) => (
-      <div>
-        <Text strong>{action.type}</Text>
-        <Text type="secondary" className="block text-xs">
-          {action.customerName} · {action.conversationTopic}
-        </Text>
+      <div className="max-w-64">
+        <span className="block truncate text-[13px] font-medium text-fg">{action.type}</span>
+        <TruncatedText
+          className="text-xs text-fg-muted"
+          text={`${action.customerName} · ${action.conversationTopic}`}
+        />
       </div>
     ),
   },
   {
     title: "Platform",
     dataIndex: "platform",
-    render: (platform: AiAction["platform"]) => (
-      <Tag color={platformColors[platform]}>{platform}</Tag>
-    ),
+    render: (platform: AiAction["platform"]) => <PlatformBadge platform={platform} />,
   },
   {
     title: "Risk",
     dataIndex: "risk",
-    render: (risk: AiAction["risk"]) => <Tag color={riskColors[risk]}>{risk}</Tag>,
+    render: (risk: AiAction["risk"]) => <RiskBadge level={risk} />,
   },
   {
     title: "Status",
     dataIndex: "status",
-    render: (status: AiAction["status"]) => (
-      <Tag color={statusColors[status]}>{status}</Tag>
-    ),
+    render: (status: AiAction["status"]) => <StatusBadge status={status} />,
   },
   {
     title: "Confidence",
     dataIndex: "confidence",
-    width: 140,
+    align: "right",
+    width: 110,
     render: (confidence: number | null) =>
       confidence === null ? (
-        <Text type="secondary">Not provided</Text>
+        <NotAvailable label="Not available" />
       ) : (
-        <Progress
-          percent={Math.round(confidence * 100)}
-          size="small"
-          status={confidence >= 0.85 ? "success" : "normal"}
-        />
+        <span className="tnum text-[13px] text-fg">{Math.round(confidence * 100)}%</span>
       ),
   },
 ];
-
-const platformColors: Record<AiAction["platform"], string> = {
-  Instagram: "magenta",
-  Facebook: "blue",
-  X: "default",
-  TikTok: "purple",
-  WhatsApp: "green",
-};
-
-const riskColors: Record<AiAction["risk"], string> = {
-  Low: "success",
-  Medium: "warning",
-  High: "error",
-};
-
-const statusColors: Record<AiAction["status"], string> = {
-  Pending: "processing",
-  Approved: "success",
-  Rejected: "error",
-};

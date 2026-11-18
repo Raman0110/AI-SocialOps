@@ -1,32 +1,35 @@
+import { Button, Tabs } from "antd";
 import {
+  ArrowLeftOutlined,
   CheckOutlined,
-  ClockCircleOutlined,
-  CloseOutlined,
   CodeOutlined,
+  CloseOutlined,
   RobotOutlined,
-} from "@ant-design/icons";
-import { Button, Card, Descriptions, Empty, Space, Tag, Typography } from "antd";
+} from "../../../shared/icons";
+import { Badge, CopyableId, EmptyState, Inset, KeyValue, PlatformBadge, RiskBadge, StatusBadge } from "../../../shared/ui";
 import type { AiAction } from "../types/aiActions";
-
-const { Paragraph, Text, Title } = Typography;
 
 interface AiActionDetailsProps {
   action: AiAction | null;
   onApprove: (actionId: string) => Promise<void>;
   onReject: (actionId: string) => Promise<void>;
   isResolving: boolean;
+  /** Closes the slide-over on small screens. */
+  onClose?: () => void;
 }
 
+/** Inspector: sticky header with state and actions, tabbed body. */
 export function AiActionDetails({
   action,
   onApprove,
   onReject,
   isResolving,
+  onClose,
 }: AiActionDetailsProps) {
   if (!action) {
     return (
-      <div className="grid h-full place-items-center p-8">
-        <Empty description="Select an AI action to review." />
+      <div className="grid h-full place-items-center">
+        <EmptyState icon={<RobotOutlined />} title="Select an AI action to review." />
       </div>
     );
   }
@@ -34,24 +37,30 @@ export function AiActionDetails({
   const canResolve = action.status === "Pending";
 
   return (
-    <div className="h-full overflow-y-auto p-5">
-      <section className="rounded-md border border-slate-200 bg-white p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <Space wrap className="mb-2">
-              <Title level={3} className="mb-0">
-                {action.type}
-              </Title>
-              <Tag color={riskColors[action.risk]}>{action.risk} risk</Tag>
-              <Tag color={statusColors[action.status]}>{action.status}</Tag>
-            </Space>
-            <Text type="secondary" className="block">
+    <div className="flex h-full flex-col">
+      <header className="shrink-0 border-b border-line bg-surface px-4 py-3 sm:px-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            {onClose && (
+              <Button
+                type="text"
+                size="small"
+                icon={<ArrowLeftOutlined />}
+                onClick={onClose}
+                className="-ml-2 mb-1 xl:!hidden"
+              >
+                Back to list
+              </Button>
+            )}
+            <h2 className="m-0 truncate text-base font-semibold leading-6 text-fg">{action.type}</h2>
+            <p className="m-0 truncate text-xs text-fg-muted">
               {action.customerName} · {action.conversationTopic}
-            </Text>
+            </p>
           </div>
 
-          <Space wrap>
+          <div className="flex shrink-0 items-center gap-2">
             <Button
+              size="small"
               icon={<CloseOutlined />}
               disabled={!canResolve}
               loading={isResolving}
@@ -61,6 +70,7 @@ export function AiActionDetails({
             </Button>
             <Button
               type="primary"
+              size="small"
               icon={<CheckOutlined />}
               disabled={!canResolve}
               loading={isResolving}
@@ -68,71 +78,77 @@ export function AiActionDetails({
             >
               Approve
             </Button>
-          </Space>
-        </div>
-
-        <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <Card size="small" className="">
-            <Text type="secondary" className="block text-xs">
-              Confidence
-            </Text>
-            <div className="mt-1 text-2xl font-semibold text-slate-900">
-              {action.confidence === null
-                ? "Not provided"
-                : `${Math.round(action.confidence * 100)}%`}
-            </div>
-          </Card>
-          <Card size="small" className="">
-            <Text type="secondary" className="block text-xs">
-              Platform
-            </Text>
-            <Tag color={platformColors[action.platform]} className="mt-2">
-              {action.platform}
-            </Tag>
-          </Card>
-          <Card size="small" className="">
-            <Text type="secondary" className="block text-xs">
-              Created
-            </Text>
-            <div className="mt-2 text-sm font-semibold text-slate-800">
-              <ClockCircleOutlined /> {formatDateTime(action.createdAt)}
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-        <Card title="AI reasoning" className="">
-          <Paragraph className="rounded-md bg-slate-50 p-3 text-sm text-slate-600">
-            <RobotOutlined /> {action.reasoning}
-          </Paragraph>
-          <Descriptions column={1} size="small" className="mt-4">
-            <Descriptions.Item label="Tools used">
-              <Space wrap>
-                {action.toolsUsed.map((tool) => (
-                  <Tag key={tool} icon={<CodeOutlined />}>
-                    {tool}
-                  </Tag>
-                ))}
-              </Space>
-            </Descriptions.Item>
-          </Descriptions>
-        </Card>
-
-        <Card title="Proposed payload" className="">
-          <div className="space-y-3">
-            {Object.entries(action.payload).map(([key, value]) => (
-              <div key={key} className="rounded-md border border-slate-200 bg-slate-50 p-3">
-                <Text type="secondary" className="block text-xs uppercase tracking-wide">
-                  {formatLabel(key)}
-                </Text>
-                <Text className="mt-1 block text-sm text-slate-800">
-                  {Array.isArray(value) ? value.join(", ") : value}
-                </Text>
-              </div>
-            ))}
           </div>
-        </Card>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <StatusBadge status={action.status} />
+          <RiskBadge level={action.risk} />
+        </div>
+      </header>
+
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-5 sm:px-5">
+        <Tabs
+          size="small"
+          items={[
+            {
+              key: "payload",
+              label: "Proposed payload",
+              children: (
+                <Inset>
+                  <KeyValue
+                    items={Object.entries(action.payload).map(([key, value]) => ({
+                      label: formatLabel(key),
+                      value: Array.isArray(value) ? value.join(", ") : value,
+                    }))}
+                  />
+                </Inset>
+              ),
+            },
+            {
+              key: "reasoning",
+              label: "Reasoning",
+              children: (
+                <div className="space-y-4">
+                  <p className="m-0 text-[13px] leading-5 text-fg-secondary">{action.reasoning}</p>
+                  <div>
+                    <p className="eyebrow m-0 mb-1.5">Tools used</p>
+                    {action.toolsUsed.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {action.toolsUsed.map((tool) => (
+                          <Badge key={tool} icon={<CodeOutlined />}>
+                            {tool}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-fg-muted">No tools recorded.</span>
+                    )}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: "details",
+              label: "Details",
+              children: (
+                <KeyValue
+                  items={[
+                    {
+                      label: "Confidence",
+                      value: action.confidence === null ? null : (
+                        <span className="tnum">{Math.round(action.confidence * 100)}%</span>
+                      ),
+                    },
+                    { label: "Platform", value: <PlatformBadge platform={action.platform} /> },
+                    { label: "Created", value: <span className="tnum">{formatDateTime(action.createdAt)}</span> },
+                    { label: "Action ID", value: <CopyableId value={action.id} /> },
+                  ]}
+                />
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );
@@ -150,23 +166,3 @@ function formatDateTime(value: string) {
 function formatLabel(value: string) {
   return value.replace(/([A-Z])/g, " $1").replace(/^./, (char) => char.toUpperCase());
 }
-
-const platformColors: Record<AiAction["platform"], string> = {
-  Instagram: "magenta",
-  Facebook: "blue",
-  X: "default",
-  TikTok: "purple",
-  WhatsApp: "green",
-};
-
-const riskColors: Record<AiAction["risk"], string> = {
-  Low: "success",
-  Medium: "warning",
-  High: "error",
-};
-
-const statusColors: Record<AiAction["status"], string> = {
-  Pending: "processing",
-  Approved: "success",
-  Rejected: "error",
-};

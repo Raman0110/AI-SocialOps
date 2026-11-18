@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Alert, Badge, Input, Select, Spin, Typography } from "antd";
+import { Alert, Input, Select } from "antd";
+import { Badge, SkeletonRows } from "../../../shared/ui";
 
 import {
   addMockMessage,
@@ -38,7 +39,6 @@ import {
   type InboxReadDataSource,
 } from "../services/inboxReadDataSource";
 
-const { Text } = Typography;
 
 interface InboxPageProps {
   organizationId: string;
@@ -338,15 +338,16 @@ export function InboxPage({
 
   if (loading) {
     return (
-      <div className="grid min-h-screen place-items-center bg-slate-50 px-6">
-        <Spin description="Loading inbox..." />
-      </div>
+      <main className="overflow-hidden rounded-lg border border-line bg-surface" aria-busy="true">
+        <span className="sr-only">Loading inbox...</span>
+        <SkeletonRows rows={6} columns={4} />
+      </main>
     );
   }
 
   if (error) {
     return (
-      <div className="grid min-h-screen place-items-center bg-slate-50 px-6">
+      <div className="mx-auto max-w-xl pt-10">
         <Alert showIcon type="error" title={error} />
       </div>
     );
@@ -354,7 +355,7 @@ export function InboxPage({
 
   if (selectedConversationId) {
     return (
-      <main className="h-[calc(100vh-112px)] min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
+      <main className="h-[calc(100vh-88px)] min-w-0 overflow-hidden rounded-lg border border-line bg-surface sm:h-[calc(100vh-104px)]">
         <ConversationDetailsView
           conversation={selectedConversation}
           onBack={handleBackToInbox}
@@ -373,57 +374,55 @@ export function InboxPage({
   }
 
   return (
-    <main className="min-h-[calc(100vh-112px)] overflow-hidden rounded-md border border-slate-200 bg-white">
-      <div className="border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
-          <Input.Search
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Search conversations"
-            className="max-w-2xl flex-1"
-            size="large"
-            allowClear
+    <main className="overflow-hidden rounded-lg border border-line bg-surface">
+      <div className="flex flex-col gap-2 border-b border-line px-4 py-3 sm:flex-row sm:items-center sm:px-5">
+        <Input.Search
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Search conversations"
+          className="max-w-md flex-1"
+          allowClear
+        />
+
+        <div className="grid grid-cols-2 gap-2 sm:flex">
+          <Select
+            className="min-w-36"
+            aria-label="Filter by platform"
+            value={platformFilter}
+            onChange={(value) => setPlatformFilter(value)}
+            options={[
+              { value: "All", label: "All platforms" },
+              { value: "Instagram", label: "Instagram" },
+              { value: "Facebook", label: "Facebook" },
+              { value: "WhatsApp", label: "WhatsApp" },
+              { value: "TikTok", label: "TikTok" },
+              { value: "X", label: "X" },
+            ]}
           />
 
-          <div className="grid grid-cols-2 gap-2 sm:flex">
-            <Select
-              className="min-w-40"
-              value={platformFilter}
-              onChange={(value) => setPlatformFilter(value)}
-              options={[
-                { value: "All", label: "All platforms" },
-                { value: "Instagram", label: "Instagram" },
-                { value: "Facebook", label: "Facebook" },
-                { value: "WhatsApp", label: "WhatsApp" },
-                { value: "TikTok", label: "TikTok" },
-                { value: "X", label: "X" },
-              ]}
-            />
-
-            <Select
-              className="min-w-36"
-              value={statusFilter}
-              onChange={(value) => setStatusFilter(value)}
-              options={[
-                { value: "All", label: "All statuses" },
-                { value: "Open", label: "Open" },
-                { value: "Pending", label: "Pending" },
-                { value: "Escalated", label: "Escalated" },
-                { value: "Resolved", label: "Resolved" },
-              ]}
-            />
-          </div>
+          <Select
+            className="min-w-32"
+            aria-label="Filter by status"
+            value={statusFilter}
+            onChange={(value) => setStatusFilter(value)}
+            options={[
+              { value: "All", label: "All statuses" },
+              { value: "Open", label: "Open" },
+              { value: "Pending", label: "Pending" },
+              { value: "Escalated", label: "Escalated" },
+              { value: "Resolved", label: "Resolved" },
+            ]}
+          />
         </div>
       </div>
 
-      <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/70 px-4 py-2.5 sm:px-6">
-        <Text type="secondary" className="text-sm">
+      <div className="flex items-center justify-between border-b border-line bg-inset px-4 py-1.5 sm:px-5">
+        <span className="tnum text-xs text-fg-muted">
           {filteredConversations.length} of {conversations.length} conversations
-        </Text>
-        <Badge
-          color={isMockMode ? "green" : "blue"}
-          text={isMockMode ? "Mock mode" : "Live API"}
-        />
+        </span>
+        <Badge tone={isMockMode ? "neutral" : "success"} icon={<span className={`size-1.5 rounded-full ${isMockMode ? "bg-fg-muted" : "bg-success"}`} />}>
+          {isMockMode ? "Mock mode" : "Live API"}
+        </Badge>
       </div>
 
       <ConversationList

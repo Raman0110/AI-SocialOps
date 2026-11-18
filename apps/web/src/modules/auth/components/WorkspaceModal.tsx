@@ -1,4 +1,4 @@
-import { CheckOutlined, PlusOutlined } from "@ant-design/icons";
+import { CheckOutlined, PlusOutlined } from "../../../shared/icons";
 import { Alert, Button, Divider, Input, List, Modal, Tag, Typography } from "antd";
 import { useState } from "react";
 import type { AuthOrganization } from "../types/auth";

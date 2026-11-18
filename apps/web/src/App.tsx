@@ -1,4 +1,3 @@
-import { ConfigProvider } from "antd";
 import { useState } from "react";
 import { AgentRunsPage } from "./modules/agent-runs/pages/AgentRunsPage";
 import { AiActionsPage } from "./modules/ai-actions/pages/AiActionsPage";
@@ -59,16 +58,7 @@ function App() {
   const currentPageMeta = pageMeta[activeKey] ?? pageMeta.dashboard;
 
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          borderRadius: 6,
-          colorPrimary: "#1F4FD8",
-          fontFamily:
-            "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
-        },
-      }}
-    >
+    <>
       {!session ? (
         <LoginPage onLogin={login} />
       ) : (
@@ -143,7 +133,7 @@ function App() {
         />
       </>
       )}
-    </ConfigProvider>
+    </>
   );
 }
 

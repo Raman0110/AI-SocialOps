@@ -1,13 +1,14 @@
-import {
-  CheckCircleOutlined,
-  DisconnectOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
-import { Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { LinkOutlined } from "../../../shared/icons";
+import {
+  CopyableId,
+  DataTable,
+  EmptyState,
+  PlatformBadge,
+  StatusBadge,
+  TruncatedText,
+} from "../../../shared/ui";
 import type { SocialAccount, WebhookHealth } from "../types/socialAccounts";
-
-const { Text } = Typography;
 
 interface SocialAccountsTableProps {
   accounts: SocialAccount[];
@@ -21,19 +22,13 @@ export function SocialAccountsTable({
   onSelect,
 }: SocialAccountsTableProps) {
   return (
-    <Table
-      rowKey="id"
-      size="middle"
-      pagination={false}
-      dataSource={accounts}
+    <DataTable<SocialAccount>
+      rows={accounts}
+      rowId={(account) => account.id}
+      selectedId={selectedAccountId}
+      onSelect={(account) => onSelect(account.id)}
       columns={columns}
-      rowClassName={(account) =>
-        account.id === selectedAccountId ? "cursor-pointer bg-blue-50" : "cursor-pointer"
-      }
-      onRow={(account) => ({
-        onClick: () => onSelect(account.id),
-      })}
-      locale={{ emptyText: "No social accounts match your filters." }}
+      empty={<EmptyState icon={<LinkOutlined />} title="No social accounts match your filters." description="Clear a filter or connect a new account." />}
     />
   );
 }
@@ -42,70 +37,39 @@ const columns: ColumnsType<SocialAccount> = [
   {
     title: "Account",
     dataIndex: "displayName",
+    width: 220,
     render: (_value, account) => (
-      <div>
-        <Text strong>{account.displayName}</Text>
-        <Text type="secondary" className="block text-xs">
-          {account.handle}
-        </Text>
+      <div className="max-w-52">
+        <span className="block truncate text-[13px] font-medium text-fg">{account.displayName}</span>
+        <TruncatedText className="text-xs text-fg-muted" text={account.handle} />
       </div>
     ),
   },
   {
     title: "Platform",
     dataIndex: "platform",
-    render: (platform: SocialAccount["platform"]) => (
-      <Tag color={platformColors[platform]}>{platform}</Tag>
-    ),
+    render: (platform: SocialAccount["platform"]) => <PlatformBadge platform={platform} />,
   },
   {
     title: "Status",
     dataIndex: "status",
-    render: (status: SocialAccount["status"]) => (
-      <Tag icon={accountStatusIcons[status]} color={statusColors[status]}>
-        {status}
-      </Tag>
-    ),
+    render: (status: SocialAccount["status"]) => <StatusBadge status={status} />,
   },
   {
     title: "Webhook",
     dataIndex: ["webhook", "health"],
-    render: (health: WebhookHealth) => <Tag color={healthColors[health]}>{health}</Tag>,
+    render: (health: WebhookHealth) => <StatusBadge status={health} />,
   },
   {
     title: "External account id",
     dataIndex: "externalAccountId",
-    render: (value: string) => <Text code>{value}</Text>,
+    render: (value: string) => <CopyableId value={value} visible={24} />,
   },
   {
     title: "Open",
     dataIndex: "openConversations",
     align: "right",
+    width: 80,
+    render: (value: number) => <span className="tnum text-[13px] text-fg">{value}</span>,
   },
 ];
-
-const platformColors: Record<SocialAccount["platform"], string> = {
-  Instagram: "magenta",
-  Facebook: "blue",
-  X: "default",
-  TikTok: "purple",
-  WhatsApp: "green",
-};
-
-const statusColors: Record<SocialAccount["status"], string> = {
-  Connected: "success",
-  "Needs reauth": "warning",
-  Disabled: "default",
-};
-
-const healthColors: Record<WebhookHealth, string> = {
-  Healthy: "success",
-  Failing: "error",
-  "Not configured": "default",
-};
-
-const accountStatusIcons: Record<SocialAccount["status"], React.ReactNode> = {
-  Connected: <CheckCircleOutlined />,
-  "Needs reauth": <ExclamationCircleOutlined />,
-  Disabled: <DisconnectOutlined />,
-};

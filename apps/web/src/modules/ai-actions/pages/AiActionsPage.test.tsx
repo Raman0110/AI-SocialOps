@@ -34,7 +34,7 @@ describe("AiActionsPage", () => {
 
     expect(await screen.findAllByText("Create support ticket")).toHaveLength(2);
     expect(screen.getAllByText("Ravi Thapa · Can I exchange the jacket?").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Not provided").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Not available").length).toBeGreaterThan(0);
   });
 
   it("approves a pending action through the API", async () => {

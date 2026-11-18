@@ -6,7 +6,7 @@ import {
   IdcardOutlined,
   MailOutlined,
   PhoneOutlined,
-} from "@ant-design/icons";
+} from "../../../shared/icons";
 import { Button, Card, Descriptions, Empty, Space, Statistic, Table, Tag, Timeline, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { Customer, CustomerConversationSummary, CustomerSocialIdentity } from "../types/customers";

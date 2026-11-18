@@ -1,4 +1,4 @@
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "../../../shared/icons";
 import {
   Alert,
   Button,

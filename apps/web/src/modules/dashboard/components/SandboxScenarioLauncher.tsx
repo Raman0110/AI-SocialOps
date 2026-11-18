@@ -1,17 +1,9 @@
-import {
-  Alert,
-  Button,
-  Tag,
-  Typography,
-} from "antd";
-import {
-  ArrowRightOutlined,
-  ExperimentOutlined,
-  PlayCircleOutlined,
-} from "@ant-design/icons";
+import { Alert, Button } from "antd";
+import { ArrowRightOutlined, ExperimentOutlined, PlayCircleOutlined } from "../../../shared/icons";
+import { Badge, Panel, PanelHeader } from "../../../shared/ui";
+import type { Tone } from "../../../shared/ui";
+import { ShieldAlertIcon, ShieldCheckIcon } from "../../../shared/icons";
 import type { SandboxScenario, SandboxScenarioId } from "../types/sandboxScenarios";
-
-const { Text, Title } = Typography;
 
 interface SandboxScenarioLauncherProps {
   scenarios: SandboxScenario[];
@@ -22,6 +14,16 @@ interface SandboxScenarioLauncherProps {
   onOpenInbox: () => void;
 }
 
+const risk: Record<SandboxScenarioId, { tone: Tone; high: boolean }> = {
+  faq: { tone: "success", high: false },
+  complaint: { tone: "warning", high: true },
+  escalation: { tone: "danger", high: true },
+};
+
+/**
+ * One panel; scenarios are rows split by hairlines (no card-in-card).
+ * Each row stays an <article> so it can be targeted as a unit.
+ */
 export function SandboxScenarioLauncher({
   scenarios,
   launchingScenarioId,
@@ -31,65 +33,63 @@ export function SandboxScenarioLauncher({
   onOpenInbox,
 }: SandboxScenarioLauncherProps) {
   return (
-    <section className="rounded-md border border-slate-200 bg-white p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-slate-600">
-            <ExperimentOutlined />
-            <Text strong className="text-slate-600">Sandbox workflow lab</Text>
-          </div>
-          <Title level={4} className="mb-1">Launch a customer scenario</Title>
-          <Text type="secondary">
-            Create a real inbound sandbox message, then inspect how the AI handles it in the inbox.
-          </Text>
-        </div>
-        <Tag color="blue">Safe sandbox</Tag>
-      </div>
+    <Panel aria-labelledby="sandbox-heading">
+      <PanelHeader
+        id="sandbox-heading"
+        title={
+          <span className="flex items-center gap-2">
+            <ExperimentOutlined /> Sandbox workflow lab
+          </span>
+        }
+        description="Create a real inbound sandbox message, then inspect how the AI handles it in the inbox."
+        actions={<Badge>Safe sandbox</Badge>}
+      />
 
-      {error && (
-        <Alert
-          className="mt-4"
-          type="error"
-          showIcon
-          message="Scenario could not be created"
-          description={error}
-        />
-      )}
-
-      {createdScenario && (
-        <Alert
-          className="mt-4"
-          type="success"
-          showIcon
-          message={`${createdScenario.title} is ready`}
-          description="The inbound message was stored and the dashboard metrics were refreshed. Open the inbox to run the AI workflow."
-          action={(
-            <Button size="small" type="primary" onClick={onOpenInbox}>
-              Open inbox <ArrowRightOutlined />
-            </Button>
+      {(error || createdScenario) && (
+        <div className="space-y-2 border-t border-line px-5 py-3">
+          {error && (
+            <Alert type="error" showIcon message="Scenario could not be created" description={error} />
           )}
-        />
+          {createdScenario && (
+            <Alert
+              type="success"
+              showIcon
+              message={`${createdScenario.title} is ready`}
+              description="The inbound message was stored and the dashboard metrics were refreshed. Open the inbox to run the AI workflow."
+              action={(
+                <Button size="small" type="primary" onClick={onOpenInbox}>
+                  Open inbox <ArrowRightOutlined />
+                </Button>
+              )}
+            />
+          )}
+        </div>
       )}
 
-      <div className="mt-5 grid gap-3 lg:grid-cols-3">
+      <div>
         {scenarios.map((scenario) => (
           <article
             key={scenario.id}
-            className="flex min-h-56 flex-col rounded-md border border-slate-200 bg-slate-50/70 p-4 transition hover:border-slate-400 hover:bg-white"
+            className="grid items-center gap-x-6 gap-y-2 border-t border-line px-5 py-3 transition-colors duration-150 hover:bg-surface-hover md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
           >
-            <div className="flex items-start justify-between gap-2">
-              <Title level={5} className="mb-0">{scenario.title}</Title>
-              <Tag color={tagColor[scenario.id]}>{scenario.label}</Tag>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="m-0 text-[13px] font-semibold text-fg">{scenario.title}</h3>
+                <Badge
+                  tone={risk[scenario.id].tone}
+                  icon={risk[scenario.id].high ? <ShieldAlertIcon /> : <ShieldCheckIcon />}
+                >
+                  {scenario.label}
+                </Badge>
+              </div>
+              <p className="m-0 mt-0.5 text-xs leading-5 text-fg-muted">{scenario.description}</p>
             </div>
-            <Text type="secondary" className="mt-3 text-sm">
-              {scenario.description}
-            </Text>
-            <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3 text-xs leading-5 text-slate-600">
-              <span className="font-semibold text-slate-800">Expected: </span>
+            <p className="m-0 text-xs leading-5 text-fg-muted">
+              <span className="font-medium text-fg-secondary">Expected: </span>
               {scenario.expectedOutcome}
-            </div>
+            </p>
             <Button
-              className="mt-auto"
+              size="small"
               icon={<PlayCircleOutlined />}
               loading={launchingScenarioId === scenario.id}
               disabled={launchingScenarioId !== null && launchingScenarioId !== scenario.id}
@@ -100,12 +100,6 @@ export function SandboxScenarioLauncher({
           </article>
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }
-
-const tagColor: Record<SandboxScenarioId, string> = {
-  faq: "green",
-  complaint: "orange",
-  escalation: "red",
-};

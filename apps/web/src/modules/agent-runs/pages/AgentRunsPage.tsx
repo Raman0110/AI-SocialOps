@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Input, Select, Spin, Typography, message } from "antd";
+import { Alert, Input, Select, message } from "antd";
+import { SkeletonRows } from "../../../shared/ui";
 import { getAgentRun, getAgentRuns } from "../../../api/agentRuns";
 import { generateAgentReply } from "../../../api/ai";
 import { getInbox } from "../../../api/conversations";
@@ -7,8 +8,6 @@ import type { InboxConversation } from "../../inbox/types/conversations";
 import { AgentRunDetails } from "../components/AgentRunDetails";
 import { AgentRunsTable } from "../components/AgentRunsTable";
 import type { AgentRun, AgentRunStatus, AgentRunTrigger } from "../types/agentRuns";
-
-const { Text, Title } = Typography;
 
 export function AgentRunsPage({ organizationId }: { organizationId: string }) {
   const [runs, setRuns] = useState<AgentRun[]>([]);
@@ -18,6 +17,8 @@ export function AgentRunsPage({ organizationId }: { organizationId: string }) {
   const [triggerFilter, setTriggerFilter] = useState<AgentRunTrigger | "All">("All");
   const [loading, setLoading] = useState(true);
   const [isRetrying, setIsRetrying] = useState(false);
+  // Below xl the detail pane is a slide-over; this only controls its visibility.
+  const [detailOpen, setDetailOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -98,59 +99,93 @@ export function AgentRunsPage({ organizationId }: { organizationId: string }) {
   }
 
   if (loading) {
-    return <div className="grid min-h-[60vh] place-items-center"><Spin description="Loading agent runs..." /></div>;
+    return (
+      <div className="overflow-hidden rounded-lg border border-line bg-surface" aria-busy="true">
+        <span className="sr-only">Loading agent runs...</span>
+        <SkeletonRows rows={6} columns={5} />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="grid min-h-[60vh] place-items-center"><Alert showIcon type="error" message={error} /></div>;
+    return (
+      <div className="mx-auto max-w-xl pt-10">
+        <Alert showIcon type="error" message={error} />
+      </div>
+    );
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col gap-4 bg-slate-100 p-4">
+    <div className="flex h-[calc(100vh-88px)] flex-col gap-4 sm:h-[calc(100vh-104px)]">
       {contextHolder}
 
-      <section className="rounded-md border border-slate-200 bg-white p-4">
-        <div>
-          <Title level={4} className="mb-1">Agent execution history</Title>
-          <Text type="secondary">{filteredRuns.length} of {runs.length} recorded runs</Text>
-        </div>
+      <section className="shrink-0 rounded-lg border border-line bg-surface px-4 py-3 sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div>
+            <h2 className="m-0 text-sm font-semibold text-fg">Agent execution history</h2>
+            <p className="tnum m-0 text-xs text-fg-muted">
+              {filteredRuns.length} of {runs.length} recorded runs
+            </p>
+          </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_180px_180px]">
-          <Input.Search
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Search run, agent, customer, or topic"
-            allowClear
-          />
-          <Select
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[
-              { value: "All", label: "All statuses" },
-              { value: "Running", label: "Running" },
-              { value: "Completed", label: "Completed" },
-              { value: "Failed", label: "Failed" },
-            ]}
-          />
-          <Select
-            value={triggerFilter}
-            onChange={setTriggerFilter}
-            options={[
-              { value: "All", label: "All triggers" },
-              { value: "Webhook", label: "Webhook" },
-              { value: "Manual", label: "Manual" },
-              { value: "Scheduled", label: "Scheduled" },
-            ]}
-          />
+          <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
+            <Input.Search
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Search run, agent, customer, or topic"
+              allowClear
+              className="sm:w-72"
+            />
+            <Select
+              aria-label="Filter by status"
+              className="sm:w-36"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: "All", label: "All statuses" },
+                { value: "Running", label: "Running" },
+                { value: "Completed", label: "Completed" },
+                { value: "Failed", label: "Failed" },
+              ]}
+            />
+            <Select
+              aria-label="Filter by trigger"
+              className="sm:w-36"
+              value={triggerFilter}
+              onChange={setTriggerFilter}
+              options={[
+                { value: "All", label: "All triggers" },
+                { value: "Webhook", label: "Webhook" },
+                { value: "Manual", label: "Manual" },
+                { value: "Scheduled", label: "Scheduled" },
+              ]}
+            />
+          </div>
         </div>
       </section>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-        <section className="min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
-          <AgentRunsTable runs={filteredRuns} selectedRunId={visibleSelectedRunId} onSelect={setSelectedRunId} />
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <section className="min-h-0 min-w-0 overflow-hidden rounded-lg border border-line bg-surface">
+          <AgentRunsTable
+            runs={filteredRuns}
+            selectedRunId={visibleSelectedRunId}
+            onSelect={(runId) => {
+              setSelectedRunId(runId);
+              setDetailOpen(true);
+            }}
+          />
         </section>
-        <main className="min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
-          <AgentRunDetails run={selectedRun} isRetrying={isRetrying} onRetry={handleRetry} />
+        <main
+          className={`min-h-0 min-w-0 overflow-hidden bg-surface xl:static xl:z-auto xl:block xl:rounded-lg xl:border xl:border-line ${
+            detailOpen ? "fixed inset-0 z-40 block" : "hidden"
+          }`}
+        >
+          <AgentRunDetails
+            run={selectedRun}
+            isRetrying={isRetrying}
+            onRetry={handleRetry}
+            onClose={() => setDetailOpen(false)}
+          />
         </main>
       </div>
     </div>

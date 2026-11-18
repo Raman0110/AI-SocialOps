@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Button, Empty, Skeleton, Typography } from "antd";
+import { Alert, Button } from "antd";
+import { EmptyState, Metric, Panel, PanelHeader, SkeletonRows, StatusBadge } from "../../../shared/ui";
 import {
+  AppstoreOutlined,
   ArrowRightOutlined,
   MessageOutlined,
   RobotOutlined,
-} from "@ant-design/icons";
+} from "../../../shared/icons";
 import { SandboxScenarioLauncher } from "../components/SandboxScenarioLauncher";
 import {
   defaultDashboardDataSource,
@@ -16,8 +18,6 @@ import {
   type SandboxScenarioId,
 } from "../types/sandboxScenarios";
 import type { InboxConversation } from "../../inbox/types/conversations";
-
-const { Text, Title } = Typography;
 
 interface DashboardPageProps {
   organizationId: string;
@@ -118,10 +118,10 @@ export function DashboardPage({
     const escalated = conversations.filter(({ status }) => status === "Escalated").length;
 
     return [
-      { label: "Total conversations", value: String(conversations.length), hint: "Across connected channels" },
-      { label: "Open conversations", value: String(open), hint: "Open, pending, or escalated" },
-      { label: "Resolved", value: String(resolved), hint: "Completed conversations" },
-      { label: "Escalated", value: String(escalated), hint: "Needs human attention" },
+      { label: "Total conversations", value: String(conversations.length), hint: "All conversations across connected channels." },
+      { label: "Open conversations", value: String(open), hint: "Conversations that are open, pending, or escalated." },
+      { label: "Resolved", value: String(resolved), hint: "Conversations marked resolved." },
+      { label: "Escalated", value: String(escalated), hint: "Conversations escalated to a human agent." },
     ];
   }, [conversations]);
 
@@ -150,8 +150,10 @@ export function DashboardPage({
   const escalatedCount = conversations.filter(({ status }) => status === "Escalated").length;
   const totalConversations = conversations.length;
 
+  const maxChannel = Math.max(1, ...channels.map((channel) => channel.value));
+
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-[1200px] space-y-6">
       {loadError && (
         <Alert
           type="error"
@@ -162,26 +164,112 @@ export function DashboardPage({
         />
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => (
+      {/* KPIs: one panel, cells split by hairlines */}
+      <Panel aria-label="Key metrics" className="grid grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => (
           <article
             key={stat.label}
-            className="relative overflow-hidden rounded-md border border-slate-200 bg-white p-5 transition duration-200"
+            className={`p-4 sm:px-5 ${index % 2 === 1 ? "border-l border-line" : ""} ${
+              index > 1 ? "border-t border-line lg:border-t-0" : ""
+            } ${index > 0 ? "lg:border-l" : ""}`}
           >
-
-            <Text className="font-semibold text-slate-700">{stat.label}</Text>
-            {isLoading ? (
-              <Skeleton.Input active size="small" className="mt-3" />
-            ) : (
-              <div className="mt-3 text-[30px] font-semibold leading-none tracking-tight text-slate-900">
-                {stat.value}
-              </div>
-            )}
-            <Text type="secondary" className="mt-2 block text-xs font-medium">
-              {stat.hint}
-            </Text>
+            <Metric
+              label={stat.label}
+              value={stat.value}
+              description={stat.hint}
+              loading={isLoading}
+              tone={index === 3 ? "danger" : "default"}
+            />
           </article>
         ))}
+      </Panel>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <Panel>
+          <PanelHeader
+            title="Recent conversations"
+            description="Latest customer activity across all channels"
+            actions={
+              <Button type="text" size="small" onClick={onOpenInbox} className="!text-accent-fg">
+                View all <ArrowRightOutlined />
+              </Button>
+            }
+          />
+
+          <div role="list" className="border-t border-line">
+            {isLoading ? (
+              <SkeletonRows rows={3} columns={3} />
+            ) : recentActivity.length > 0 ? (
+              recentActivity.map((activity) => (
+                <div
+                  key={activity.customer}
+                  role="listitem"
+                  className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-0.5 border-b border-line px-5 py-2.5 transition-colors duration-150 last:border-b-0 hover:bg-surface-hover sm:grid-cols-[150px_minmax(0,1fr)_auto_auto]"
+                >
+                  <span className="truncate text-[13px] font-medium text-fg">{activity.customer}</span>
+                  <span className="order-last col-span-2 truncate text-[13px] text-fg-muted sm:order-none sm:col-span-1">
+                    {activity.detail}
+                  </span>
+                  <StatusBadge status={activity.status} />
+                  <span className="tnum text-right text-xs text-fg-muted sm:min-w-32">{activity.time}</span>
+                </div>
+              ))
+            ) : (
+              <EmptyState
+                icon={<MessageOutlined />}
+                title="No conversations yet"
+                description="Launch a sandbox scenario below to create one."
+              />
+            )}
+          </div>
+        </Panel>
+
+        <Panel>
+          <PanelHeader title="Customer operations" description="Today’s support workload" />
+          <dl className="m-0 grid grid-cols-3 divide-x divide-line border-t border-line">
+            <SummaryStat value={isLoading ? null : activeCount} label="Active" />
+            <SummaryStat value={isLoading ? null : pendingCount} label="Pending" />
+            <SummaryStat value={isLoading ? null : escalatedCount} label="Escalated" />
+          </dl>
+          <div className="flex flex-wrap gap-2 border-t border-line px-5 py-3">
+            <Button type="primary" icon={<MessageOutlined />} onClick={onOpenInbox}>
+              Open inbox
+            </Button>
+            <Button icon={<RobotOutlined />} onClick={onOpenAiActions}>
+              Review AI actions
+            </Button>
+          </div>
+
+          <div className="border-t border-line">
+            <PanelHeader
+              title="Conversation overview"
+              description="Distribution across connected channels"
+              actions={<span className="tnum text-xs text-fg-muted">{totalConversations.toLocaleString()} total</span>}
+            />
+            {channels.length > 0 ? (
+              <ul className="m-0 list-none space-y-3 px-5 pb-5 pt-1">
+                {channels.map((channel, index) => (
+                  <li key={channel.label}>
+                    <div className="mb-1 flex items-baseline justify-between text-[13px]">
+                      <span className="font-medium text-fg">{channel.label}</span>
+                      <span className="tnum text-fg-muted">{channel.value}</span>
+                    </div>
+                    <div className="h-1 overflow-hidden rounded-full bg-inset">
+                      <div
+                        className={`h-full rounded-full transition-[width] duration-150 ${
+                          index === 0 ? "bg-accent" : "bg-line-strong"
+                        }`}
+                        style={{ width: `${(channel.value / maxChannel) * 100}%` }}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyState icon={<AppstoreOutlined />} title="No conversations yet" description="Channel activity will appear here." />
+            )}
+          </div>
+        </Panel>
       </div>
 
       <SandboxScenarioLauncher
@@ -192,104 +280,15 @@ export function DashboardPage({
         onLaunch={(scenario) => void handleLaunchScenario(scenario)}
         onOpenInbox={onOpenInbox}
       />
-
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <section className="flex min-h-80 flex-col rounded-md border border-slate-200 bg-white p-6">
-          <div>
-            <Title level={5} className="mb-1">
-              Customer operations
-            </Title>
-            <Text type="secondary">A quick view of today’s support workload</Text>
-          </div>
-
-          <div className="mt-6 grid grid-cols-3 gap-2">
-            <SummaryTile value={isLoading ? "—" : String(activeCount)} label="Active" />
-            <SummaryTile value={isLoading ? "—" : String(pendingCount)} label="Pending" />
-            <SummaryTile value={isLoading ? "—" : String(escalatedCount)} label="Escalated" />
-          </div>
-
-          <div className="mt-auto flex flex-wrap gap-2 pt-6">
-            <Button type="primary" icon={<MessageOutlined />} onClick={onOpenInbox}>
-              Open inbox
-            </Button>
-            <Button icon={<RobotOutlined />} onClick={onOpenAiActions}>
-              Review AI actions
-            </Button>
-          </div>
-        </section>
-
-        <section className="flex min-h-80 flex-col rounded-md border border-slate-200 bg-white p-6">
-          <div>
-            <Title level={5} className="mb-1">
-              Conversation overview
-            </Title>
-            <Text type="secondary">Distribution across connected channels</Text>
-          </div>
-
-          <div className="mt-6 flex flex-1 flex-wrap items-center gap-8">
-            <div className="relative grid size-40 shrink-0 place-items-center rounded-full border-[18px] border-blue-100">
-              <div className="absolute -inset-[18px] rounded-full border-[18px] border-blue-600 [clip-path:polygon(50%_0,100%_0,100%_100%,50%_100%)]" />
-              <div className="text-center">
-                <div className="text-2xl font-semibold tracking-tight text-slate-900">{totalConversations.toLocaleString()}</div>
-                <Text type="secondary" className="text-[11px] font-medium">conversations</Text>
-              </div>
-            </div>
-
-            {channels.length > 0 ? (
-              <ul className="min-w-48 flex-1 space-y-3">
-                {channels.map((channel) => (
-                  <li key={channel.label} className="flex items-center gap-3 text-sm">
-                    <span className="size-2 shrink-0 rounded-full bg-blue-600" />
-                    <span className="font-medium text-slate-700">{channel.label}</span>
-                    <span className="ml-auto font-semibold tabular-nums text-slate-500">
-                      {channel.value}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <Empty className="flex-1" image={Empty.PRESENTED_IMAGE_SIMPLE} description="No conversations yet" />
-            )}
-          </div>
-        </section>
-      </div>
-
-      <section className="overflow-hidden rounded-md border border-slate-200 bg-white">
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <div>
-            <Title level={5} className="mb-0">Recent conversations</Title>
-            <Text type="secondary" className="text-xs">Latest customer activity across all channels</Text>
-          </div>
-          <Button type="link" onClick={onOpenInbox} className="px-0">
-            View all <ArrowRightOutlined />
-          </Button>
-        </div>
-
-        <div className="divide-y divide-slate-100">
-          {recentActivity.length > 0 ? recentActivity.map((activity) => (
-            <div key={activity.customer} className="grid grid-cols-[1fr_auto] gap-3 px-5 py-3.5 sm:grid-cols-[180px_1fr_auto_auto] sm:items-center">
-              <Text strong>{activity.customer}</Text>
-              <Text type="secondary" className="truncate">{activity.detail}</Text>
-              <span className="justify-self-start rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-                {activity.status}
-              </span>
-              <Text type="secondary" className="text-xs sm:min-w-16 sm:text-right">{activity.time}</Text>
-            </div>
-          )) : (
-            <Empty className="py-8" image={Empty.PRESENTED_IMAGE_SIMPLE} description="No recent conversations" />
-          )}
-        </div>
-      </section>
-
     </div>
   );
 }
 
-function SummaryTile({ value, label }: { value: string; label: string }) {
+function SummaryStat({ value, label }: { value: number | null; label: string }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-3 text-center">
-      <div className="text-xl font-semibold tabular-nums text-slate-900">{value}</div>
-      <Text type="secondary" className="text-[11px] font-medium">{label}</Text>
+    <div className="flex flex-col-reverse px-5 py-3">
+      <dt className="text-xs text-fg-muted">{label}</dt>
+      <dd className="tnum m-0 text-xl font-semibold leading-7 text-fg">{value ?? "–"}</dd>
     </div>
   );
 }

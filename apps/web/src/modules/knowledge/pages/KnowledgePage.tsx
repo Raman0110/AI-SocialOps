@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Button, Empty, Form, Input, Popconfirm, Spin, Typography, message } from "antd";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "../../../shared/icons";
 import {
   defaultKnowledgeDataSource,
   type KnowledgeDataSource,

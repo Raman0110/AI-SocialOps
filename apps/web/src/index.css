@@ -1,38 +1,378 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter/index.css";
 
-@theme {
-  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+/* ==========================================================================
+   Design tokens — light theme only
+   --------------------------------------------------------------------------
+   Depth comes from layered neutrals, not shadows:
+     page (--bg) < sidebar (--sidebar) < panel (--surface, white)
+     and --inset for wells inside a panel (code, IDs, composer, table heads).
+   Mirrored as literals in src/shared/theme/tokens.ts for Ant Design.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Surface layers */
+  --bg: #f7f7f8; /* app background */
+  --sidebar: #f2f2f4; /* distinct zone */
+  --surface: #ffffff; /* panels, cards */
+  --inset: #f4f4f5; /* wells inside a panel */
+  --hover: #f9f9fa; /* row hover */
+  --selected: rgb(79 70 229 / 0.07); /* accent at 7% */
+  --bubble: #ececf0; /* outgoing human-agent message */
+
+  /* Borders */
+  --border: #e4e4e7; /* hairline */
+  --border-strong: #d4d4d8; /* inputs, focused */
+
+  /* Text. Muted is #666670 rather than #71717a: #71717a measures 4.3-4.4:1
+     on --sidebar and --inset (below AA); this is >= 5.0:1 on every layer. */
+  --text: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #666670;
+
+  /* Accent: the only chromatic color in the UI chrome */
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-text: #4338ca;
+  --accent-contrast: #ffffff;
+
+  /* Semantic. --x is for dots and icons; --x-text is the AA-safe text shade */
+  --success: #16a34a;
+  --success-text: #15803d;
+  --warning: #d97706;
+  --warning-text: #b45309;
+  --danger: #dc2626;
+  --danger-text: #b91c1c;
+
+  /* Spacing, 4px grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius: 6px; /* controls */
+  --radius-panel: 10px; /* panels */
+
+  /* Shadows: popovers, menus, modals only */
+  --shadow-pop: 0 1px 2px rgb(24 24 27 / 0.06), 0 8px 24px -6px rgb(24 24 27 / 0.12);
+
+  /* Focus and motion */
+  --focus: 2px solid var(--accent);
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur: 150ms;
+  --dur-slow: 180ms;
+
+  /* Type */
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --text-page-title: 20px;
+  --text-section: 14px;
+  --text-body: 13px;
+  --text-meta: 12px;
+  --text-kpi: 24px;
 }
 
+/* ==========================================================================
+   Tailwind bridge
+   Existing screens use slate/blue/white utilities; re-pointing them at the
+   tokens keeps every screen on the same layers without per-file edits.
+   ========================================================================== */
+
+@theme inline {
+  --color-white: var(--surface);
+
+  --color-slate-50: var(--hover);
+  --color-slate-100: var(--inset);
+  --color-slate-200: var(--border);
+  --color-slate-300: var(--border-strong);
+  --color-slate-400: var(--text-muted);
+  --color-slate-500: var(--text-muted);
+  --color-slate-600: var(--text-secondary);
+  --color-slate-700: #3f3f46;
+  --color-slate-800: #27272a;
+  --color-slate-900: var(--text);
+
+  --color-blue-50: var(--selected);
+  --color-blue-100: #c7d2fe;
+  --color-blue-500: var(--accent);
+  --color-blue-600: var(--accent);
+  --color-blue-700: var(--accent-text);
+
+  --color-red-50: #fef2f2;
+  --color-red-200: #fecaca;
+  --color-red-500: var(--danger);
+  --color-red-600: var(--danger-text);
+  --color-red-700: var(--danger-text);
+  --color-emerald-600: var(--success-text);
+
+  /* Semantic utilities for new code */
+  --color-canvas: var(--bg);
+  --color-sidebar: var(--sidebar);
+  --color-surface: var(--surface);
+  --color-inset: var(--inset);
+  --color-surface-hover: var(--hover);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-fg: var(--text);
+  --color-fg-secondary: var(--text-secondary);
+  --color-fg-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-text);
+  --color-selected: var(--selected);
+  --color-bubble: var(--bubble);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-success-text: var(--success-text);
+  --color-warning-text: var(--warning-text);
+  --color-danger-text: var(--danger-text);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius-panel);
+  --radius-xl: var(--radius-panel);
+  --radius-2xl: var(--radius-panel);
+
+  --shadow-sm: none;
+  --shadow-md: var(--shadow-pop);
+  --shadow-lg: var(--shadow-pop);
+}
+
+@theme {
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
 html {
-  background: #f6f7f9;
+  background: var(--bg);
+  font-feature-settings: "cv11", "ss03", "calt", "tnum" 0;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  color: #111827;
-  background: #f6f7f9;
-}
-
-body {
+  color: var(--text);
+  background: var(--bg);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button,
-textarea {
+textarea,
+input {
   font: inherit;
 }
 
-/* Flat surfaces: hairline borders instead of drop shadows */
-.ant-card {
-  box-shadow: none !important;
-  border-color: #e5e7eb;
+/* Clickables show a pointer (Tailwind v4 preflight resets buttons to default) */
+button,
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+[role="option"],
+a[href],
+summary,
+select,
+label[for],
+input[type="checkbox"],
+input[type="radio"],
+.ant-select:not(.ant-select-disabled) .ant-select-selector,
+.ant-select:not(.ant-select-disabled) .ant-select-arrow,
+.ant-select-item-option,
+.ant-tabs-tab,
+.ant-table-row,
+.ant-btn,
+.ant-input-clear-icon,
+.ant-input-search-button {
+  cursor: pointer;
 }
 
-.ant-card .ant-card-head {
-  min-height: 44px;
-  font-size: 14px;
+button:disabled,
+[aria-disabled="true"],
+.ant-btn[disabled],
+.ant-btn-disabled,
+.ant-select-disabled .ant-select-selector {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: rgb(79 70 229 / 0.18);
+}
+
+:focus-visible {
+  outline: var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Thin, light scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d8 transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+  background-clip: content-box;
+}
+
+/* Typographic helpers */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* Skeleton: a quiet pulse, never a spinner */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.skeleton {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: #ececef;
+  animation: skeleton-pulse 1.4s var(--ease) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ==========================================================================
+   Ant Design refinements
+   ========================================================================== */
+
+.ant-card {
+  box-shadow: none !important;
+  background: var(--surface);
+}
+
+/* Buttons: 1px border + inner top highlight on primary, no gradient */
+.ant-btn {
+  box-shadow: none;
+  transition: background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled) {
+  border: 1px solid #3f37c9;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
+  background: var(--accent-hover);
+}
+.ant-btn:active:not(:disabled) {
+  transform: translateY(0.5px);
+}
+
+/* Inputs sit on white with the stronger border */
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-select-selector,
+.ant-input-number {
+  background: var(--surface);
+}
+
+/* DataTable: the wrapper scrolls; the header row sticks to its top */
+.data-table .ant-table-thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+.data-table .ant-table table {
+  min-width: 640px;
+}
+
+/* Tables: inset header, hairline rows, hover and selected states */
+.ant-table-wrapper .ant-table {
+  background: transparent;
+  font-size: var(--text-body);
+}
+.ant-table-wrapper .ant-table-thead > tr > th,
+.ant-table-wrapper .ant-table-thead > tr > td {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--inset);
+  border-bottom: 1px solid var(--border);
+}
+.ant-table-wrapper .ant-table-thead > tr > th::before {
+  display: none !important;
+}
+.ant-table-wrapper .ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--border);
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.ant-table-wrapper .ant-table-tbody > tr:last-child > td {
+  border-bottom: 0;
+}
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td {
+  background: var(--hover);
+}
+.ant-table-wrapper .ant-table-tbody > tr.row-selected > td,
+.ant-table-wrapper .ant-table-tbody > tr.row-selected:hover > td {
+  background: var(--selected);
+}
+.ant-table-wrapper .ant-table-tbody > tr.row-selected > td:first-child {
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row {
+  cursor: pointer;
+}
+
+.ant-modal .ant-modal-content,
+.ant-dropdown .ant-dropdown-menu,
+.ant-popover .ant-popover-inner {
+  box-shadow: var(--shadow-pop);
+}
+
+.ant-empty-description {
+  color: var(--text-muted);
 }

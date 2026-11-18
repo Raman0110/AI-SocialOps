@@ -1,7 +1,8 @@
-import { Alert, Button, Card, Empty, Skeleton, Space, Tag, Typography } from "antd";
+import { Alert, Button } from "antd";
+import { BulbOutlined, CheckOutlined } from "../../../shared/icons";
+import { Badge, EmptyState, SkeletonRows } from "../../../shared/ui";
+import { ShieldAlertIcon } from "../../../shared/icons";
 import type { CreateSupportTicketPayload, PendingAgentAction } from "../types/agentActions";
-
-const { Paragraph, Text } = Typography;
 
 interface AgentActionsPanelProps {
   actions: PendingAgentAction[];
@@ -23,11 +24,7 @@ export function AgentActionsPanel({
   onReject,
 }: AgentActionsPanelProps) {
   if (isLoading) {
-    return (
-      <Card className="" size="small" title="AI Suggested Actions">
-        <Skeleton active paragraph={{ rows: 2 }} />
-      </Card>
-    );
+    return <SkeletonRows rows={2} columns={2} />;
   }
 
   if (error) {
@@ -35,26 +32,20 @@ export function AgentActionsPanel({
   }
 
   if (actions.length === 0) {
-    return (
-      <Card className="" size="small" title="AI Suggested Actions">
-        <Empty description="No pending actions" image={Empty.PRESENTED_IMAGE_SIMPLE} />
-      </Card>
-    );
+    return <EmptyState icon={<BulbOutlined />} title="No pending actions" description="Suggested actions from the AI appear here for review." />;
   }
 
   return (
-    <Card className="" size="small" title="AI Suggested Actions">
-      <Space direction="vertical" className="w-full" size="middle">
-        {actions.map((action) => (
-          <AgentActionCard
-            key={action.id}
-            action={action}
-            onApprove={onApprove}
-            onReject={onReject}
-          />
-        ))}
-      </Space>
-    </Card>
+    <div className="-mx-4 border-t border-line">
+      {actions.map((action) => (
+        <AgentActionCard
+          key={action.id}
+          action={action}
+          onApprove={onApprove}
+          onReject={onReject}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -71,30 +62,31 @@ function AgentActionCard({
 }: AgentActionCardProps) {
   if (action.type === "CreateSupportTicket") {
     const payload = JSON.parse(action.payloadJson) as CreateSupportTicketPayload;
+    const urgent = payload.priority === "Urgent";
 
     return (
-      <Card size="small" className="border-slate-200">
-        <Space direction="vertical" className="w-full" size="small">
-          <Space className="w-full justify-between" align="start">
-            <Text strong>Create support ticket</Text>
-            <Tag color={payload.priority === "Urgent" ? "red" : "orange"}>
-              {payload.priority}
-            </Tag>
-          </Space>
+      <article className="border-b border-line px-4 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <span className="eyebrow">Create support ticket</span>
+          {urgent ? (
+            <Badge tone="danger" icon={<ShieldAlertIcon />}>{payload.priority}</Badge>
+          ) : (
+            <Badge>{payload.priority}</Badge>
+          )}
+        </div>
 
-          <Text strong>{payload.title}</Text>
-          <Paragraph className="mb-0 text-sm text-slate-600">
-            {payload.description}
-          </Paragraph>
+        <h3 className="m-0 mt-2 text-[13px] font-semibold leading-5 text-fg">{payload.title}</h3>
+        <p className="m-0 mt-1 text-[13px] leading-5 text-fg-secondary">{payload.description}</p>
 
-          <Space>
-            <Button onClick={() => onReject(action.id)}>Reject</Button>
-            <Button type="primary" onClick={() => onApprove(action.id)}>
-              Approve
-            </Button>
-          </Space>
-        </Space>
-      </Card>
+        <div className="mt-3 flex items-center gap-2">
+          <Button type="primary" size="small" icon={<CheckOutlined />} onClick={() => onApprove(action.id)}>
+            Approve
+          </Button>
+          <Button size="small" onClick={() => onReject(action.id)}>
+            Reject
+          </Button>
+        </div>
+      </article>
     );
   }
 
