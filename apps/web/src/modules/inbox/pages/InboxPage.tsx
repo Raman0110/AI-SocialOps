@@ -354,7 +354,7 @@ export function InboxPage({
 
   if (selectedConversationId) {
     return (
-      <main className="h-[calc(100vh-112px)] min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white app-panel-shadow">
+      <main className="h-[calc(100vh-112px)] min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
         <ConversationDetailsView
           conversation={selectedConversation}
           onBack={handleBackToInbox}
@@ -373,7 +373,7 @@ export function InboxPage({
   }
 
   return (
-    <main className="min-h-[calc(100vh-112px)] overflow-hidden rounded-xl border border-slate-200 bg-white app-panel-shadow">
+    <main className="min-h-[calc(100vh-112px)] overflow-hidden rounded-md border border-slate-200 bg-white">
       <div className="border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
           <Input.Search
@@ -436,7 +436,7 @@ export function InboxPage({
 
 function getInboxErrorMessage(error: unknown) {
   if (error instanceof ApiError) {
-    if (error.status === 401) return "Authentication failed. Check the frontend API key.";
+    if (error.status === 401) return "Your session has expired. Sign in again.";
     if (error.status === 403) return "You do not have access to this organization inbox.";
     if (error.status && error.status >= 500) return "The inbox service is temporarily unavailable.";
     return error.message;

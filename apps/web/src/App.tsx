@@ -10,12 +10,18 @@ import { SocialAccountsPage } from "./modules/social-accounts/pages/SocialAccoun
 import { AppLayout } from "./shared/layout";
 import type { NavKey } from "./shared/layout/AppLayout";
 import { runtimeConfig } from "./shared/config/runtime";
+import { useAuth } from "./modules/auth/context/useAuth";
+import { LoginPage } from "./modules/auth/pages/LoginPage";
+import { WorkspaceModal } from "./modules/auth/components/WorkspaceModal";
+import { OrganizationSettingsPage } from "./modules/settings/pages/OrganizationSettingsPage";
 
 function App() {
   const [activeKey, setActiveKey] = useState<NavKey>("dashboard");
-  const organizationId =
-    import.meta.env.VITE_ORGANIZATION_ID ??
-    "00000000-0000-0000-0000-000000000001";
+  const [workspaceModalOpen, setWorkspaceModalOpen] = useState(false);
+  const { session, login, logout, switchOrganization, createOrganization } = useAuth();
+  const organizationId = session?.organization.id ?? "";
+  const canManageOrganization =
+    session?.organization.role === "Owner" || session?.organization.role === "Admin";
 
   const pageMeta: Record<string, { title: string; description?: string }> = {
     dashboard: {
@@ -45,6 +51,10 @@ function App() {
       title: "Knowledge",
       description: "FAQs and policies the AI agent answers customers from",
     },
+    settings: {
+      title: "Organization Settings",
+      description: "Manage workspace members and role-based access",
+    },
   };
   const currentPageMeta = pageMeta[activeKey] ?? pageMeta.dashboard;
 
@@ -52,20 +62,30 @@ function App() {
     <ConfigProvider
       theme={{
         token: {
-          borderRadius: 8,
-          colorPrimary: "#0ea5e9",
+          borderRadius: 6,
+          colorPrimary: "#1F4FD8",
           fontFamily:
             "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
         },
       }}
     >
-      <AppLayout
+      {!session ? (
+        <LoginPage onLogin={login} />
+      ) : (
+      <>
+        <AppLayout
         activeKey={activeKey}
-        tenant={{ name: "UrbanThreads", badge: runtimeConfig.useMocks ? "Mock" : "API" }}
-        user={{ name: "Development Owner", role: "Owner access" }}
+        tenant={{
+          name: session.organization.name,
+          badge: runtimeConfig.useMocks ? "Mock" : session.organization.role,
+        }}
+        user={{ name: session.user.name, role: `${session.organization.role} access` }}
         pageTitle={currentPageMeta.title}
         pageDescription={currentPageMeta.description}
         isMockData={runtimeConfig.useMocks}
+        canManageOrganization={canManageOrganization}
+        onSwitchWorkspace={() => setWorkspaceModalOpen(true)}
+        onLogout={logout}
         onNavigate={(key) => {
           if (
             key === "dashboard" ||
@@ -74,7 +94,8 @@ function App() {
             key === "ai-actions" ||
             key === "agent-runs" ||
             key === "knowledge" ||
-            key === "social-accounts"
+            key === "social-accounts" ||
+            key === "settings"
           ) {
             setActiveKey(key);
           }
@@ -91,15 +112,37 @@ function App() {
         ) : activeKey === "social-accounts" ? (
           <SocialAccountsPage />
         ) : activeKey === "ai-actions" ? (
-          <AiActionsPage />
+          <AiActionsPage organizationId={organizationId} />
         ) : activeKey === "agent-runs" ? (
-          <AgentRunsPage />
+          <AgentRunsPage organizationId={organizationId} />
         ) : activeKey === "knowledge" ? (
           <KnowledgePage />
+        ) : activeKey === "settings" ? (
+          <OrganizationSettingsPage
+            currentUserId={session.user.id}
+            currentRole={session.organization.role}
+            organizationName={session.organization.name}
+          />
         ) : (
           <InboxPage organizationId={organizationId} />
         )}
-      </AppLayout>
+        </AppLayout>
+        <WorkspaceModal
+          open={workspaceModalOpen}
+          currentOrganizationId={session.organization.id}
+          memberships={session.memberships}
+          onClose={() => setWorkspaceModalOpen(false)}
+          onSwitch={async (nextOrganizationId) => {
+            await switchOrganization(nextOrganizationId);
+            setActiveKey("dashboard");
+          }}
+          onCreate={async (name) => {
+            await createOrganization(name);
+            setActiveKey("dashboard");
+          }}
+        />
+      </>
+      )}
     </ConfigProvider>
   );
 }

@@ -3,6 +3,7 @@ import { HttpResponse, http } from "msw";
 import { describe, expect, it } from "vitest";
 import { server } from "../../../test/server";
 import { apiInboxReadDataSource } from "../services/inboxReadDataSource";
+import { setStoredSession } from "../../auth/services/authStorage";
 import { InboxPage } from "./InboxPage";
 
 const apiUrl = "http://localhost:8080";
@@ -11,12 +12,19 @@ const conversationId = "10000000-0000-0000-0000-000000000001";
 
 describe("InboxPage API integration", () => {
   it("loads the inbox and selected conversation through HTTP", async () => {
+    setStoredSession({
+      accessToken: "test-token",
+      expiresAtUtc: "2099-01-01T00:00:00Z",
+      user: { id: "user-1", name: "Test Owner", email: "owner@example.com" },
+      organization: { id: organizationId, name: "UrbanThreads", role: "Owner" },
+      memberships: [{ id: organizationId, name: "UrbanThreads", role: "Owner" }],
+    });
     server.use(
       http.get(`${apiUrl}/api/conversations`, ({ request }) => {
         const url = new URL(request.url);
 
         expect(url.searchParams.get("organizationId")).toBe(organizationId);
-        expect(request.headers.get("X-Api-Key")).toBe("dev-api-key");
+        expect(request.headers.get("Authorization")).toBe("Bearer test-token");
 
         return HttpResponse.json([
           {
@@ -87,7 +95,7 @@ describe("InboxPage API integration", () => {
     renderInbox();
 
     expect(
-      await screen.findByText("Authentication failed. Check the frontend API key."),
+      await screen.findByText("Your session has expired. Sign in again."),
     ).toBeInTheDocument();
   });
 

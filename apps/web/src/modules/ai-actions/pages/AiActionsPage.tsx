@@ -13,10 +13,8 @@ import { AiActionsTable } from "../components/AiActionsTable";
 import type { AiAction, AiActionRisk, AiActionStatus, AiActionType } from "../types/aiActions";
 
 const { Text, Title } = Typography;
-const organizationId =
-  import.meta.env.VITE_ORGANIZATION_ID ?? "00000000-0000-0000-0000-000000000001";
 
-export function AiActionsPage() {
+export function AiActionsPage({ organizationId }: { organizationId: string }) {
   const [actions, setActions] = useState<AiAction[]>([]);
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,7 +63,7 @@ export function AiActionsPage() {
     async function loadAiActions() {
       try {
         setLoading(true);
-        const result = await fetchAiActions();
+        const result = await fetchAiActions(organizationId);
         setActions(result);
         setSelectedActionId(result.find((action) => action.status === "Pending")?.id ?? result[0]?.id ?? null);
       } catch {
@@ -76,7 +74,7 @@ export function AiActionsPage() {
     }
 
     loadAiActions();
-  }, []);
+  }, [organizationId]);
 
   async function handleResolveAction(
     actionId: string,
@@ -125,7 +123,7 @@ export function AiActionsPage() {
     <div className="flex h-[calc(100vh-64px)] flex-col gap-4 bg-slate-100 p-4">
       {contextHolder}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 app-panel-shadow">
+      <section className="rounded-md border border-slate-200 bg-white p-4">
         <div>
           <Title level={4} className="mb-1">
             AI approval queue
@@ -180,7 +178,7 @@ export function AiActionsPage() {
       </section>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-        <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white app-panel-shadow">
+        <section className="min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
           <AiActionsTable
             actions={filteredActions}
             selectedActionId={visibleSelectedActionId}
@@ -188,7 +186,7 @@ export function AiActionsPage() {
           />
         </section>
 
-        <main className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white app-panel-shadow">
+        <main className="min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
           <AiActionDetails
             action={selectedAction}
             isResolving={isResolving}
@@ -201,7 +199,7 @@ export function AiActionsPage() {
   );
 }
 
-async function fetchAiActions(): Promise<AiAction[]> {
+async function fetchAiActions(organizationId: string): Promise<AiAction[]> {
   const conversations = await getInbox(organizationId);
   const actionsByConversation = await Promise.all(
     conversations.map(async (conversation) => {

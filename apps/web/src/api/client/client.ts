@@ -4,12 +4,12 @@ import type {
   AxiosRequestConfig,
 } from "axios";
 import { ApiError, getErrorMessage } from "./utils/api-client.utils";
+import { getAccessToken } from "../../modules/auth/services/authStorage";
 
 const DEFAULT_API_URL = "http://localhost:8080";
 const DEFAULT_TIMEOUT_MS = 15_000;
 
 const apiBaseUrl = import.meta.env.VITE_API_URL?.trim() || DEFAULT_API_URL;
-const apiKey = import.meta.env.VITE_API_KEY?.trim();
 
 function createApiClient(): AxiosInstance {
   const client = axios.create({
@@ -17,9 +17,18 @@ function createApiClient(): AxiosInstance {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      ...(apiKey ? { "X-Api-Key": apiKey } : {}),
     },
     timeout: DEFAULT_TIMEOUT_MS,
+  });
+
+  client.interceptors.request.use((config) => {
+    const accessToken = getAccessToken();
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    return config;
   });
 
   client.interceptors.response.use(
@@ -27,6 +36,10 @@ function createApiClient(): AxiosInstance {
     (error: unknown) => {
       if (!axios.isAxiosError(error)) {
         return Promise.reject(error);
+      }
+
+      if (error.response?.status === 401 && getAccessToken()) {
+        window.dispatchEvent(new Event("socialops:unauthorized"));
       }
 
       return Promise.reject(

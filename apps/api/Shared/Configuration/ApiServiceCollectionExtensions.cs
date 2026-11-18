@@ -1,8 +1,13 @@
 using System.Net;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json.Serialization;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
+using Microsoft.IdentityModel.Tokens;
 using Polly;
 using SocialOps.Api.Features.AgentActions.Application.Abstractions;
 using SocialOps.Api.Features.AgentActions.Application.GetPendingActions;
@@ -25,6 +30,8 @@ using SocialOps.Api.Features.Customers.Application.Abstraction;
 using SocialOps.Api.Features.Customers.Application.Abstractions;
 using SocialOps.Api.Features.Customers.Application.Services;
 using SocialOps.Api.Features.Customers.Infrastructure;
+using SocialOps.Api.Features.Identity.Application.Services;
+using SocialOps.Api.Features.Identity.Domain;
 using SocialOps.Api.Features.DevelopmentData.Application.Services;
 using SocialOps.Api.Features.InboundWebhooks.Application.Abstractions;
 using SocialOps.Api.Features.Knowledge.Application.Abstractions;
@@ -72,8 +79,87 @@ public static class ApiServiceCollectionExtensions
 
     public static IServiceCollection AddApiAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
+        const string compositeScheme = "SocialOps";
+        var jwtOptions = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+
+        if (Encoding.UTF8.GetByteCount(jwtOptions.SigningKey) < 32)
+        {
+            throw new InvalidOperationException(
+                "Authentication:Jwt:SigningKey must contain at least 32 bytes.");
+        }
+
+        if (jwtOptions.AccessTokenMinutes is < 5 or > 1440)
+        {
+            throw new InvalidOperationException(
+                "Authentication:Jwt:AccessTokenMinutes must be between 5 and 1440.");
+        }
+
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services
-            .AddAuthentication(ApiKeyAuthenticationOptions.Scheme)
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = compositeScheme;
+                options.DefaultChallengeScheme = compositeScheme;
+            })
+            .AddPolicyScheme(compositeScheme, compositeScheme, options =>
+            {
+                options.ForwardDefaultSelector = context =>
+                    context.Request.Headers.ContainsKey("X-Api-Key")
+                        ? ApiKeyAuthenticationOptions.Scheme
+                        : JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwtOptions.Audience,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtOptions.SigningKey)),
+                    ClockSkew = TimeSpan.FromSeconds(30),
+                    NameClaimType = ClaimTypes.Name,
+                    RoleClaimType = ClaimTypes.Role
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var principal = context.Principal;
+                        var membershipValue = principal?.FindFirstValue(SocialOpsClaimTypes.MembershipId);
+                        var versionValue = principal?.FindFirstValue(SocialOpsClaimTypes.MembershipVersion);
+                        var organizationValue = principal?.FindFirstValue(SocialOpsClaimTypes.OrganizationId);
+                        var roleValue = principal?.FindFirstValue(ClaimTypes.Role);
+
+                        if (!Guid.TryParse(membershipValue, out var membershipId) ||
+                            !int.TryParse(versionValue, out var membershipVersion) ||
+                            !Guid.TryParse(organizationValue, out var organizationId) ||
+                            !Enum.TryParse<MembershipRole>(roleValue, out var membershipRole))
+                        {
+                            context.Fail("The membership claims are invalid.");
+                            return;
+                        }
+
+                        var dbContext = context.HttpContext.RequestServices
+                            .GetRequiredService<SocialOpsDbContext>();
+                        var membershipIsCurrent = await dbContext.OrganizationMemberships.AnyAsync(
+                            x => x.Id == membershipId &&
+                                 x.OrganizationId == organizationId &&
+                                 x.Version == membershipVersion &&
+                                 x.Role == membershipRole &&
+                                 x.User.IsActive,
+                            context.HttpContext.RequestAborted);
+
+                        if (!membershipIsCurrent)
+                        {
+                            context.Fail("The membership is no longer active.");
+                        }
+                    }
+                };
+            })
             .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>
             (ApiKeyAuthenticationOptions.Scheme, options => configuration.GetSection("Authentication:ApiKey").Bind(options));
 
@@ -133,6 +219,10 @@ public static class ApiServiceCollectionExtensions
         services.AddScoped<MessageService>();
         services.AddScoped<OrganizationService>();
         services.AddScoped<CustomerService>();
+        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+        services.AddScoped<JwtTokenService>();
+        services.AddScoped<AuthService>();
+        services.AddScoped<MembershipService>();
         services.AddScoped<DevelopmentDataResetService>();
         services.AddScoped<SocialAccountService>();
         services.AddScoped<KnowledgeService>();

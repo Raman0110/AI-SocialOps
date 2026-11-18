@@ -30,7 +30,7 @@ beforeEach(() => {
 
 describe("AiActionsPage", () => {
   it("loads and maps pending API actions", async () => {
-    render(<AiActionsPage />);
+    render(<AiActionsPage organizationId="organization-1" />);
 
     expect(await screen.findAllByText("Create support ticket")).toHaveLength(2);
     expect(screen.getAllByText("Ravi Thapa · Can I exchange the jacket?").length).toBeGreaterThan(0);
@@ -39,7 +39,7 @@ describe("AiActionsPage", () => {
 
   it("approves a pending action through the API", async () => {
     const user = userEvent.setup();
-    render(<AiActionsPage />);
+    render(<AiActionsPage organizationId="organization-1" />);
 
     await screen.findAllByText("Create support ticket");
     await user.click(screen.getByRole("button", { name: /approve/i }));

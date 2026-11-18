@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { server } from "../../../test/server";
 import { apiDashboardDataSource } from "../services/dashboardDataSource";
 import { DashboardPage } from "./DashboardPage";
+import { setStoredSession } from "../../auth/services/authStorage";
 
 const apiUrl = "http://localhost:8080";
 const organizationId = "00000000-0000-0000-0000-000000000001";
@@ -17,13 +18,22 @@ describe("DashboardPage API integration", () => {
     let webhookPayload: Record<string, unknown> | null = null;
     let webhookMessageId: unknown;
 
+    setStoredSession({
+      accessToken: "test-token",
+      expiresAtUtc: "2099-01-01T00:00:00Z",
+      user: { id: "user-1", name: "Test Owner", email: "owner@example.com" },
+      organization: { id: organizationId, name: "UrbanThreads", role: "Owner" },
+      memberships: [{ id: organizationId, name: "UrbanThreads", role: "Owner" }],
+    });
+
     server.use(
       http.get(`${apiUrl}/api/conversations`, ({ request }) => {
         inboxRequestCount += 1;
         const url = new URL(request.url);
 
         expect(url.searchParams.get("organizationId")).toBe(organizationId);
-        expect(request.headers.get("X-Api-Key")).toBe("dev-api-key");
+        expect(request.headers.get("Authorization")).toBe("Bearer test-token");
+        expect(request.headers.get("X-Api-Key")).toBeNull();
 
         return HttpResponse.json([
           conversation("conversation-1", "Maya Sharma", "Open", "Instagram"),

@@ -17,6 +17,7 @@ Sensitive actions remain under application policy and human approval.
 - Human approval or rejection of proposed support-ticket actions
 - Persistent agent runs and individual tool-execution audit records
 - API-key authentication, tenant isolation, and role-based authorization
+- Password login, JWT sessions, multi-workspace memberships, and workspace switching
 - Development sandbox workflows for repeatable end-to-end validation
 
 ## Architecture
@@ -77,6 +78,13 @@ docker compose up --build
 The Development environment applies migrations and seeds the UrbanThreads sample organization.
 Replies use the sandbox sender unless Instagram credentials are configured.
 
+Sign in with the seeded development owner:
+
+```text
+Email:    owner@urbanthreads.local
+Password: ChangeMe123!
+```
+
 Run the end-to-end receive, reason, and reply workflow:
 
 ```powershell
@@ -104,13 +112,29 @@ For running services directly during development, see [docs/LOCAL_RUN.md](docs/L
 
 ## Security model
 
-Development uses API-key identities containing organization and role claims. Authorization policies
-separate reader, operator, and administrator capabilities, while tenant-owned queries enforce the
-authenticated organization. Internal agent-tool endpoints require an operator identity. The sandbox
-webhook and development-data reset endpoint are disabled outside explicitly configured environments.
+Human users authenticate with email and password and receive a signed JWT containing the selected
+organization membership and role. A user may belong to multiple organizations and receives a new
+membership-scoped token when switching workspaces. Authenticated users can create a workspace, which
+atomically creates the organization and an Owner membership. Tenant-owned queries always enforce the
+organization selected in the authenticated token.
 
-The browser currently receives a development API key at build time. Replace this with user login and
-short-lived JWT or session authentication before serving real users.
+| Role | Read tenant data | Operate conversations/AI | Manage knowledge/accounts | Manage members |
+| --- | --- | --- | --- | --- |
+| Viewer | Yes | No | No | No |
+| Agent | Yes | Yes | No | No |
+| Admin | Yes | Yes | Yes | Yes, except Owner memberships |
+| Owner | Yes | Yes | Yes | Yes |
+
+Changing or removing a membership invalidates its existing tokens immediately. The last Owner cannot
+be removed or demoted, and organization directory endpoints never expose another tenant.
+
+The Python agent uses a separate machine API key with the Agent role. It cannot manage organization
+members or call Owner/Admin endpoints. The sandbox webhook and development-data reset endpoint are
+disabled outside explicitly configured environments.
+
+Access tokens are currently kept in browser storage and expire after one hour. A production deployment
+should add refresh-token rotation or secure server-managed sessions and enforce a strong Content
+Security Policy.
 
 ## Tests
 
@@ -142,6 +166,7 @@ knowledge isolation, agent tools, approval workflows, UI integrations, and agent
 
 ## Current scope
 
-The repository provides a complete application prototype and sandbox workflow. Production adoption
-still requires browser user authentication, managed secrets, HTTPS, database backups, background job
-processing for long-running work, and production observability.
+The repository provides a complete application prototype and sandbox workflow with browser login,
+tenant membership isolation, workspace switching, and RBAC. Production adoption still requires
+managed secrets, HTTPS, database backups, refresh-token rotation or server-managed sessions,
+background job processing for long-running work, and production observability.

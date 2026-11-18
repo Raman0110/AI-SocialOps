@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using SocialOps.Api.Features.AgentRuns.Domain;
 using SocialOps.Api.Features.Conversations.Domain;
 using SocialOps.Api.Features.Customers.Domain;
 using SocialOps.Api.Features.Knowledge.Domain;
+using SocialOps.Api.Features.Identity.Application.Services;
+using SocialOps.Api.Features.Identity.Domain;
 using SocialOps.Api.Features.Organizations.Domain;
 using SocialOps.Api.Features.SocialAccounts.Domain;
 using SocialOps.Api.Features.Tickets.Domain;
@@ -12,11 +15,16 @@ namespace SocialOps.Api.Shared.Data;
 public static class DevelopmentDataSeeder
 {
     public static readonly Guid OrganizationId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+    public static readonly Guid OwnerUserId = Guid.Parse("01000000-0000-0000-0000-000000000001");
+    public static readonly Guid OwnerMembershipId = Guid.Parse("02000000-0000-0000-0000-000000000001");
+    public const string OwnerEmail = "owner@urbanthreads.local";
+    public const string OwnerPassword = "ChangeMe123!";
 
     public static async Task SeedAsync(SocialOpsDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Organizations.AnyAsync(organization => organization.Id == OrganizationId, cancellationToken))
         {
+            await SeedIdentityAsync(dbContext, cancellationToken);
             await SeedConversationMessagesAsync(dbContext, cancellationToken);
             await SeedKnowledgeEntriesAsync(dbContext, cancellationToken);
             return;
@@ -28,6 +36,8 @@ public static class DevelopmentDataSeeder
             Name = "UrbanThreads",
             CreatedAt = Utc(2026, 8, 29, 8, 0)
         };
+
+        var owner = CreateOwner(organization);
 
         var instagram = CreateAccount(
             "10000000-0000-0000-0000-000000000001",
@@ -255,6 +265,7 @@ public static class DevelopmentDataSeeder
         });
 
         dbContext.Organizations.Add(organization);
+        dbContext.Users.Add(owner);
         dbContext.AgentRuns.Add(agentRun);
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -281,6 +292,61 @@ public static class DevelopmentDataSeeder
         };
         organization.SocialAccounts.Add(account);
         return account;
+    }
+
+    private static User CreateOwner(Organization organization)
+    {
+        var user = new User
+        {
+            Id = OwnerUserId,
+            Name = "Development Owner",
+            Email = OwnerEmail,
+            NormalizedEmail = AuthService.NormalizeEmail(OwnerEmail),
+            PasswordHash = string.Empty,
+            CreatedAt = Utc(2026, 8, 29, 8, 0)
+        };
+        user.PasswordHash = new PasswordHasher<User>().HashPassword(user, OwnerPassword);
+        user.Memberships.Add(new OrganizationMembership
+        {
+            Id = OwnerMembershipId,
+            User = user,
+            Organization = organization,
+            Role = MembershipRole.Owner,
+            CreatedAt = Utc(2026, 8, 29, 8, 0)
+        });
+
+        return user;
+    }
+
+    private static async Task SeedIdentityAsync(
+        SocialOpsDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var user = await dbContext.Users
+            .Include(x => x.Memberships)
+            .SingleOrDefaultAsync(x => x.Id == OwnerUserId, cancellationToken);
+
+        if (user is null)
+        {
+            var organization = await dbContext.Organizations
+                .SingleAsync(x => x.Id == OrganizationId, cancellationToken);
+            dbContext.Users.Add(CreateOwner(organization));
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return;
+        }
+
+        if (user.Memberships.All(x => x.OrganizationId != OrganizationId))
+        {
+            dbContext.OrganizationMemberships.Add(new OrganizationMembership
+            {
+                Id = OwnerMembershipId,
+                UserId = user.Id,
+                OrganizationId = OrganizationId,
+                Role = MembershipRole.Owner,
+                CreatedAt = Utc(2026, 8, 29, 8, 0)
+            });
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
     private static Customer CreateCustomer(

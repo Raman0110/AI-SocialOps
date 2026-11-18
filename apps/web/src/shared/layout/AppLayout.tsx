@@ -6,6 +6,7 @@ import {
   DashboardOutlined,
   DownOutlined,
   LeftOutlined,
+  LogoutOutlined,
   MenuOutlined,
   MessageOutlined,
   RobotOutlined,
@@ -25,14 +26,14 @@ const { Text } = Typography;
 /* -------------------------------------------------------------------------- */
 
 const color = {
-  ink: "#0F172A",
+  ink: "#111827",
   textMuted: "#64748B",
   border: "#E5E7EB",
   canvas: "#F8FAFC",
   surface: "#FFFFFF",
-  accent: "#2F5BEA",
-  accentSoft: "#E8EEFD",
-  hover: "#E5E7EB",
+  accent: "#1F4FD8",
+  accentSoft: "#EEF2FB",
+  hover: "#F1F3F5",
 } as const;
 
 /**
@@ -46,7 +47,9 @@ const appTheme: ThemeConfig = {
     colorTextSecondary: color.textMuted,
     colorBorder: color.border,
     colorBorderSecondary: color.border,
-    borderRadius: 8,
+    borderRadius: 6,
+    boxShadow: "none",
+    boxShadowSecondary: "0 4px 12px rgba(0,0,0,0.08)",
     fontFamily:
       '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     fontSize: 14,
@@ -127,6 +130,8 @@ interface AppLayoutProps {
   flush?: boolean;
   onNavigate?: (key: NavKey) => void;
   onSwitchWorkspace?: () => void;
+  onLogout?: () => void;
+  canManageOrganization?: boolean;
   children: ReactNode;
 }
 
@@ -144,39 +149,55 @@ function WorkspaceSwitcher({
       type="button"
       onClick={onClick}
       title={collapsed ? tenant.name : undefined}
-      className={`flex w-full items-center rounded-xl border border-white/15 bg-white/10 p-2.5 text-left text-white transition hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 ${collapsed ? "justify-center" : "gap-2.5"
+      className={`flex w-full items-center rounded-md border border-slate-200 bg-white p-2.5 text-left text-slate-900 transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${collapsed ? "justify-center" : "gap-2.5"
         }`}
     >
       {!collapsed && (
         <>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-xs font-bold uppercase tracking-wider">
+            <span className="block truncate text-sm font-semibold">
               {tenant.name}
             </span>
-            <span className="block truncate text-[10px] text-white/55">Active workspace</span>
+            <span className="block truncate text-xs text-slate-500">Workspace</span>
           </span>
           {tenant.badge && <Tag className="m-0 border-none text-xs">{tenant.badge}</Tag>}
-          <DownOutlined className="text-[10px] text-white/55" />
+          <DownOutlined className="text-[10px] text-slate-400" />
         </>
       )}
     </button>
   );
 }
 
-function UserRow({ user, collapsed }: { user: CurrentUser; collapsed: boolean }) {
+function UserRow({
+  user,
+  collapsed,
+  onLogout,
+}: {
+  user: CurrentUser;
+  collapsed: boolean;
+  onLogout?: () => void;
+}) {
   return (
-    <div className={`flex items-center rounded-xl px-2 py-2 text-white transition-colors hover:bg-white/10 ${collapsed ? "justify-center" : "gap-2.5"}`}>
+    <div className={`flex items-center rounded-md px-2 py-2 text-slate-900 transition-colors hover:bg-slate-50 ${collapsed ? "justify-center" : "gap-2.5"}`}>
       <Badge dot status="success" offset={[-2, 26]}>
-        <Avatar size={32} src={user.avatarUrl} className="bg-blue-600">
+        <Avatar size={32} src={user.avatarUrl} className="bg-slate-700">
           {user.name.charAt(0).toUpperCase()}
         </Avatar>
       </Badge>
       {!collapsed && (
         <div className="min-w-0 flex-1 leading-tight">
           <span className="block truncate text-sm font-medium">{user.name}</span>
-          <span className="block truncate text-xs text-white/55">{user.role}</span>
+          <span className="block truncate text-xs text-slate-500">{user.role}</span>
         </div>
       )}
+      <Button
+        type="text"
+        size="small"
+        icon={<LogoutOutlined />}
+        aria-label="Sign out"
+        title="Sign out"
+        onClick={onLogout}
+      />
     </div>
   );
 }
@@ -189,7 +210,7 @@ function SidebarBrand({ collapsed, onToggle }: { collapsed: boolean; onToggle: (
       title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       aria-expanded={!collapsed}
-      className="absolute -right-3.5 top-1/2 z-20 hidden size-7 -translate-y-1/2 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 lg:grid"
+      className="absolute -right-3.5 top-1/2 z-20 hidden size-7 -translate-y-1/2 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 lg:grid"
     >
       <LeftOutlined className={`text-xs transition-transform ${collapsed ? "rotate-180" : ""}`} />
     </button>
@@ -204,6 +225,8 @@ function SidebarContent({
   onToggle,
   onNavigate,
   onSwitchWorkspace,
+  onLogout,
+  canManageOrganization,
 }: {
   activeKey: NavKey;
   tenant: Tenant;
@@ -212,6 +235,8 @@ function SidebarContent({
   onToggle: () => void;
   onNavigate?: (key: NavKey) => void;
   onSwitchWorkspace?: () => void;
+  onLogout?: () => void;
+  canManageOrganization: boolean;
 }) {
   const renderNavButton = (item: (typeof NAV_GROUPS)[number]["items"][number]) => {
     const isActive = activeKey === item.key;
@@ -222,10 +247,10 @@ function SidebarContent({
         type="button"
         title={collapsed ? item.label : undefined}
         onClick={() => onNavigate?.(item.key)}
-        className={`flex w-full items-center rounded-xl py-2 text-sm outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-white/40 ${collapsed ? "justify-center px-0" : "gap-3 px-3"
+        className={`flex w-full items-center rounded-md py-1.5 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 ${collapsed ? "justify-center px-0" : "gap-3 px-3"
           } ${isActive
-            ? "border border-white/20 bg-white/15 font-semibold text-white shadow-sm hover:bg-white/20"
-            : "border border-transparent text-white/75 hover:bg-white/10 hover:text-white"
+            ? "border border-transparent bg-slate-100 font-medium text-slate-900"
+            : "border border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900"
           }`}
       >
         <span className="text-base">{item.icon}</span>
@@ -251,7 +276,7 @@ function SidebarContent({
           {NAV_GROUPS.map((group) => (
             <div key={group.title}>
               {!collapsed && (
-                <div className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-white/40">
+                <div className="mb-1.5 px-3 text-[11px] font-medium uppercase tracking-wider text-slate-400">
                   {group.title}
                 </div>
               )}
@@ -261,8 +286,8 @@ function SidebarContent({
         </div>
       </nav>
 
-      <div className="border-t border-white/10 p-3">
-        {FOOTER_NAV.map((item) => {
+      <div className="border-t border-slate-200 p-3">
+        {FOOTER_NAV.filter(() => canManageOrganization).map((item) => {
           const isActive = activeKey === item.key;
           return (
             <button
@@ -270,15 +295,15 @@ function SidebarContent({
               type="button"
               title={collapsed ? item.label : undefined}
               onClick={() => onNavigate?.(item.key)}
-              className={`mb-1 flex w-full items-center rounded-xl py-2 text-sm transition ${collapsed ? "justify-center px-0" : "gap-3 px-3"
-                } ${isActive ? "bg-white/15 font-semibold text-white" : "text-white/75 hover:bg-white/10 hover:text-white"}`}
+              className={`mb-1 flex w-full items-center rounded-md py-1.5 text-sm transition ${collapsed ? "justify-center px-0" : "gap-3 px-3"
+                } ${isActive ? "bg-slate-100 font-medium text-slate-900" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
             >
               <span className="text-base">{item.icon}</span>
               {!collapsed && <span>{item.label}</span>}
             </button>
           );
         })}
-        <UserRow user={user} collapsed={collapsed} />
+        <UserRow user={user} collapsed={collapsed} onLogout={onLogout} />
       </div>
     </>
   );
@@ -299,6 +324,8 @@ export function AppLayout({
   flush = false,
   onNavigate,
   onSwitchWorkspace,
+  onLogout,
+  canManageOrganization = false,
   children,
 }: AppLayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -313,7 +340,7 @@ export function AppLayout({
     <ConfigProvider theme={appTheme}>
       <Layout hasSider className="h-screen">
         <aside
-          className={`relative hidden shrink-0 flex-col border-r border-white/10 bg-[#343A40] text-white transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? "w-20" : "w-72"
+          className={`relative hidden shrink-0 flex-col border-r border-slate-200 bg-white text-slate-700 transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? "w-16" : "w-60"
             }`}
         >
           <SidebarContent
@@ -324,6 +351,8 @@ export function AppLayout({
             onToggle={() => setIsSidebarCollapsed((current) => !current)}
             onNavigate={handleNavigate}
             onSwitchWorkspace={onSwitchWorkspace}
+            onLogout={onLogout}
+            canManageOrganization={canManageOrganization}
           />
         </aside>
 
@@ -335,7 +364,7 @@ export function AppLayout({
               aria-label="Close navigation"
               onClick={() => setIsMobileSidebarOpen(false)}
             />
-            <aside className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-white/10 bg-[#343A40] text-white shadow-xl lg:hidden">
+            <aside className="fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-slate-200 bg-white text-slate-700 lg:hidden">
               <SidebarContent
                 activeKey={activeKey}
                 tenant={tenant}
@@ -344,13 +373,15 @@ export function AppLayout({
                 onToggle={() => setIsMobileSidebarOpen(false)}
                 onNavigate={handleNavigate}
                 onSwitchWorkspace={onSwitchWorkspace}
+                onLogout={onLogout}
+                canManageOrganization={canManageOrganization}
               />
             </aside>
           </>
         )}
 
         <Layout className="min-w-0">
-          <Header className="app-header-shadow flex items-center justify-between border-b border-slate-200 bg-white">
+          <Header className="flex items-center justify-between border-b border-slate-200 bg-white">
             <div className="flex min-w-0 items-center gap-3">
               <Button
                 type="text"
@@ -361,7 +392,7 @@ export function AppLayout({
                 onClick={() => setIsMobileSidebarOpen(true)}
               />
               <div className="min-w-0 leading-tight">
-                <h1 className="m-0 truncate text-lg font-semibold tracking-tight text-slate-900">
+                <h1 className="m-0 truncate text-base font-semibold text-slate-900">
                   {pageTitle}
                 </h1>
                 {pageDescription && (

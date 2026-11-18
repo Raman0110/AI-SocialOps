@@ -38,6 +38,8 @@ services:
 
       Agent__BaseUrl: http://agent:8000
 
+      Authentication__Jwt__SigningKey: ${JWT_SIGNING_KEY:-development-only-socialops-signing-key-change-in-production}
+
       # Real Instagram (leave blank to stay on the sandbox). See docs/INSTAGRAM_SETUP.md.
       Instagram__AppSecret: ${INSTAGRAM_APP_SECRET:-}
       Instagram__VerifyToken: ${INSTAGRAM_VERIFY_TOKEN:-}
@@ -56,11 +58,13 @@ services:
 
     container_name: socialops-agent
 
+    env_file:
+      - ./apps/agent/.env
+
     environment:
       SOCIALOPS_API_URL: http://api:8080
-      # Must match a key in the API's Authentication:ApiKey:Keys (dev-api-key in Development).
-      SOCIALOPS_API_KEY: ${SOCIALOPS_API_KEY:-dev-api-key}
-      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      # Machine credential for secured internal tools; it has Agent rather than Owner access.
+      SOCIALOPS_API_KEY: ${SOCIALOPS_API_KEY:-dev-agent-key}
 
     ports:
       - "8000:8000"
@@ -70,8 +74,6 @@ services:
       context: ./apps/web
       args:
         VITE_API_URL: ${PUBLIC_API_URL:-http://localhost:8080}
-        VITE_API_KEY: ${WEB_API_KEY:-dev-api-key}
-        VITE_ORGANIZATION_ID: ${ORGANIZATION_ID:-00000000-0000-0000-0000-000000000001}
 
     container_name: socialops-web
 

@@ -30,6 +30,10 @@ public sealed class DevelopmentDataResetService
             .Select(customer => customer.Id);
 
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+        var membershipUserIds = await _dbContext.OrganizationMemberships
+            .Where(x => x.OrganizationId == organizationId)
+            .Select(x => x.UserId)
+            .ToArrayAsync(cancellationToken);
 
         await _dbContext.AgentToolExecutions
             .Where(execution => agentRunIds.Contains(execution.AgentRunId))
@@ -63,6 +67,12 @@ public sealed class DevelopmentDataResetService
             .ExecuteDeleteAsync(cancellationToken);
         await _dbContext.SocialAccounts
             .Where(account => account.OrganizationId == organizationId)
+            .ExecuteDeleteAsync(cancellationToken);
+        await _dbContext.OrganizationMemberships
+            .Where(membership => membership.OrganizationId == organizationId)
+            .ExecuteDeleteAsync(cancellationToken);
+        await _dbContext.Users
+            .Where(user => membershipUserIds.Contains(user.Id) && !user.Memberships.Any())
             .ExecuteDeleteAsync(cancellationToken);
         await _dbContext.Organizations
             .Where(organization => organization.Id == organizationId)

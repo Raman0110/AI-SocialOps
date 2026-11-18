@@ -31,13 +31,23 @@ In Development it applies migrations and seeds the UrbanThreads sample organizat
 The outbound sandbox sender is on (`Outbound:UseSandbox`), so replies are marked `Sent`
 without reaching Instagram.
 
+The seeded owner account is:
+
+```text
+Email:    owner@urbanthreads.local
+Password: ChangeMe123!
+```
+
+The web application authenticates this account with a JWT. The Python agent uses the separate
+`dev-agent-key` machine credential and receives only the Agent role.
+
 ## 3. Agent (http://localhost:8000)
 
 ```powershell
 cd apps/agent
 .venv\Scripts\activate
 $env:GROQ_API_KEY = "<your key>"
-$env:SOCIALOPS_API_KEY = "dev-api-key"
+$env:SOCIALOPS_API_KEY = "dev-agent-key"
 fastapi dev app/main.py
 ```
 

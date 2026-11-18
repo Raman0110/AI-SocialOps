@@ -13,14 +13,15 @@
 #>
 param(
     [string]$ApiUrl = "http://localhost:8080",
-    [string]$ApiKey = "dev-api-key",
+    [string]$Email = "owner@urbanthreads.local",
+    [string]$Password = "ChangeMe123!",
     [string]$OrganizationId = "00000000-0000-0000-0000-000000000001",
     [string]$BusinessAccountId = "ig_17841400000000991",
     [string]$Question = "Hi! What is your refund policy?"
 )
 
 $ErrorActionPreference = "Stop"
-$headers = @{ "X-Api-Key" = $ApiKey }
+$headers = @{}
 
 function Step($text) { Write-Host "`n== $text" -ForegroundColor Cyan }
 
@@ -43,7 +44,12 @@ function Invoke-Api($method, $path, $body) {
     }
 }
 
-Step "Checking the API is reachable and the key works"
+Step "Signing in and checking the API is reachable"
+$session = Invoke-Api POST "/api/auth/login" @{
+    email    = $Email
+    password = $Password
+}
+$headers.Authorization = "Bearer $($session.accessToken)"
 $null = Invoke-Api GET "/api/conversations?organizationId=$OrganizationId" $null
 Write-Host "OK"
 

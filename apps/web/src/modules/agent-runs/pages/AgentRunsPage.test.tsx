@@ -61,7 +61,7 @@ beforeEach(() => {
 
 describe("AgentRunsPage", () => {
   it("loads API runs and maps execution details", async () => {
-    render(<AgentRunsPage />);
+    render(<AgentRunsPage organizationId="organization-1" />);
 
     expect(await screen.findAllByText("Conversation Agent")).toHaveLength(2);
     expect(screen.getByText("Execution timeline")).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe("AgentRunsPage", () => {
 
   it("retries through the conversation agent endpoint", async () => {
     const user = userEvent.setup();
-    render(<AgentRunsPage />);
+    render(<AgentRunsPage organizationId="organization-1" />);
 
     await screen.findAllByText("Conversation Agent");
     await user.click(screen.getByRole("button", { name: /retry run/i }));

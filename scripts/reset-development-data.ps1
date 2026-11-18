@@ -8,16 +8,23 @@
 #>
 param(
     [string]$ApiUrl = "http://localhost:8080",
-    [string]$ApiKey = "dev-api-key"
+    [string]$Email = "owner@urbanthreads.local",
+    [string]$Password = "ChangeMe123!"
 )
 
 $ErrorActionPreference = "Stop"
 
 try {
+    $session = Invoke-RestMethod `
+        -Method POST `
+        -Uri "$ApiUrl/api/auth/login" `
+        -ContentType "application/json" `
+        -Body (@{ email = $Email; password = $Password } | ConvertTo-Json)
+
     $result = Invoke-RestMethod `
         -Method POST `
         -Uri "$ApiUrl/api/development-data/reset" `
-        -Headers @{ "X-Api-Key" = $ApiKey }
+        -Headers @{ "Authorization" = "Bearer $($session.accessToken)" }
 }
 catch {
     $status = $_.Exception.Response.StatusCode.value__

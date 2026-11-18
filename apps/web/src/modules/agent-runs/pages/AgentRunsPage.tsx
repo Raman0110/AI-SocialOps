@@ -9,10 +9,8 @@ import { AgentRunsTable } from "../components/AgentRunsTable";
 import type { AgentRun, AgentRunStatus, AgentRunTrigger } from "../types/agentRuns";
 
 const { Text, Title } = Typography;
-const organizationId =
-  import.meta.env.VITE_ORGANIZATION_ID ?? "00000000-0000-0000-0000-000000000001";
 
-export function AgentRunsPage() {
+export function AgentRunsPage({ organizationId }: { organizationId: string }) {
   const [runs, setRuns] = useState<AgentRun[]>([]);
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -61,7 +59,7 @@ export function AgentRunsPage() {
     async function loadRuns() {
       try {
         setLoading(true);
-        const result = await loadAgentRuns();
+        const result = await loadAgentRuns(organizationId);
         setRuns(result);
         setSelectedRunId(result[0]?.id ?? null);
       } catch {
@@ -72,7 +70,7 @@ export function AgentRunsPage() {
     }
 
     loadRuns();
-  }, []);
+  }, [organizationId]);
 
   async function handleRetry(runId: string) {
     try {
@@ -84,7 +82,7 @@ export function AgentRunsPage() {
       }
 
       await generateAgentReply(run.conversationId);
-      const refreshedRuns = await loadAgentRuns();
+      const refreshedRuns = await loadAgentRuns(organizationId);
       setRuns(refreshedRuns);
       setSelectedRunId(
         refreshedRuns.find((item) => item.conversationId === run.conversationId)?.id ?? null,
@@ -111,7 +109,7 @@ export function AgentRunsPage() {
     <div className="flex h-[calc(100vh-64px)] flex-col gap-4 bg-slate-100 p-4">
       {contextHolder}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 app-panel-shadow">
+      <section className="rounded-md border border-slate-200 bg-white p-4">
         <div>
           <Title level={4} className="mb-1">Agent execution history</Title>
           <Text type="secondary">{filteredRuns.length} of {runs.length} recorded runs</Text>
@@ -148,10 +146,10 @@ export function AgentRunsPage() {
       </section>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-        <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white app-panel-shadow">
+        <section className="min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
           <AgentRunsTable runs={filteredRuns} selectedRunId={visibleSelectedRunId} onSelect={setSelectedRunId} />
         </section>
-        <main className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white app-panel-shadow">
+        <main className="min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
           <AgentRunDetails run={selectedRun} isRetrying={isRetrying} onRetry={handleRetry} />
         </main>
       </div>
@@ -159,7 +157,7 @@ export function AgentRunsPage() {
   );
 }
 
-async function loadAgentRuns(): Promise<AgentRun[]> {
+async function loadAgentRuns(organizationId: string): Promise<AgentRun[]> {
   const conversations = await getInbox(organizationId);
   const runsByConversation = await Promise.all(
     conversations.map(async (conversation) => {

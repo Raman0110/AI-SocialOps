@@ -3,6 +3,7 @@ using SocialOps.Api.Features.AgentRuns.Domain;
 using SocialOps.Api.Features.Conversations.Domain;
 using SocialOps.Api.Features.Customers.Domain;
 using SocialOps.Api.Features.Knowledge.Domain;
+using SocialOps.Api.Features.Identity.Domain;
 using SocialOps.Api.Features.Organizations.Domain;
 using SocialOps.Api.Features.SocialAccounts.Domain;
 using SocialOps.Api.Features.Tickets.Domain;
@@ -25,6 +26,8 @@ public class SocialOpsDbContext : DbContext
     public DbSet<KnowledgeEntry> KnowledgeEntries => Set<KnowledgeEntry>();
     public DbSet<AgentRun> AgentRuns => Set<AgentRun>();
     public DbSet<AgentToolExecution> AgentToolExecutions => Set<AgentToolExecution>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<OrganizationMembership> OrganizationMemberships => Set<OrganizationMembership>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

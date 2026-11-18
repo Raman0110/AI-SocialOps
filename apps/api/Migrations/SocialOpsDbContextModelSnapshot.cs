@@ -322,6 +322,79 @@ namespace SocialOps.Api.Migrations
                     b.ToTable("social_identities", (string)null);
                 });
 
+            modelBuilder.Entity("SocialOps.Api.Features.Identity.Domain.OrganizationMembership", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "Role");
+
+                    b.HasIndex("UserId", "OrganizationId")
+                        .IsUnique();
+
+                    b.ToTable("organization_memberships", (string)null);
+                });
+
+            modelBuilder.Entity("SocialOps.Api.Features.Identity.Domain.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .IsUnique();
+
+                    b.ToTable("users", (string)null);
+                });
+
             modelBuilder.Entity("SocialOps.Api.Features.Knowledge.Domain.KnowledgeEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -579,6 +652,25 @@ namespace SocialOps.Api.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("SocialOps.Api.Features.Identity.Domain.OrganizationMembership", b =>
+                {
+                    b.HasOne("SocialOps.Api.Features.Organizations.Domain.Organization", "Organization")
+                        .WithMany("Memberships")
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SocialOps.Api.Features.Identity.Domain.User", "User")
+                        .WithMany("Memberships")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SocialOps.Api.Features.Knowledge.Domain.KnowledgeEntry", b =>
                 {
                     b.HasOne("SocialOps.Api.Features.Organizations.Domain.Organization", "Organization")
@@ -623,11 +715,18 @@ namespace SocialOps.Api.Migrations
                     b.Navigation("SocialIdentities");
                 });
 
+            modelBuilder.Entity("SocialOps.Api.Features.Identity.Domain.User", b =>
+                {
+                    b.Navigation("Memberships");
+                });
+
             modelBuilder.Entity("SocialOps.Api.Features.Organizations.Domain.Organization", b =>
                 {
                     b.Navigation("Conversations");
 
                     b.Navigation("Customers");
+
+                    b.Navigation("Memberships");
 
                     b.Navigation("SocialAccounts");
                 });

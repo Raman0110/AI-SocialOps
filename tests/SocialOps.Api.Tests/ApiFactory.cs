@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SocialOps.Api.Features.Conversations.Domain;
 using SocialOps.Api.Features.Customers.Domain;
+using SocialOps.Api.Features.Identity.Domain;
 using SocialOps.Api.Features.OutboundMessages.Application.Abstractions;
 using SocialOps.Api.Features.Organizations.Domain;
 using SocialOps.Api.Features.SocialAccounts.Domain;
@@ -23,6 +24,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     public const string InstagramVerifyToken = "test-verify-token";
     public const string AdminKeyA = "key-org-a-admin";
     public const string AdminKeyB = "key-org-b-admin";
+    public const string UserEmail = "owner@example.com";
+    public const string UserPassword = "StrongPassword123!";
+    public static readonly Guid UserId = Guid.Parse("cccccccc-0000-0000-0000-000000000001");
 
     public Guid ConversationA { get; } = Guid.NewGuid();
     public Guid ConversationB { get; } = Guid.NewGuid();
@@ -42,6 +46,10 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             {
                 ["ConnectionStrings:DefaultConnection"] = "Host=unused",
                 ["Agent:BaseUrl"] = "http://localhost:1",
+                ["Authentication:Jwt:Issuer"] = "SocialOps.Tests",
+                ["Authentication:Jwt:Audience"] = "SocialOps.Tests",
+                ["Authentication:Jwt:SigningKey"] = "testing-only-socialops-signing-key-at-least-32-bytes",
+                ["Authentication:Jwt:AccessTokenMinutes"] = "60",
                 ["Instagram:AppSecret"] = InstagramAppSecret,
                 ["Instagram:VerifyToken"] = InstagramVerifyToken,
                 ["Authentication:ApiKey:Keys:0:Key"] = KeyA,
@@ -109,9 +117,41 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
         AddOrganization(db, OrgA, ConversationA, "a");
         AddOrganization(db, OrgB, ConversationB, "b");
+        AddIdentityUser(db);
         await db.SaveChangesAsync();
 
         _seeded = true;
+    }
+
+    private static void AddIdentityUser(SocialOpsDbContext db)
+    {
+        var user = new User
+        {
+            Id = UserId,
+            Name = "Test Owner",
+            Email = UserEmail,
+            NormalizedEmail = UserEmail.ToUpperInvariant(),
+            PasswordHash = string.Empty
+        };
+        user.PasswordHash = new Microsoft.AspNetCore.Identity.PasswordHasher<User>()
+            .HashPassword(user, UserPassword);
+
+        db.Users.Add(user);
+        db.OrganizationMemberships.AddRange(
+            new OrganizationMembership
+            {
+                Id = Guid.NewGuid(),
+                User = user,
+                OrganizationId = OrgA,
+                Role = MembershipRole.Owner
+            },
+            new OrganizationMembership
+            {
+                Id = Guid.NewGuid(),
+                User = user,
+                OrganizationId = OrgB,
+                Role = MembershipRole.Viewer
+            });
     }
 
     private static void AddOrganization(SocialOpsDbContext db, Guid orgId, Guid conversationId, string tag)
