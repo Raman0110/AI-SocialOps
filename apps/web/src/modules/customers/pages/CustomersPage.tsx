@@ -101,7 +101,7 @@ export function CustomersPage({
 
   return (
     <div className="flex h-[calc(100vh-64px)] gap-4 bg-slate-100 p-4">
-      <aside className="w-[380px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white app-panel-shadow">
+      <aside className="w-[380px] shrink-0 overflow-hidden rounded-md border border-slate-200 bg-white">
         <div className="border-b border-slate-200 bg-slate-50/80 p-4">
           <Title level={5} className="mb-1">
             Customers
@@ -139,7 +139,7 @@ export function CustomersPage({
         />
       </aside>
 
-      <main className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-slate-200 bg-white app-panel-shadow">
+      <main className="min-w-0 flex-1 overflow-hidden rounded-md border border-slate-200 bg-white">
         <CustomerProfile customer={selectedCustomer} onOpenInbox={onOpenInbox} />
       </main>
     </div>

@@ -31,12 +31,12 @@ export function SandboxScenarioLauncher({
   onOpenInbox,
 }: SandboxScenarioLauncherProps) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_6px_18px_rgba(15,23,42,0.06)]">
+    <section className="rounded-md border border-slate-200 bg-white p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sky-700">
+          <div className="mb-2 flex items-center gap-2 text-slate-600">
             <ExperimentOutlined />
-            <Text strong className="text-sky-700">Sandbox workflow lab</Text>
+            <Text strong className="text-slate-600">Sandbox workflow lab</Text>
           </div>
           <Title level={4} className="mb-1">Launch a customer scenario</Title>
           <Text type="secondary">
@@ -75,7 +75,7 @@ export function SandboxScenarioLauncher({
         {scenarios.map((scenario) => (
           <article
             key={scenario.id}
-            className="flex min-h-56 flex-col rounded-xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-sky-300 hover:bg-white hover:shadow-md"
+            className="flex min-h-56 flex-col rounded-md border border-slate-200 bg-slate-50/70 p-4 transition hover:border-slate-400 hover:bg-white"
           >
             <div className="flex items-start justify-between gap-2">
               <Title level={5} className="mb-0">{scenario.title}</Title>

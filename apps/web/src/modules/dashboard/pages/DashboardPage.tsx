@@ -166,14 +166,14 @@ export function DashboardPage({
         {stats.map((stat) => (
           <article
             key={stat.label}
-            className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 pt-6 shadow-[0_2px_12px_rgba(15,40,70,0.05)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(15,40,70,0.09)]"
+            className="relative overflow-hidden rounded-md border border-slate-200 bg-white p-5 transition duration-200"
           >
-            <span className="absolute inset-x-0 top-0 h-1 bg-blue-100" />
+
             <Text className="font-semibold text-slate-700">{stat.label}</Text>
             {isLoading ? (
               <Skeleton.Input active size="small" className="mt-3" />
             ) : (
-              <div className="mt-3 text-[30px] font-extrabold leading-none tracking-tight text-slate-900">
+              <div className="mt-3 text-[30px] font-semibold leading-none tracking-tight text-slate-900">
                 {stat.value}
               </div>
             )}
@@ -194,9 +194,9 @@ export function DashboardPage({
       />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <section className="flex min-h-80 flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_6px_18px_rgba(15,23,42,0.06)]">
+        <section className="flex min-h-80 flex-col rounded-md border border-slate-200 bg-white p-6">
           <div>
-            <Title level={4} className="mb-1 text-blue-700">
+            <Title level={5} className="mb-1">
               Customer operations
             </Title>
             <Text type="secondary">A quick view of today’s support workload</Text>
@@ -218,9 +218,9 @@ export function DashboardPage({
           </div>
         </section>
 
-        <section className="flex min-h-80 flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_6px_18px_rgba(15,23,42,0.06)]">
+        <section className="flex min-h-80 flex-col rounded-md border border-slate-200 bg-white p-6">
           <div>
-            <Title level={4} className="mb-1 text-blue-700">
+            <Title level={5} className="mb-1">
               Conversation overview
             </Title>
             <Text type="secondary">Distribution across connected channels</Text>
@@ -230,7 +230,7 @@ export function DashboardPage({
             <div className="relative grid size-40 shrink-0 place-items-center rounded-full border-[18px] border-blue-100">
               <div className="absolute -inset-[18px] rounded-full border-[18px] border-blue-600 [clip-path:polygon(50%_0,100%_0,100%_100%,50%_100%)]" />
               <div className="text-center">
-                <div className="text-2xl font-extrabold tracking-tight text-slate-900">{totalConversations.toLocaleString()}</div>
+                <div className="text-2xl font-semibold tracking-tight text-slate-900">{totalConversations.toLocaleString()}</div>
                 <Text type="secondary" className="text-[11px] font-medium">conversations</Text>
               </div>
             </div>
@@ -254,7 +254,7 @@ export function DashboardPage({
         </section>
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_2px_12px_rgba(15,40,70,0.05)]">
+      <section className="overflow-hidden rounded-md border border-slate-200 bg-white">
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <div>
             <Title level={5} className="mb-0">Recent conversations</Title>
@@ -287,8 +287,8 @@ export function DashboardPage({
 
 function SummaryTile({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 text-center shadow-sm">
-      <div className="text-xl font-extrabold tabular-nums text-slate-900">{value}</div>
+    <div className="rounded-md border border-slate-200 bg-white p-3 text-center">
+      <div className="text-xl font-semibold tabular-nums text-slate-900">{value}</div>
       <Text type="secondary" className="text-[11px] font-medium">{label}</Text>
     </div>
   );

@@ -114,7 +114,7 @@ export function SocialAccountsPage({
     <div className="flex h-[calc(100vh-64px)] flex-col gap-4 bg-slate-100 p-4">
       {contextHolder}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 app-panel-shadow">
+      <section className="rounded-md border border-slate-200 bg-white p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <Title level={4} className="mb-1">
@@ -176,7 +176,7 @@ export function SocialAccountsPage({
       </section>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <section className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white app-panel-shadow">
+        <section className="min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
           <SocialAccountsTable
             accounts={filteredAccounts}
             selectedAccountId={visibleSelectedAccountId}
@@ -184,7 +184,7 @@ export function SocialAccountsPage({
           />
         </section>
 
-        <main className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white app-panel-shadow">
+        <main className="min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white">
           <SocialAccountDetails
             account={selectedAccount}
             onConnectAccount={handleConnectAccount}

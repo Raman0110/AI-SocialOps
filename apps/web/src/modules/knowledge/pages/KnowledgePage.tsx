@@ -100,7 +100,7 @@ export function KnowledgePage({ dataSource = defaultKnowledgeDataSource }: Knowl
       {contextHolder}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 app-panel-shadow">
+        <section className="min-w-0 rounded-md border border-slate-200 bg-white p-4">
           <Title level={4} className="mb-1">
             Business knowledge
           </Title>
@@ -121,7 +121,7 @@ export function KnowledgePage({ dataSource = defaultKnowledgeDataSource }: Knowl
               <Empty description="No knowledge entries yet" />
             ) : (
               filteredEntries.map((entry) => (
-                <article key={entry.id} className="rounded-xl border border-slate-200 p-3">
+                <article key={entry.id} className="rounded-md border border-slate-200 p-3">
                   <div className="flex items-start justify-between gap-3">
                     <Text strong>{entry.title}</Text>
                     <Popconfirm
@@ -146,7 +146,7 @@ export function KnowledgePage({ dataSource = defaultKnowledgeDataSource }: Knowl
           </div>
         </section>
 
-        <section className="min-w-0 self-start rounded-2xl border border-slate-200 bg-white p-4 app-panel-shadow">
+        <section className="min-w-0 self-start rounded-md border border-slate-200 bg-white p-4">
           <Title level={5} className="mb-3">
             Add entry
           </Title>

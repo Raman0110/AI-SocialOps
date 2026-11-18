@@ -49,7 +49,7 @@ export function ReplyBox({
   }
 
   return (
-    <div className="app-header-shadow border-t border-slate-200 bg-white p-4">
+    <div className="border-t border-slate-200 bg-white p-4">
       <Form layout="vertical" onFinish={handleSubmit}>
         <Form.Item className="mb-3">
           <Input.TextArea

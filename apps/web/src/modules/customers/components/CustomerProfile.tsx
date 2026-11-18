@@ -29,7 +29,7 @@ export function CustomerProfile({ customer, onOpenInbox }: CustomerProfileProps)
 
   return (
     <div className="h-full overflow-y-auto p-5">
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 app-panel-shadow">
+      <section className="rounded-md border border-slate-200 bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <Space wrap className="mb-2">
@@ -60,7 +60,7 @@ export function CustomerProfile({ customer, onOpenInbox }: CustomerProfileProps)
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Statistic
               title="Lifetime value"
               value={customer.lifetimeValue}
@@ -68,10 +68,10 @@ export function CustomerProfile({ customer, onOpenInbox }: CustomerProfileProps)
               precision={0}
             />
           </Card>
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Statistic title="Conversations" value={customer.totalConversations} />
           </Card>
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Statistic title="Connected identities" value={customer.socialIdentities.length} />
           </Card>
         </div>
@@ -79,7 +79,7 @@ export function CustomerProfile({ customer, onOpenInbox }: CustomerProfileProps)
 
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[1.35fr_0.85fr]">
         <section className="space-y-4">
-          <Card title="Customer context" className="app-card-shadow">
+          <Card title="Customer context" className="">
             <Descriptions column={1} size="small">
               <Descriptions.Item label="Primary segment">{customer.segment}</Descriptions.Item>
               <Descriptions.Item label="Last seen">
@@ -93,12 +93,12 @@ export function CustomerProfile({ customer, onOpenInbox }: CustomerProfileProps)
                 </Space>
               </Descriptions.Item>
             </Descriptions>
-            <Paragraph className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
+            <Paragraph className="mt-4 rounded-md bg-slate-50 p-3 text-sm text-slate-600">
               {customer.notes}
             </Paragraph>
           </Card>
 
-          <Card title="Recent conversations" className="app-card-shadow">
+          <Card title="Recent conversations" className="">
             <Table
               rowKey="id"
               size="small"
@@ -108,7 +108,7 @@ export function CustomerProfile({ customer, onOpenInbox }: CustomerProfileProps)
             />
           </Card>
 
-          <Card title="Social identities" className="app-card-shadow">
+          <Card title="Social identities" className="">
             <Table
               rowKey="id"
               size="small"
@@ -120,7 +120,7 @@ export function CustomerProfile({ customer, onOpenInbox }: CustomerProfileProps)
         </section>
 
         <section className="space-y-4">
-          <Card title="Activity timeline" className="app-card-shadow">
+          <Card title="Activity timeline" className="">
             <Timeline
               items={customer.activity.map((item) => ({
                 content: (

@@ -26,7 +26,7 @@ export function AgentRunDetails({ run, isRetrying, onRetry }: AgentRunDetailsPro
 
   return (
     <div className="h-full overflow-y-auto p-5">
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 app-panel-shadow">
+      <section className="rounded-md border border-slate-200 bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <Space wrap className="mb-2">
@@ -61,16 +61,16 @@ export function AgentRunDetails({ run, isRetrying, onRetry }: AgentRunDetailsPro
         )}
 
         <div className="mt-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Statistic title="Duration" value={formatDuration(run.durationMs)} />
           </Card>
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Statistic title="Prompt tokens" value={run.promptTokens ?? "Not provided"} />
           </Card>
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Statistic title="Output tokens" value={run.completionTokens ?? "Not provided"} />
           </Card>
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Statistic title="Tools called" value={run.toolsUsed.length} />
           </Card>
         </div>
@@ -78,7 +78,7 @@ export function AgentRunDetails({ run, isRetrying, onRetry }: AgentRunDetailsPro
 
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[0.9fr_1.1fr]">
         <section className="space-y-4">
-          <Card title="Execution summary" className="app-card-shadow">
+          <Card title="Execution summary" className="">
             <Descriptions column={1} size="small">
               <Descriptions.Item label="Model"><Text code>{run.model}</Text></Descriptions.Item>
               <Descriptions.Item label="Platform"><Tag>{run.platform}</Tag></Descriptions.Item>
@@ -94,7 +94,7 @@ export function AgentRunDetails({ run, isRetrying, onRetry }: AgentRunDetailsPro
             </div>
           </Card>
 
-          <Card title="Tools used" className="app-card-shadow">
+          <Card title="Tools used" className="">
             <Space wrap>
               {run.toolsUsed.map((tool) => (
                 <Tag key={tool} icon={<ApiOutlined />}>{tool}</Tag>
@@ -103,7 +103,7 @@ export function AgentRunDetails({ run, isRetrying, onRetry }: AgentRunDetailsPro
           </Card>
         </section>
 
-        <Card title="Execution timeline" className="app-card-shadow">
+        <Card title="Execution timeline" className="">
           {run.steps.length === 0 ? (
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Waiting for execution steps." />
           ) : (
@@ -133,7 +133,7 @@ export function AgentRunDetails({ run, isRetrying, onRetry }: AgentRunDetailsPro
 
 function SummaryBlock({ title, content }: { title: string; content: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+    <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
       <Text type="secondary" className="block text-xs uppercase tracking-wide">
         <CodeOutlined /> {title}
       </Text>

@@ -24,7 +24,7 @@ export function AgentActionsPanel({
 }: AgentActionsPanelProps) {
   if (isLoading) {
     return (
-      <Card className="app-card-shadow" size="small" title="AI Suggested Actions">
+      <Card className="" size="small" title="AI Suggested Actions">
         <Skeleton active paragraph={{ rows: 2 }} />
       </Card>
     );
@@ -36,14 +36,14 @@ export function AgentActionsPanel({
 
   if (actions.length === 0) {
     return (
-      <Card className="app-card-shadow" size="small" title="AI Suggested Actions">
+      <Card className="" size="small" title="AI Suggested Actions">
         <Empty description="No pending actions" image={Empty.PRESENTED_IMAGE_SIMPLE} />
       </Card>
     );
   }
 
   return (
-    <Card className="app-card-shadow" size="small" title="AI Suggested Actions">
+    <Card className="" size="small" title="AI Suggested Actions">
       <Space direction="vertical" className="w-full" size="middle">
         {actions.map((action) => (
           <AgentActionCard

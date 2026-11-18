@@ -32,7 +32,7 @@ export function SocialAccountDetails({
 
   return (
     <div className="h-full overflow-y-auto p-5">
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 app-panel-shadow">
+      <section className="rounded-md border border-slate-200 bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <Space wrap className="mb-2">
@@ -62,20 +62,20 @@ export function SocialAccountDetails({
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Statistic title="Conversations today" value={account.conversationsToday} />
           </Card>
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Statistic title="Open conversations" value={account.openConversations} />
           </Card>
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Statistic title="Webhook failures" value={account.webhook.failureCount} />
           </Card>
         </div>
       </section>
 
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.9fr]">
-        <Card title="Connection details" className="app-card-shadow">
+        <Card title="Connection details" className="">
           <Descriptions column={1} size="small">
             <Descriptions.Item label="External account id">
               <Text code>{account.externalAccountId}</Text>
@@ -89,15 +89,15 @@ export function SocialAccountDetails({
             </Descriptions.Item>
           </Descriptions>
 
-          <Paragraph className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
+          <Paragraph className="mt-4 rounded-md bg-slate-50 p-3 text-sm text-slate-600">
             This account represents the organization-owned channel that receives inbound
             customer messages. Incoming webhook payloads use the external account id to
             resolve which company account should receive the message.
           </Paragraph>
         </Card>
 
-        <Card title="Webhook health" className="app-card-shadow">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <Card title="Webhook health" className="">
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
             <Space align="start">
               <span className={`mt-1 text-lg ${healthTextColors[account.webhook.health]}`}>
                 {healthIcons[account.webhook.health]}

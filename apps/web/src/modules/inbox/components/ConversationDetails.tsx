@@ -128,15 +128,15 @@ export function ConversationDetails({
                     className={`mb-4 flex ${isCustomer ? "justify-start" : "justify-end"}`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[70%] ${isCustomer
+                      className={`max-w-[85%] rounded-md px-4 py-3 sm:max-w-[70%] ${isCustomer
                         ? "rounded-tl-md border border-slate-200 bg-white text-slate-900"
                         : isFailed
                           ? "rounded-tr-md border border-red-200 bg-red-50 text-slate-900"
-                          : "rounded-tr-md bg-blue-600 text-white"
+                          : "rounded-tr-md bg-slate-800 text-white"
                         }`}
                     >
                       <small
-                        className={`text-xs font-medium ${isCustomer || isFailed ? "text-slate-500" : "text-sky-100"
+                        className={`text-xs font-medium ${isCustomer || isFailed ? "text-slate-500" : "text-slate-300"
                           }`}
                       >
                         {MessageSenderTypeLabel[message.senderType]}
@@ -147,7 +147,7 @@ export function ConversationDetails({
                       </div>
 
                       <small
-                        className={`mt-2 block text-xs ${isCustomer || isFailed ? "text-slate-400" : "text-sky-100"
+                        className={`mt-2 block text-xs ${isCustomer || isFailed ? "text-slate-400" : "text-slate-300"
                           }`}
                       >
                         {new Date(message.sentAt).toLocaleString()}
@@ -181,7 +181,7 @@ export function ConversationDetails({
         </div>
 
         <aside
-          className={`absolute inset-y-0 right-0 z-20 flex border-l border-slate-200 bg-white shadow-xl transition-[width] duration-200 lg:static lg:z-auto lg:shadow-none ${activeAiPanel ? "w-95 max-w-[92vw]" : "w-14"
+          className={`absolute inset-y-0 right-0 z-20 flex border-l border-slate-200 bg-white transition-[width] duration-200 lg:static lg:z-auto lg:shadow-none ${activeAiPanel ? "w-95 max-w-[92vw]" : "w-14"
             }`}
         >
           <div className="flex w-14 shrink-0 flex-col items-center gap-2 border-r border-slate-200 bg-slate-50 py-3">
@@ -263,11 +263,11 @@ function DeliveryStatusLine({
   onRetry: () => void;
 }) {
   if (message.deliveryStatus === MessageDeliveryStatus.Pending) {
-    return <small className="mt-1 block text-xs text-sky-100">Sending...</small>;
+    return <small className="mt-1 block text-xs text-slate-300">Sending...</small>;
   }
 
   if (message.deliveryStatus === MessageDeliveryStatus.Sent) {
-    return <small className="mt-1 block text-xs text-sky-100">Sent</small>;
+    return <small className="mt-1 block text-xs text-slate-300">Sent</small>;
   }
 
   if (message.deliveryStatus !== MessageDeliveryStatus.Failed) {
@@ -317,8 +317,8 @@ function AiAnalysisPanel({
 
   if (!analysisState.data) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-        <div className="mx-auto mb-4 grid size-12 place-items-center rounded-xl bg-slate-100 text-lg text-slate-700">
+      <div className="rounded-md border border-slate-200 bg-white p-6 text-center">
+        <div className="mx-auto mb-4 grid size-12 place-items-center rounded-md bg-slate-100 text-lg text-slate-700">
           <RobotOutlined />
         </div>
         <Title level={5} className="mb-1">
@@ -345,7 +345,7 @@ function AiAnalysisPanel({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="rounded-md border border-slate-200 bg-white p-5">
         <div className="flex items-end justify-between gap-4">
           <div>
             <Text type="secondary" className="block text-xs font-semibold uppercase tracking-[0.12em]">
@@ -420,7 +420,7 @@ function AnalysisMetric({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+    <div className="rounded-md border border-slate-200 bg-white p-3">
       <Text type="secondary" className="block text-[11px] font-semibold uppercase tracking-wide">
         {label}
       </Text>

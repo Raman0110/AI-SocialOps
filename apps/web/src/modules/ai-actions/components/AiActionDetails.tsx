@@ -35,7 +35,7 @@ export function AiActionDetails({
 
   return (
     <div className="h-full overflow-y-auto p-5">
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 app-panel-shadow">
+      <section className="rounded-md border border-slate-200 bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <Space wrap className="mb-2">
@@ -72,17 +72,17 @@ export function AiActionDetails({
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Text type="secondary" className="block text-xs">
               Confidence
             </Text>
-            <div className="mt-1 text-2xl font-extrabold text-slate-900">
+            <div className="mt-1 text-2xl font-semibold text-slate-900">
               {action.confidence === null
                 ? "Not provided"
                 : `${Math.round(action.confidence * 100)}%`}
             </div>
           </Card>
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Text type="secondary" className="block text-xs">
               Platform
             </Text>
@@ -90,7 +90,7 @@ export function AiActionDetails({
               {action.platform}
             </Tag>
           </Card>
-          <Card size="small" className="app-card-shadow">
+          <Card size="small" className="">
             <Text type="secondary" className="block text-xs">
               Created
             </Text>
@@ -102,8 +102,8 @@ export function AiActionDetails({
       </section>
 
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-        <Card title="AI reasoning" className="app-card-shadow">
-          <Paragraph className="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
+        <Card title="AI reasoning" className="">
+          <Paragraph className="rounded-md bg-slate-50 p-3 text-sm text-slate-600">
             <RobotOutlined /> {action.reasoning}
           </Paragraph>
           <Descriptions column={1} size="small" className="mt-4">
@@ -119,10 +119,10 @@ export function AiActionDetails({
           </Descriptions>
         </Card>
 
-        <Card title="Proposed payload" className="app-card-shadow">
+        <Card title="Proposed payload" className="">
           <div className="space-y-3">
             {Object.entries(action.payload).map(([key, value]) => (
-              <div key={key} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div key={key} className="rounded-md border border-slate-200 bg-slate-50 p-3">
                 <Text type="secondary" className="block text-xs uppercase tracking-wide">
                   {formatLabel(key)}
                 </Text>
